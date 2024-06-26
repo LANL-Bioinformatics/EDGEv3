@@ -40,8 +40,8 @@ process hostRemoval {
     def fasta = params.fasta != null ? "-fasta $params.fasta " : ""
     def host = params.host != null ? "-host $params.host " : ""
     def similarity = params.similarity != null ? "-similarity $params.similarity " : ""
-    def bwaMemOptions = params.bwaMemOptions != null ? "-d $params.bwaMemOptions " : ""
-    def cpu = params.cpu != null ? "-d $params.cpu " : ""
+    def bwaMemOptions = params.bwaMemOptions != null ? "-bwaMemOptions \"$params.bwaMemOptions\" " : ""
+    def cpu = params.cpu != null ? "-cpu $params.cpu " : ""
     
     """
     host_reads_removal_by_mapping.pl\
