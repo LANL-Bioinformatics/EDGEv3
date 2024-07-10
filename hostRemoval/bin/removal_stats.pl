@@ -11,8 +11,8 @@ my @total_reads;
 my @host_reads;
 my @host_names;
 my $outDir = '.';
-my $hostRemovalPDF = "$outDir/HostRemoval/HostRemovalStats.pdf";
-my $hostclean_stat_file = "$outDir/HostRemoval/hostclean.stats.txt";
+my $hostRemovalPDF = "$outDir/HostRemovalStats.pdf";
+my $hostclean_stat_file = "$outDir/hostclean.stats.txt";
 my $total_host=0;
 my $clean_stats;
 
@@ -29,7 +29,6 @@ foreach my $host_file (@host_files)
         my ($prefix, $dirs, $suffix) = fileparse($host_file,qr/\.[^.]*/);
         $prefix =~ s/\./_/g;
         push @host_names,  qq("$prefix");
-        print "$prefix";
         open(my $fh, "$clean_stats") or die "$!";
         while(<$fh>)
         {
@@ -58,7 +57,7 @@ close $ofh;
 
 my $host_names_all = join (',',@host_names);
 my $host_reads_all = join (',',@host_reads);
-my $Rscript= "$outDir/HostRemoval/hostclean.R";
+my $Rscript= "$outDir/hostclean.R";
 open(my $Rfh, ">$Rscript") or die "Cannot write $Rscript: $!\n";
 print $Rfh <<Rscript;
 pdf(file = "$hostRemovalPDF",width = 10, height = 8)
@@ -76,4 +75,11 @@ close $Rfh;
 &executeCommand("R --vanilla --slave --silent < $Rscript 2>/dev/null");
 unlink "$Rscript";
 die "failed: No reads remain after Host Removal. \n" if ( ($total_reads - $total_host)==0);
-return 0;
+
+
+sub executeCommand 
+{
+    my $command = shift;
+    if (system($command) != 0)
+         { die ("the command $command failed\n");}
+}

@@ -6,7 +6,7 @@ process hostRemoval {
     publishDir "$params.outDir", mode: 'copy'
 
     input:
-    path "reads"
+    path reads
     path ref
 
     output:
@@ -18,7 +18,7 @@ process hostRemoval {
 
     script:
     
-    def files = (params.inputFiles != null && params.inputFiles.size() > 1) ? "-p reads1 reads2 " : "-u reads "
+    def files = (params.inputFiles != null && params.inputFiles.size() > 1) ? "-p ${reads[0]} ${reads[1]} " : "-u $reads "
 
     def refFile = ref.name != "NO_FILE" ? "-ref $ref " : ""
     def prefix = params.prefix != "host_clean" ? "-prefix $params.prefix " : ""
@@ -52,7 +52,8 @@ process hostRemovalStats {
     path hosts
 
     output:
-    path "*"
+    path "hostclean.stats.txt"
+    path "HostRemovalStats.pdf"
 
     script:
     def hosts = "-host $hosts "
@@ -72,7 +73,7 @@ workflow {
         "mkdir nf_assets".execute().text
         "touch nf_assets/NO_FILE".execute().text
         providedRef = channel.fromPath(params.host, checkIfExists:true) //custom error on non-existence?
-        hostRemoval(channel.fromPath(params.inputFiles, relative:true).collect(), providedRef.collect())
+        hostRemoval(channel.fromPath(params.inputFiles).collect(), providedRef.collect())
         hostRemovalStats(hostRemoval.out.cleanstats, providedRef.collect())
     }
 }
