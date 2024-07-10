@@ -10,6 +10,6 @@ RUN conda config --add channels conda-forge \
 # install dependencies for hostRemoval (bwa)
 RUN conda install -c bioconda bwa=0.7.17
 
-ADD host_reads_removal_by_mapping.pl /opt/conda/bin
+ADD bin/host_reads_removal_by_mapping.pl /opt/conda/bin
 
 CMD ["/bin/bash"]
