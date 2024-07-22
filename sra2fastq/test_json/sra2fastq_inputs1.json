@@ -1,4 +1,4 @@
 {
-    "sra.accessions": ["SRR5821798"],
-    "sra.outdir": "test_out"
+    "accessions": ["SRR29462562"],
+    "outdir": "test_out/1_acc"
   }

@@ -1,0 +1,12 @@
+{
+    "outDir": "test_out",
+    "inputFastq": ["test_files/test.1.fastq","test_files/test.2.fastq"],
+    "pairedFile": true,
+    "trimAdapter": true,
+    "trimPolyA": true,
+    "filtPhiX": true,
+    "discard": true,
+    "substitute": true,
+    "trim5off": true,
+    "debugFlag": true
+  }

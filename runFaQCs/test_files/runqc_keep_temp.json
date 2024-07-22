@@ -1,5 +1,7 @@
 {
     "outDir": "test_out",
     "inputFastq": ["test_files/test.1.fastq"],
-    "pairedFile": false
+    "pairedFile": false,
+    "debugFlag" : true,
+    "outPrefix" : "debug"
   }

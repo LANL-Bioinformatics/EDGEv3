@@ -1,5 +1,6 @@
 {
     "outDir": "test_out",
     "inputFastq": ["test_files/test.1.fastq","test_files/test.2.fastq"],
-    "pairedFile": true
+    "pairedFile": true,
+    "trimMode": "HARD"
   }

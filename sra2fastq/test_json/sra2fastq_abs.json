@@ -1,4 +1,4 @@
 {
-    "sra.accessions": ["SRR5821798"],
-    "sra.outdir": "/home/kli/Documents/EDGE_workflows/sra2fastq/test_out2"
+    "accessions": ["SRX20564104"],
+    "outdir": "/an/absolute/path"
   }
