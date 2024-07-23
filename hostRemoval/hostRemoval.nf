@@ -3,25 +3,28 @@
 
 
 process hostRemoval {
-    publishDir "$params.outDir", mode: 'copy'
+    publishDir(
+        path: "$params.outDir/HostRemoval",
+        mode: 'copy',
+    )
 
     input:
     path reads
-    path ref
+    each path(ref)
 
     output:
     //-fasta option does work, but files still have .fastq extensions 
-    path "${params.prefix}.{1,2,unpaired}.fastq"
-    path "${params.prefix}.mapping?E.log"
-    path "${params.prefix}.stats.txt", emit: cleanstats
-    path "host.fast{a,q}", optional: true
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.{1,2,unpaired}.fastq"
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.mapping?E.log"
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.stats.txt", emit: cleanstats
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/host.fast{a,q}", optional: true
 
     script:
     
-    def files = (params.inputFiles != null && params.inputFiles.size() > 1) ? "-p ${reads[0]} ${reads[1]} " : "-u $reads "
+    def files = (params.inputFiles != null && params.inputFiles.size() > 1) ? "-p $reads " : "-u $reads "
 
     def refFile = ref.name != "NO_FILE" ? "-ref $ref " : ""
-    def prefix = params.prefix != "host_clean" ? "-prefix $params.prefix " : ""
+    def prefix = "-prefix ${ref.name.take(ref.name.lastIndexOf('.'))}.clean "
     def fasta = params.fasta != null ? "-fasta $params.fasta " : ""
     def similarity = params.similarity != null ? "-similarity $params.similarity " : ""
     def minScore = params.bwaMemOptions != null ? "$params.bwaMemOptions " : "-T 50 "
@@ -41,11 +44,16 @@ process hostRemoval {
     $bwaMemOptions\
     $files\
     -o .
+
+    mkdir ${ref.name.take(ref.name.lastIndexOf('.'))}
+    mv host.fastq ./${ref.name.take(ref.name.lastIndexOf('.'))}
+    mv ${ref.name.take(ref.name.lastIndexOf('.'))}.* ./${ref.name.take(ref.name.lastIndexOf('.'))}
     """
 }
 
 process hostRemovalStats {
-    publishDir "$params.outDir", mode: 'copy'
+    //TODO: check output for multiple host removals
+    publishDir "$params.outDir/HostRemoval", mode: 'copy'
 
     input:
     path stats
@@ -72,8 +80,8 @@ workflow {
     else {
         "mkdir nf_assets".execute().text
         "touch nf_assets/NO_FILE".execute().text
-        providedRef = channel.fromPath(params.host, checkIfExists:true) //custom error on non-existence?
-        hostRemoval(channel.fromPath(params.inputFiles).collect(), providedRef.collect())
+        providedRef = channel.fromPath(params.host, checkIfExists:true)
+        hostRemoval(channel.fromPath(params.inputFiles).collect(), providedRef)
         hostRemovalStats(hostRemoval.out.cleanstats, providedRef.collect())
     }
 }
