@@ -17,7 +17,7 @@ process hostRemoval {
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.{1,2,unpaired}.fastq"
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.mapping?E.log"
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.stats.txt", emit: cleanstats
-    path "${ref.name.take(ref.name.lastIndexOf('.'))}/host.fast{a,q}", optional: true
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/host.fastq", emit: hostReads
 
     script:
     
@@ -25,7 +25,6 @@ process hostRemoval {
 
     def refFile = ref.name != "NO_FILE" ? "-ref $ref " : ""
     def prefix = "-prefix ${ref.name.take(ref.name.lastIndexOf('.'))}.clean "
-    def fasta = params.fasta != null ? "-fasta $params.fasta " : ""
     def similarity = params.similarity != null ? "-similarity $params.similarity " : ""
     def minScore = params.bwaMemOptions != null ? "$params.bwaMemOptions " : "-T 50 "
     def ontFlag = params.fastqSource.equalsIgnoreCase("nanopore") ? "-x ont2d " : ""
@@ -38,7 +37,6 @@ process hostRemoval {
     host_reads_removal_by_mapping.pl\
     $refFile\
     $prefix\
-    $fasta\
     $cpu\
     -host \
     $bwaMemOptions\
@@ -50,6 +48,18 @@ process hostRemoval {
     mv ${ref.name.take(ref.name.lastIndexOf('.'))}.* ./${ref.name.take(ref.name.lastIndexOf('.'))}
     """
 }
+
+// process mergeRemoval {
+//     input:
+//     path reads
+//     path hostReads
+
+//     output:
+    
+//     script:
+//     """
+//     """
+// }
 
 process hostRemovalStats {
     //TODO: check output for multiple host removals
@@ -81,7 +91,8 @@ workflow {
         "mkdir nf_assets".execute().text
         "touch nf_assets/NO_FILE".execute().text
         providedRef = channel.fromPath(params.host, checkIfExists:true)
-        hostRemoval(channel.fromPath(params.inputFiles).collect(), providedRef)
-        hostRemovalStats(hostRemoval.out.cleanstats, providedRef.collect())
+        hostRemoval(channel.fromPath(params.inputFiles).collect(), providedRef.collect())
+        //mergeRemoval(channel.fromPath(params.inputFiles).collect(),hostRemoval.out.hostReads.collect())
+        hostRemovalStats(hostRemoval.out.cleanstats.collect(), providedRef.collect())
     }
 }
