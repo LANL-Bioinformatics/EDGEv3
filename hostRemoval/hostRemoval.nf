@@ -5,7 +5,7 @@
 process hostRemoval {
     publishDir(
         path: "$params.outDir/HostRemoval",
-        mode: 'copy',
+        mode: 'copy'
     )
 
     input:
@@ -14,10 +14,12 @@ process hostRemoval {
 
     output:
     //-fasta option does work, but files still have .fastq extensions 
-    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.{1,2,unpaired}.fastq"
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.1.fastq", emit: cleaned1
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.2.fastq", emit: cleaned2
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.unpaired.fastq", emit: cleanedSingleton
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.mapping?E.log"
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.stats.txt", emit: cleanstats
-    path "${ref.name.take(ref.name.lastIndexOf('.'))}/host.fastq", emit: hostReads
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/host.fastq"
 
     script:
     
@@ -49,17 +51,24 @@ process hostRemoval {
     """
 }
 
-// process mergeRemoval {
-//     input:
-//     path reads
-//     path hostReads
+process mergeCleaned {
+    publishDir(
+        path: "$params.outDir/HostRemoval",
+        mode: 'copy'
+    )
 
-//     output:
+    input:
+    path cleanedFiles
+
+    output:
+    path "hostclean.{1,2,unpaired}.fastq"
+
     
-//     script:
-//     """
-//     """
-// }
+    script:
+    """
+    seqkit common $cleanedFiles -n > hostclean.${cleanedFiles[0].name.take(cleanedFiles[0].name.lastIndexOf('.'))}.fastq
+    """
+}
 
 process hostRemovalStats {
     //TODO: check output for multiple host removals
@@ -92,7 +101,11 @@ workflow {
         "touch nf_assets/NO_FILE".execute().text
         providedRef = channel.fromPath(params.host, checkIfExists:true)
         hostRemoval(channel.fromPath(params.inputFiles).collect(), providedRef.collect())
-        //mergeRemoval(channel.fromPath(params.inputFiles).collect(),hostRemoval.out.hostReads.collect())
+        //currently broken. need to call once, with a list of non-empty lists 
+        mergeCleaned(hostRemoval.out.cleaned1.collect())
+        mergeCleaned(hostRemoval.out.cleaned2.collect())
+        mergeCleaned(hostRemoval.out.cleanedSingleton.collect())
+
         hostRemovalStats(hostRemoval.out.cleanstats.collect(), providedRef.collect())
     }
 }

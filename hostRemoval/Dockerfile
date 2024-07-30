@@ -15,6 +15,7 @@ RUN conda init bash \
 # install dependencies for hostRemoval
 RUN conda install -n hostRemoval -c bioconda bwa=0.7.17
 RUN conda install -n hostRemoval -c conda-forge r-base=4.4.0
+RUN conda install -n hostRemoval -c bioconda seqkit
 RUN conda install -c conda-forge conda-pack
 
 ADD bin/host_reads_removal_by_mapping.pl /opt/conda/envs/hostRemoval/bin
