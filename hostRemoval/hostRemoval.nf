@@ -16,8 +16,8 @@ process hostRemoval {
     each path(ref)
 
     output:
-    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.1.fastq", emit: cleaned1
-    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.2.fastq", emit: cleaned2
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.1.fastq", emit: cleaned1, optional:true
+    path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.2.fastq", emit: cleaned2, optional:true
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.unpaired.fastq", emit: cleanedSingleton
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.mapping?E.log"
     path "${ref.name.take(ref.name.lastIndexOf('.'))}/${ref.name.take(ref.name.lastIndexOf('.'))}.clean.stats.txt", emit: cleanstats
@@ -72,6 +72,27 @@ process mergeCleaned {
     script:
     """
     seqkit common $cleanedFiles -n > hostclean.${cleanedFiles[0].name.tokenize('.')[-2]}.fastq
+    """
+}
+
+process singleCleaned {
+    publishDir(
+        path: "$params.outDir/HostRemoval",
+        mode: 'copy'
+    )
+
+    tag "${cleanedFiles[0].name.tokenize('.')[-2]}"
+
+    input:
+    path cleanedFiles
+
+    output:
+    path "hostclean.{1,2}.fastq"
+
+    
+    script:
+    """
+    mv $cleanedFiles hostclean.${cleanedFiles[0].name.tokenize('.')[-2]}.fastq
     """
 }
 
@@ -130,13 +151,19 @@ workflow {
         //remove host reads in parallel
         hostRemoval(channel.fromPath(params.inputFiles).collect(), providedRef.collect())
 
-        //merge clean paired-end reads (intersection)
-        mergeCleaned(hostRemoval.out.cleaned1.collect()
-            .concat(
-                hostRemoval.out.cleaned2.collect(), 
-            )
-        )
+        cleaned1_ch = hostRemoval.out.cleaned1.collect()
+        cleaned2_ch = hostRemoval.out.cleaned2.collect()
 
+        //more than one host
+        if (params.host.size() > 1) {
+            //merge clean paired-end reads (intersection)
+            mergeCleaned(cleaned1_ch.concat(cleaned2_ch))
+        } 
+        else {
+            //no need to merge if only reads from one host were removed
+            singleCleaned(cleaned1_ch.concat(cleaned2_ch))
+        }
+        
         //merge clean unpaired reads (removing any duplicates by read name)
         mergeCleanUnpaired(hostRemoval.out.cleanedSingleton.collect())
 
