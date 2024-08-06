@@ -6,7 +6,7 @@ use File::Basename;
 use Getopt::Long;
 
 
-my @host_files = ();
+my @stat_files = ();
 my @total_reads;
 my @host_reads;
 my @host_names;
@@ -14,22 +14,21 @@ my $outDir = '.';
 my $hostRemovalPDF = "$outDir/HostRemovalStats.pdf";
 my $hostclean_stat_file = "$outDir/hostclean.stats.txt";
 my $total_host=0;
-my $clean_stats;
 
 
 GetOptions(
-    'host:s{1,}' => \@host_files,
-    's:s' => \$clean_stats
+    'stats:s{1,}' => \@stat_files,
 );
 
 return 0 if ( -e $hostRemovalPDF);
 
-foreach my $host_file (@host_files)
+foreach my $stat_file (@stat_files)
 {
-        my ($prefix, $dirs, $suffix) = fileparse($host_file,qr/\.[^.]*/);
+        my ($prefix, $dirs, $suffix) = fileparse($stat_file,qr/\.[^.]*/);
         $prefix =~ s/\./_/g;
         push @host_names,  qq("$prefix");
-        open(my $fh, "$clean_stats") or die "$!";
+        print "$prefix.clean.stats.txt";
+        open(my $fh, "$stat_file") or die "$!";
         while(<$fh>)
         {
             my ($input_reads) = $_ =~ /Total reads:\s+(\d+)/;
