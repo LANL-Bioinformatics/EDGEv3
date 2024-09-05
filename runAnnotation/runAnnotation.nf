@@ -29,6 +29,7 @@ process prokkaAnnotate {
     val kingdom
 
     output:
+    path "${params.projName}.gff", emit: gff
     path "*"
 
     script:
@@ -57,6 +58,8 @@ process prokkaAnnotate {
     --outdir . \
     $taxKingdom \
     $contigs 2>>Annotation.log 
+
+    cat ${params.projName}.log >> Annotation.log
     """
 }
 
@@ -71,6 +74,7 @@ process rattAnnotate {
     path gbk
 
     output:
+    path "${params.projName}.gff", emit: gff
     path "*"
 
     shell:
@@ -80,9 +84,57 @@ process rattAnnotate {
     mkdir -p ./RATT/source
     cp !{gbk} ./RATT/source/source.gbk
     genbank2embl.pl ./RATT/source/source.gbk
-    runRATT.sh $PWD/RATT/source !{contigs} !{params.projName} Species 1>>Annotation.log
+    cd RATT
+    runRATT.sh $PWD/source ../!{contigs} !{params.projName} Species 1>>../Annotation.log 2>&1
+    cd ..
+    cat ./RATT/*final.embl | fix_RATT_embl_feature.pl - > RATT/all.embl && embl2genbank.pl RATT/all.embl !{params.projName}.gbk 
+    genbank2fasta.pl -translation !{params.projName}.gbk > !{params.projName}.faa
+    genbank2fasta.pl -genome !{params.projName}.gbk > !{params.projName}.fna
+    genbank2gff3.pl -e 3 --outdir stdout --DEBUG --typesource contig $PWD/!{params.projName}.gbk >!{params.projName}.gff
     '''
 }
+
+
+process annPlot {
+    publishDir(
+        path: "$params.outDir/AssemblyBasedAnalysis/Annotation",
+        mode: 'copy'
+    )
+    
+    input:
+    path gff
+
+    output:
+    path "*"
+
+    script:
+    def rattReport = params.annotateProgram.equalsIgnoreCase("ratt") ? "awk \'\$1 ~ /CDS|RNA/ {print \$1\": \"\$2}' plot_gff3.log > ${params.projName}.txt" : ""
+    """
+    plot_gff3_stats.pl --input $gff --title $params.projName --prefix ./annotation_stats --outfmt PDF 1>plot_gff3.log 2>&1
+    $rattReport
+    """
+}
+
+process keggPlot {
+    publishDir(
+        path: "$params.outDir/AssemblyBasedAnalysis/Annotation",
+        mode: 'copy'
+    )
+
+    input:
+    path gff
+    
+    output:
+    path "*"
+    
+    script:
+    //TODO: check server upstatus
+    //TODO: will eventually need UI integration.
+    """
+    opaver_anno.pl -g $gff -o ./kegg_map -p $params.projName > kegg_map.log 2>&1
+
+    """
+    }
 
 
 workflow {
@@ -102,9 +154,19 @@ workflow {
     if (params.annotateProgram =~ /(?i)prokka/) {
 
         prokkaAnnotate(contig_ch, prot_ch, hmm_ch, kingdom_ch)
+        annPlot(prokkaAnnotate.out.gff)
+        if(params.keggView == true) {
+            keggPlot(prokkaAnnotate.out.gff)
+        }
     }
     else if (params.annotateProgram =~ /(?i)ratt/) {
         gb_ch = channel.fromPath(params.sourceGBK, checkIfExists:true)
         rattAnnotate(contig_ch, gb_ch)
+        annPlot(rattAnnotate.out.gff)
+        if(params.keggView == true) {
+            keggPlot(rattAnnotate.out.gff)
+        }
     }
+
+
 }
