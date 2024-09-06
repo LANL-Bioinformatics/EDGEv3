@@ -29,8 +29,20 @@ process prokkaAnnotate {
     val kingdom
 
     output:
+    path "Annotation.log"
     path "${params.projName}.gff", emit: gff
-    path "*"
+    path "${params.projName}.err"
+    path "${params.projName}.faa"
+    path "${params.projName}.ffn"
+    path "${params.projName}.fna"
+    path "${params.projName}.fsa"
+    path "${params.projName}.gbk"
+    path "${params.projName}.log"
+    path "${params.projName}.sqn"
+    path "${params.projName}.tbl"
+    path "${params.projName}.tsv"
+    path "${params.projName}.txt"
+    path "*.hmm.*", optional:true
 
     script:
     def kingdom = kingdom.trim()
@@ -74,8 +86,11 @@ process rattAnnotate {
     path gbk
 
     output:
+    path "Annotation.log"
     path "${params.projName}.gff", emit: gff
-    path "*"
+    path "${params.projName}.faa"
+    path "${params.projName}.fna"
+    path "${params.projName}.gbk"
 
     shell:
     //happens in work directory
@@ -105,7 +120,10 @@ process annPlot {
     path gff
 
     output:
-    path "*"
+    path "plot_gff3.log"
+    path "annotation_stats_plots.pdf"
+    path "${params.projName}.txt", optional:true
+    //see what goes missing if we only publish that
 
     script:
     def rattReport = params.annotateProgram.equalsIgnoreCase("ratt") ? "awk \'\$1 ~ /CDS|RNA/ {print \$1\": \"\$2}' plot_gff3.log > ${params.projName}.txt" : ""
@@ -115,7 +133,7 @@ process annPlot {
     """
 }
 
-process keggPlot {
+process keggPlots {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/Annotation",
         mode: 'copy'
@@ -125,14 +143,14 @@ process keggPlot {
     path gff
     
     output:
-    path "*"
+    path "kegg_map/*"
+    path "kegg_map.log"
     
     script:
-    //TODO: check server upstatus
     //TODO: will eventually need UI integration.
     """
+    check_server_up.pl --url "http://rest.kegg.jp" && \
     opaver_anno.pl -g $gff -o ./kegg_map -p $params.projName > kegg_map.log 2>&1
-
     """
     }
 
@@ -147,16 +165,14 @@ workflow {
     kingdom_ch = channel.of(params.taxKingdom)
     hmm_ch = channel.fromPath(params.customHMM, checkIfExists:true)
     prot_ch = channel.fromPath(params.customProtein, checkIfExists:true)
-    if (params.taxKingdom == null) {
-        kingdom_ch = unsetKingdom(contig_ch)
-    }
-    //TODO: add safety for bad source reference GenBank file
     if (params.annotateProgram =~ /(?i)prokka/) {
-
+        if (params.taxKingdom == null) {
+        kingdom_ch = unsetKingdom(contig_ch)
+        }
         prokkaAnnotate(contig_ch, prot_ch, hmm_ch, kingdom_ch)
         annPlot(prokkaAnnotate.out.gff)
         if(params.keggView == true) {
-            keggPlot(prokkaAnnotate.out.gff)
+            keggPlots(prokkaAnnotate.out.gff)
         }
     }
     else if (params.annotateProgram =~ /(?i)ratt/) {
@@ -164,7 +180,7 @@ workflow {
         rattAnnotate(contig_ch, gb_ch)
         annPlot(rattAnnotate.out.gff)
         if(params.keggView == true) {
-            keggPlot(rattAnnotate.out.gff)
+            keggPlots(rattAnnotate.out.gff)
         }
     }
 
