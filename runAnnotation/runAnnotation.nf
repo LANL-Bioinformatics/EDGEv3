@@ -123,7 +123,6 @@ process annPlot {
     path "plot_gff3.log"
     path "annotation_stats_plots.pdf"
     path "${params.projName}.txt", optional:true
-    //see what goes missing if we only publish that
 
     script:
     def rattReport = params.annotateProgram.equalsIgnoreCase("ratt") ? "awk \'\$1 ~ /CDS|RNA/ {print \$1\": \"\$2}' plot_gff3.log > ${params.projName}.txt" : ""
