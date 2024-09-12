@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
 
+//sets taxonomic kingdom for analysis if none provided
 process unsetKingdom {
     input:
     path contigs
@@ -8,6 +9,7 @@ process unsetKingdom {
     stdout
 
     shell:
+    //get total contig length; smaller fastas with no set kingdom are set to viral annotation if going through prokka 
     '''
     a=$(grep -v ">" !{contigs} | wc -m)
     b=$(grep -v ">" !{contigs} | wc -l)
@@ -16,6 +18,7 @@ process unsetKingdom {
     '''
 }
 
+//process to invocate prokka
 process prokkaAnnotate {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/Annotation",
@@ -47,7 +50,7 @@ process prokkaAnnotate {
     script:
     def kingdom = kingdom.trim()
     def protein = protein.name == "NO_FILE" ? "" : "--protein $params.customProtein"
-    def hmmPrep = hmm.name == "NO_FILE2" ? "" : "hmmpress $hmm" //TODO: test functionality
+    def hmmPrep = hmm.name == "NO_FILE2" ? "" : "hmmpress $hmm"
     def hmm = hmm.name == "NO_FILE2" ? "" : "--hmms $hmm"
     def evalue = params.evalue == null ? "" : "--evalue $params.evalue"
     def gcode = params.gcode == null ? "" : "--gcode $params.gcode"
@@ -75,6 +78,7 @@ process prokkaAnnotate {
     """
 }
 
+//process to invocate RATT
 process rattAnnotate {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/Annotation",
@@ -109,7 +113,7 @@ process rattAnnotate {
     '''
 }
 
-
+//plots feature count, protein size distribution, etc.
 process annPlot {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/Annotation",
@@ -132,6 +136,7 @@ process annPlot {
     """
 }
 
+//generates KEGG pathway plots
 process keggPlots {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/Annotation",
@@ -156,14 +161,18 @@ process keggPlots {
 
 workflow {
 
+    //optional file pattern setup
     "mkdir nf_assets".execute().text
     "touch nf_assets/NO_FILE".execute().text
     "touch nf_assets/NO_FILE2".execute().text
 
+    //inputs
     contig_ch = channel.fromPath(params.inputContigs, checkIfExists:true)
     kingdom_ch = channel.of(params.taxKingdom)
     hmm_ch = channel.fromPath(params.customHMM, checkIfExists:true)
     prot_ch = channel.fromPath(params.customProtein, checkIfExists:true)
+
+    //workflow logic
     if (params.annotateProgram =~ /(?i)prokka/) {
         if (params.taxKingdom == null) {
         kingdom_ch = unsetKingdom(contig_ch)
