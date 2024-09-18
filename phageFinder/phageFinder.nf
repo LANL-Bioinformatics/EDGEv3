@@ -20,7 +20,7 @@ process phageFinderPrep {
 
 process phageFinder {
     publishDir(
-        path: "$params.outDir",
+        path: "$params.outDir/AssemblyBasedAnalysis/Prophage",
         mode: 'copy',
         pattern: "log.txt"
     )
@@ -43,7 +43,7 @@ process phageFinder {
 
 process summary {
     publishDir(
-        path: "$params.outDir",
+        path: "$params.outDir/AssemblyBasedAnalysis/Prophage",
         mode: 'copy'
     )
 
