@@ -2,6 +2,7 @@
 
 
 process phageFinderPrep {
+    container "apwat/phage_finder:noWrite"
 
     input:
     path gff
@@ -19,8 +20,9 @@ process phageFinderPrep {
 } 
 
 process phageFinder {
+    container "apwat/phage_finder:noWrite"
     publishDir(
-        path: "$params.outDir/AssemblyBasedAnalysis/Prophage",
+        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Prophage",
         mode: 'copy',
         pattern: "log.txt"
     )
@@ -28,6 +30,7 @@ process phageFinder {
     input:
     path prepOut
     path faa, stageAs: "Assembly.pep"
+    val settings
 
     output:
     path "PFPR_tab.txt", emit: phageTable
@@ -36,20 +39,22 @@ process phageFinder {
     //must be on PATH
     script:
     """
-    phage_finder_v2.1.sh Assembly $params.numCPU 1>log.txt 2>&1
+    phage_finder_v2.1.sh Assembly ${settings["cpus"]} 1>log.txt 2>&1
     """
 
 }
 
 process summary {
+    container "apwat/phage_finder:noWrite"
     publishDir(
-        path: "$params.outDir/AssemblyBasedAnalysis/Prophage",
+        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Prophage",
         mode: 'copy'
     )
 
     input:
     path idMap
     path pfprTab
+    val settings
 
     output:
     path "phageFinder_summary.txt"
@@ -61,13 +66,17 @@ process summary {
 }
 
 
-workflow {
-    gff_ch = channel.fromPath(params.gffFile, checkIfExists:true)
-    faa_ch = channel.fromPath(params.faaFile, checkIfExists:true).filter{ it.size()>0 }
-    fna_ch = channel.fromPath(params.fnaFile, checkIfExists:true)
+workflow PHAGE_FINDER {
+    take:
+    settings
+    gff
+    faa
+    fna
+    
+    main:
 
-    phageFinderPrep(gff_ch, fna_ch)
-    phageFinder(phageFinderPrep.out.allPFoutput, faa_ch)
-    summary(phageFinderPrep.out.idMap,phageFinder.out.phageTable)
+    phageFinderPrep(gff, fna)
+    phageFinder(phageFinderPrep.out.allPFoutput, faa, settings)
+    summary(phageFinderPrep.out.idMap,phageFinder.out.phageTable, settings)
 
 }
