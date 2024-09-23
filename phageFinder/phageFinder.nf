@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 
+//prepares input for phage finder (creates appropriate files)
 process phageFinderPrep {
 
     input:
@@ -18,6 +19,7 @@ process phageFinderPrep {
     """
 } 
 
+//calls phage_finder
 process phageFinder {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/Prophage",
@@ -41,6 +43,8 @@ process phageFinder {
 
 }
 
+
+//creates text summary of results
 process summary {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/Prophage",
