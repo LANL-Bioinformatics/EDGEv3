@@ -3,13 +3,11 @@
 //not supporting filesize or run count restrictions
 
 
-accessions_ch = Channel.of(params.accessions)
 
 process SRA2FASTQ {
-    //debug true
 
     tag "$accession"
-    publishDir "$params.outdir", mode: 'copy'
+    publishDir "$params.outDir/SRA_Download", mode: 'copy'
     errorStrategy "finish" //complete any processes that didn't fail
 
     input: 
@@ -23,8 +21,8 @@ process SRA2FASTQ {
 
     script: 
     //conditionally create command-line options based on non-empty parameters, for use in the command below
-    def clean = params.clean != "" ? "--clean True" : "" 
-    def platform_restrict = params.platform_restrict != "" ? "--platform_restrict $params.platform_restrict" : ""
+    def clean = params.clean != null ? "--clean True" : "" 
+    def platform_restrict = params.platform_restrict != null ? "--platform_restrict $params.platform_restrict" : ""
 
     //invoke sra2fastq.py with those options
     """
@@ -36,7 +34,7 @@ process SRA2FASTQ {
 
 
 workflow {
-
+    accessions_ch = channel.of(params.accessions)
     fastq_ch = SRA2FASTQ(accessions_ch.flatten().unique())
 
 }

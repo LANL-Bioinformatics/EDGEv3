@@ -1,0 +1,4 @@
+{
+    "outDir": "test_out",
+    "unpairFile": ["../test_data/Ecoli_10x.1.fastq"]
+  }
