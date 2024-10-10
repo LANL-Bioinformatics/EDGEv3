@@ -1,6 +1,6 @@
 {
     "numCPU": 4,
-    "input": "TBC",
+    "input": "${projectDir}/../test_data/contigs.fa",
     "projName": "BasicAntismashTest",
-    "database": "TBD"
+    "database": "${projectDir}/../../database/antiSMASH"
 }

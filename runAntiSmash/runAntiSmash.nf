@@ -8,21 +8,23 @@ process antiSmash {
     output:
     path "*"
     script:
-    def clusterblast = params.antismash-clusterblast == true ? "--cb-general" : ""
-    def subclusterblast = params.antismash-subclusterblast == true ? "--cb-subclusters" : ""
-    def knownclusterblast = params.antismash-knownclusterblast == true ? "--cb-knownclusters" : ""
-    def mibig = params.antismash-mibig == true ? "--cc-mibig" : ""
-    def smcogs = params.antismash-smcogs == true ? "--smcogs-trees" : ""
-    def asf = params.antismash-asf == true ? "--asf" : ""
-    def rre = params.antismash-rre == true ? "--rre" : ""
-    def fullhmmer = params.antismash-fullhmm == true ? "--fullhmmer" : ""
-    def tigrfam = params.antismash-tigrfam == true ? "--tigrfam" : ""
-    def pfam2go = params.antismash-pfam2go == true ? "--pfam2go" : ""
-    def cassis = (params.antismash-cassis == true && params.antismash-taxon.equalsIgnoreCase("fungi")) ? "--cassis" : ""
+    def clusterblast = params.clusterblast == true ? "--cb-general" : ""
+    def subclusterblast = params.subclusterblast == true ? "--cb-subclusters" : ""
+    def knownclusterblast = params.knownclusterblast == true ? "--cb-knownclusters" : ""
+    def mibig = params.mibig == true ? "--cc-mibig" : ""
+    def smcogs = params.smcogs == true ? "--smcog-trees" : ""
+    def asf = params.asf == true ? "--asf" : ""
+    def rre = params.rre == true ? "--rre" : ""
+    def fullhmmer = params.fullhmm == true ? "--fullhmmer" : ""
+    def tigrfam = params.tigrfam == true ? "--tigrfam" : ""
+    def pfam2go = params.pfam2go == true ? "--pfam2go" : ""
+    def cassis = (params.cassis == true && params.taxon.equalsIgnoreCase("fungi")) ? "--cassis" : ""
+    //antismash no longer supports fungal genefinding with prodigal-m (and will drop glimmerHMM in future releases)
+    def genefinding = params.taxon.equalsIgnoreCase("fungi") ? "--genefinding-tool none" : "--genefinding-tool prodigal-m"
 
     """
-    antismash -c $params.numCPU --taxon ${params.antismash-taxon} \
-    --logfile antismashLog.txt --output-dir $params.outDir \
+    antismash -c $params.numCPU --taxon $params.taxon \
+    --logfile antismashLog.txt --output-dir ./output \
     --html-title $params.projName --database $params.database \
     $clusterblast \
     $subclusterblast \
@@ -35,7 +37,8 @@ process antiSmash {
     $tigrfam \
     $pfam2go \
     $cassis \
-    --genefinding-tool prodigal-m $input
+    $genefinding \
+    $input
     """
 
 }
