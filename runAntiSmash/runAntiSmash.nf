@@ -25,6 +25,7 @@ process antismash {
     def tigrfam = params.tigrfam == true ? "--tigrfam" : ""
     def pfam2go = params.pfam2go == true ? "--pfam2go" : ""
     def genefinding = params.taxon.equalsIgnoreCase("fungi") ? "--genefinding-tool glimmerhmm" : "--genefinding-tool prodigal-m"
+    def cassis = (params.taxon.equalsIgnoreCase("fungi") && params.cassis == true) ? "--cassis" : ""
 
     """
     antismash -c $params.numCPU --taxon bacteria \
@@ -40,6 +41,7 @@ process antismash {
     $fullhmmer \
     $tigrfam \
     $pfam2go \
+    $cassis \
     --genefinding-tool prodigal-m \
     $input
     """
