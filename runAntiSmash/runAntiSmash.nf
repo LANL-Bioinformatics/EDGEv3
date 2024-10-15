@@ -1,4 +1,5 @@
 
+//runs ANTISMASH on provided .fa or .gbk input.
 process antismash {
     publishDir(
         path: "$params.outDir/AssemblyBasedAnalysis/AntiSmash",
@@ -28,7 +29,7 @@ process antismash {
     def cassis = (params.taxon.equalsIgnoreCase("fungi") && params.cassis == true) ? "--cassis" : ""
 
     """
-    antismash -c $params.numCPU --taxon bacteria \
+    antismash -c $params.numCPU $taxon \
     --logfile antismashLog.txt --output-dir ./output \
     --html-title $params.projName --database $params.database \
     $clusterblast \
@@ -42,7 +43,7 @@ process antismash {
     $tigrfam \
     $pfam2go \
     $cassis \
-    --genefinding-tool prodigal-m \
+    $genefinding \
     $input
     """
 
