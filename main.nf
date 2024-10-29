@@ -5,16 +5,9 @@ include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
 
 workflow {
-    //setup for optional files
-    "mkdir nf_assets".execute().text
-    "touch nf_assets/NO_FILE".execute().text
-    "touch nf_assets/NO_FILE2".execute().text
-    "touch nf_assets/NO_FILE3".execute().text 
-
 
     //input specification
-    // pairedInitialFiles = file(params.pairedFiles)
-    // unpairedInitialFiles = file(params.unpairedFiles)
+
     pairedFiles = channel.fromPath(params.pairedFiles, checkIfExists:true)
     unpairedFiles = channel.fromPath(params.unpairedFiles, checkIfExists:true)
 

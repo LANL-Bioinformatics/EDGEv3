@@ -78,8 +78,8 @@ process qc {
     val avgLen
 
     output:
-    path "QC.{1,2}.trimmed.fastq", optional:true
-    path "QC.unpaired.trimmed.fastq", optional:true, emit: unpairedTrimmed
+    path "QC.{1,2}.trimmed.fastq", optional:true, emit: pairedQC
+    path "QC.unpaired.trimmed.fastq", optional:true, emit: unpairedQC
     path "QC_qc_report.pdf", optional: true
     path "QC.stats.txt", optional: true
     path "QC.log", emit: log
@@ -135,7 +135,7 @@ workflow FAQCS {
 
 
     main:
-
+ 
     //adapter setup
     adapter_ch = channel.fromPath(settings["adapter"], checkIfExists:true)
     //checks to see if the provided adapter file is a valid FASTA
@@ -144,15 +144,26 @@ workflow FAQCS {
     //main QC process
     qc(settings, paired, unpaired, adapterFileCheck.out, adapter_ch, avgLen)
     
+    paired = qc.out.pairedQC
+    unpaired = qc.out.unpairedQC
+    
     //long read trimming and plotting
     if(settings["ontFlag"]) {
         nanoplot_ch = channel.empty()
         if(settings["porechop"]) {
-            porechop(settings, qc.out.unpairedTrimmed, qc.out.log)
+            porechop(settings, unpaired, qc.out.log)
             nanoplot(settings, porechop.out.porechopped)
+            unpaired = porechop.out.porechopped
         }
         else {
-            nanoplot(settings, qc.out.unpairedTrimmed)
+            nanoplot(settings, unpaired_ch)
+            unpaired = porechop.out.porechopped
+
         }
     }
+
+    emit:
+    paired
+    unpaired
+
 }
