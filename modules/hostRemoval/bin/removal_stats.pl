@@ -13,14 +13,16 @@ my @host_names;
 my $outDir = '.';
 my $hostRemovalPDF = "$outDir/HostRemovalStats.pdf";
 my $hostclean_stat_file = "$outDir/hostclean.stats.txt";
-my $total_host=0;
+my $numHostReads;
 
 
 GetOptions(
     'stats:s{1,}' => \@stat_files,
+    'hostReads=s' => \$numHostReads
 );
 
 return 0 if ( -e $hostRemovalPDF);
+
 
 foreach my $stat_file (@stat_files)
 {
@@ -37,7 +39,6 @@ foreach my $stat_file (@stat_files)
             if (defined $each_host_reads)
             {
                 push @host_reads, $each_host_reads;
-                $total_host += $each_host_reads;
             }
         }
         close $fh;
@@ -47,7 +48,7 @@ my $total_reads = pop @total_reads;
     
 open (my $ofh, ">$hostclean_stat_file") or die "Cannot write $hostclean_stat_file\n";
 print $ofh "Total reads: $total_reads\n";
-printf $ofh ("Total non-host reads: %d (%.2f %%)\n", $total_reads - $total_host, ($total_reads - $total_host)/$total_reads*100 );
+printf $ofh ("Total non-host reads: %d (%.2f %%)\n", $total_reads - $numHostReads, ($total_reads - $numHostReads)/$total_reads*100 );
 foreach my $i (0..$#host_names)
 {
     printf $ofh ("%s reads: %d (%.2f %%)\n",$host_names[$i],$host_reads[$i],$host_reads[$i]/$total_reads*100);
@@ -73,7 +74,7 @@ Rscript
 close $Rfh;
 &executeCommand("R --vanilla --slave --silent < $Rscript 2>/dev/null");
 unlink "$Rscript";
-die "failed: No reads remain after Host Removal. \n" if ( ($total_reads - $total_host)==0);
+die "failed: No reads remain after Host Removal. \n" if ( ($total_reads - $numHostReads)==0);
 
 
 sub executeCommand 

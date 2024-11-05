@@ -3,6 +3,7 @@
 include {SRA2FASTQ} from './modules/sra2fastq/sra2fastq.nf'
 include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
+include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
 
 workflow {
 
@@ -26,6 +27,12 @@ workflow {
 
     if(params.modules.faqcs) {
         FAQCS(params.faqcs.plus(params.shared),paired,unpaired,avgLen)
+        paired = FAQCS.out.paired.ifEmpty(params.pairedFiles)
+        unpaired = FAQCS.out.unpaired.ifEmpty(params.unpairedFiles)
+    }
+
+    if(params.modules.hostRemoval) {
+        HOSTREMOVAL(params.hostRemoval.plus(params.shared),paired,unpaired)
     }
 
 }
