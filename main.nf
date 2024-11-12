@@ -3,36 +3,26 @@
 include {SRA2FASTQ} from './modules/sra2fastq/sra2fastq.nf'
 include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
-include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
 
 workflow {
 
     //input specification
 
-    pairedFiles = channel.fromPath(params.pairedFiles, checkIfExists:true)
-    unpairedFiles = channel.fromPath(params.unpairedFiles, checkIfExists:true)
+    fastqFiles = channel.fromPath(params.shared.inputFastq, checkIfExists:true)
 
     if(params.modules.sra2fastq) {
         SRA2FASTQ(params.sra2fastq.plus(params.shared))
-        pairedFiles = pairedFiles.concat(SRA2FASTQ.out.paired).flatten()
-        unpairedFiles = unpairedFiles.concat(SRA2FASTQ.out.unpaired).flatten()
+        fastqFiles = fastqFiles.concat(SRA2FASTQ.out.fastq).flatten()
     }
     
-    COUNTFASTQ(pairedFiles.collect(), unpairedFiles.collect())
+    COUNTFASTQ(params.shared, fastqFiles.collect())
 
     avgLen = COUNTFASTQ.out.avgReadLen
-    paired = COUNTFASTQ.out.paired.ifEmpty(params.pairedFiles)
-    unpaired = COUNTFASTQ.out.unpaired.ifEmpty(params.unpairedFiles)
+    fastqFiles = COUNTFASTQ.out.fastqFiles
 
 
     if(params.modules.faqcs) {
-        FAQCS(params.faqcs.plus(params.shared),paired,unpaired,avgLen)
-        paired = FAQCS.out.paired.ifEmpty(params.pairedFiles)
-        unpaired = FAQCS.out.unpaired.ifEmpty(params.unpairedFiles)
-    }
-
-    if(params.modules.hostRemoval) {
-        HOSTREMOVAL(params.hostRemoval.plus(params.shared),paired,unpaired)
+        FAQCS(params.faqcs.plus(params.shared), fastqFiles,avgLen)
     }
 
 }
