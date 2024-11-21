@@ -4,6 +4,7 @@ include {SRA2FASTQ} from './modules/sra2fastq/sra2fastq.nf'
 include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
 include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
+include {ASSEMBLY} from './modules/runAssembly/runAssembly.nf'
 
 workflow {
 
@@ -33,6 +34,12 @@ workflow {
 
     if(params.modules.hostRemoval) {
         HOSTREMOVAL(params.hostRemoval.plus(params.shared),paired,unpaired)
+        paired = HOSTREMOVAL.out.paired.ifEmpty(params.pairedFiles)
+        unpaired = HOSTREMOVAL.out.unpaired.ifEmpty(params.unpairedFiles)
     }
+
+    if(params.modules.runAssembly) {
+       ASSEMBLY(params.assembly.plus(params.shared), paired, unpaired, avgLen)
+   }
 
 }
