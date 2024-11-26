@@ -436,7 +436,8 @@ process renameFilterFasta {
     path contigs
 
     output:
-    path "*"
+    path "*_contigs.fa", emit: contigs
+    path "*_contigs_*up.fa", emit: annotationContigs
 
     script:
     def annotation = settings["annotation"] ? "-ann 1" : ""
@@ -491,9 +492,15 @@ workflow ASSEMBLY {
 
     main:
 
+    //supplementary long read files setup
     spades_pb = file(settings["spades"]["pacbio"], checkIfExists:true)
     spades_np = file(settings["spades"]["nanopore"], checkIfExists:true)
     unicycler_lr = file(settings["unicycler"]["longreads"], checkIfExists:true)
+
+
+    //output channel setup
+    outContigs = channel.empty()
+    annotationContigs = channel.empty()
 
     if (settings["assembler"].equalsIgnoreCase("IDBA_UD")) {
 
@@ -507,6 +514,8 @@ workflow ASSEMBLY {
         
         bestIncompleteAssembly(idbaUD.out.contigs.ifEmpty('EMPTY'), idbaUD.out.intContigs)
         renameFilterFasta(settings, idbaUD.out.contigs.concat(bestIncompleteAssembly.out).first())
+        outContigs = renameFilterFasta.out.contigs
+        annotationContigs = renameFilterFasta.out.annotationContigs
 
     }
     else if (settings["assembler"].equalsIgnoreCase("SPAdes")) {
@@ -514,12 +523,16 @@ workflow ASSEMBLY {
         
         bestIncompleteAssembly(spades.out.contigs.ifEmpty('EMPTY'), spades.out.intContigs)
         renameFilterFasta(settings, spades.out.contigs.concat(bestIncompleteAssembly.out).first())
+        outContigs = renameFilterFasta.out.contigs
+        annotationContigs = renameFilterFasta.out.annotationContigs
     }
     else if (settings["assembler"].equalsIgnoreCase("MEGAHIT")) {
-        megahit(settings, paired_ch, unpaired_ch)
+        megahit(settings, paired, unpaired)
         
         bestIncompleteAssembly(megahit.out.contigs.ifEmpty('EMPTY'), megahit.out.intContigs)
         renameFilterFasta(settings, megahit.out.contigs.concat(bestIncompleteAssembly.out).first())
+        outContigs = renameFilterFasta.out.contigs
+        annotationContigs = renameFilterFasta.out.annotationContigs
     }
     else if (settings["assembler"].equalsIgnoreCase("UniCycler")) {
         if (settings["unicycler"]["longreads"] != "nf_assets/NO_FILE3") {
@@ -528,24 +541,34 @@ workflow ASSEMBLY {
                 settings,
                 paired,
                 unpaired,
-                unicyclerPrep(unicycler_lr).filter{it.size()>0}.ifEmpty({file("nf_assets/NO_FILE3")})
+                unicyclerPrep(settings,unicycler_lr).filter{it.size()>0}.ifEmpty({file("nf_assets/NO_FILE3")})
                 )
             //unicycler produces no intermediate contigs, we let it error out above rather than try to rescue a failed assembly
             renameFilterFasta(settings, unicycler.out.contigs)
+            outContigs = renameFilterFasta.out.contigs
+            annotationContigs = renameFilterFasta.out.annotationContigs
         }
         else {
             unicycler(settings, paired, unpaired, unicycler_lr)
-            renameFilterFasta(unicycler.out.contigs)
+            renameFilterFasta(settings, unicycler.out.contigs)
+            outContigs = renameFilterFasta.out.contigs
+            annotationContigs = renameFilterFasta.out.annotationContigs
         }
     }
     else if (settings["assembler"].equalsIgnoreCase("LRASM")) {
         lrasm(settings, unpaired)
 
-        bestIncompleteAssembly(settings, lrasm.out.contigs.ifEmpty('EMPTY'), lrasm.out.intContigs)
+        bestIncompleteAssembly(lrasm.out.contigs.ifEmpty('EMPTY'), lrasm.out.intContigs)
         renameFilterFasta(settings, lrasm.out.contigs.concat(bestIncompleteAssembly.out).first())
+        outContigs = renameFilterFasta.out.contigs
+        annotationContigs = renameFilterFasta.out.annotationContigs
     }
     else {
         error "Invalid assembler: ${settings["assembler"]}"
     }
+
+    emit:
+    outContigs
+    annotationContigs
 
 }

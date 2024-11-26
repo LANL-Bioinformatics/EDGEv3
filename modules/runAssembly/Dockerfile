@@ -31,7 +31,6 @@ RUN conda install -n assembly git
 RUN conda install -c conda-forge conda-pack
 
 ADD bin/extractLongReads.pl /opt/conda/envs/assembly/bin
-ADD bin/getAvgLen.pl /opt/conda/envs/assembly/bin
 ADD bin/renameFilterFasta.pl /opt/conda/envs/assembly/bin
 
 RUN conda-pack -n assembly -o /tmp/env.tar && \
@@ -44,7 +43,7 @@ FROM debian:latest AS runtime
 
 COPY --from=build /venv /venv
 
-RUN git clone --depth 1 https://gitlab.com/chienchi/long_read_assembly.git
+RUN /venv/bin/git clone --depth 1 https://gitlab.com/chienchi/long_read_assembly.git
 RUN apt-get update && apt-get install procps -y && apt-get clean
 
 ENV PATH="/venv/bin:/long_read_assembly:$PATH"
