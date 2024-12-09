@@ -5,6 +5,7 @@ include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
 include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
 include {ASSEMBLY} from './modules/runAssembly/runAssembly.nf'
+include {READSTOCONTIGS} from './modules/runReadsToContig/runReadsToContig.nf'
 
 workflow {
 
@@ -12,6 +13,10 @@ workflow {
 
     pairedFiles = channel.fromPath(params.pairedFiles, checkIfExists:true)
     unpairedFiles = channel.fromPath(params.unpairedFiles, checkIfExists:true)
+    contigs = channel.empty()
+    if(params.r2c.useAssembledContigs) {
+        contigs = channel.fromPath(params.inputContigs, checkIfExists:true)
+    }
 
     if(params.modules.sra2fastq) {
         SRA2FASTQ(params.sra2fastq.plus(params.shared))
@@ -38,8 +43,12 @@ workflow {
         unpaired = HOSTREMOVAL.out.unpaired.ifEmpty(params.unpairedFiles)
     }
 
-    if(params.modules.runAssembly) {
+    if(params.modules.runAssembly && !params.r2c.useAssembledContigs) {
        ASSEMBLY(params.assembly.plus(params.shared), paired, unpaired, avgLen)
-   }
+       contigs = ASSEMBLY.out.outContigs
+    }
+
+    READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
+
 
 }

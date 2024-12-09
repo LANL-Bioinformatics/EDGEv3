@@ -1,12 +1,13 @@
 #!/usr/bin/env nextflow
 
-process r2c {
-    debug true
+process validationAlignment {
+    label 'r2c'
     publishDir(
-        path: "$params.outDir/AssemblyBasedAnalysis/readsMappingToContig",
+        path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
         mode: 'copy'
     )
     input:
+    val settings
     path paired
     path unpaired
     path contigs
@@ -20,27 +21,27 @@ process r2c {
     path "mapping.log", emit: logFile
 
     script:
-    def outPrefix = params.prefix!=null ? "$params.prefix" : "readsToContigs"
+    def outPrefix = "readsToContigs"
     def paired = paired.name != "NO_FILE" ? "-p \'${paired[0]} ${paired[1]}\' " : ""
     def unpaired = unpaired.name != "NO_FILE2" ? "-u $unpaired " : ""
-    def cutoff = params.assembledContigs ? "-c 0 " : "-c 0.1 "
-    def cpu = params.cpus != null ? "-cpu $params.cpus " : ""
-    def max_clip = params.r2g_max_clip != null ? "-max_clip $params.r2g_max_clip " : ""
+    def cutoff = settings["useAssembledContigs"] ? "-c 0 " : "-c 0.1 "
+    def cpu = settings["cpus"] != null ? "-cpu ${settings["cpus"]} " : ""
+    def max_clip = settings["r2g_max_clip"] != null ? "-max_clip ${settings["r2g_max_clip"]} " : ""
 
 
-    def ont_flag = (params.fastq_source != null && params.fastq_source.equalsIgnoreCase("nanopore")) ? "-x ont2d " : ""
-    def pb_flag = (params.fastq_source != null && params.fastq_source.equalsIgnoreCase("pacbio")) ? "-x pacbio " : ""
+    def ont_flag = (settings["fastq_source"] != null && settings["fastq_source"].equalsIgnoreCase("nanopore")) ? "-x ont2d " : ""
+    def pb_flag = (settings["fastq_source"] != null && settings["fastq_source"].equalsIgnoreCase("pacbio")) ? "-x pacbio " : ""
 
     def aligner_options = ""
-    if(params.r2c_aligner =~ "bowtie") {
-        def bowtie_options = params.r2c_aligner_options.replaceAll("-p\\s*\\d+","")
+    if(settings["r2c_aligner"] =~ "bowtie") {
+        def bowtie_options = settings["r2c_aligner_options"].replaceAll("-p\\s*\\d+","")
         if(!(bowtie_options =~ /-k/)) {
             bowtie_options += " -k 10 "
         }
         aligner_options = "-aligner bowtie -bowtie_options \'$bowtie_options\'"
     }
-    else if(params.r2c_aligner =~ "bwa") {
-        def bwa_options = params.r2c_aligner_options.replaceAll("-t\\s*\\d+","")
+    else if(settings["r2c_aligner"] =~ "bwa") {
+        def bwa_options = settings["r2c_aligner_options"].replaceAll("-t\\s*\\d+","")
         if (ont_flag != "") {
             unpaired = unpaired.replaceAll("-u ","-long ")
             bwa_options += ont_flag
@@ -51,8 +52,8 @@ process r2c {
         }
         aligner_options = "-aligner bwa -bwa_options \'$bwa_options\'"
     }
-    else if (params.r2c_aligner =~ "minimap") { 
-        def minimap_options = params.r2c_aligner_options.replaceAll("-t\\s*\\d+","")
+    else if (settings["r2c_aligner"] =~ "minimap") { 
+        def minimap_options = settings["r2c_aligner_options"].replaceAll("-t\\s*\\d+","")
         if(ont_flag != "" || pb_flag != "") {
             unpaired = unpaired.replaceAll("-u ","-long ")
         }
@@ -80,18 +81,20 @@ process r2c {
 
 }
 
-process r2c_jsonTable {
+process makeCoverageTable {
+    label 'r2c'
     publishDir(
-        path: "$params.outDir/AssemblyBasedAnalysis/readsMappingToContig",
+        path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
         mode: 'copy',
         pattern: "*_coverage.table.json"
     )
     publishDir(
-        path: "$params.outDir/AssemblyBasedAnalysis",
+        path: "${settings["outDir"]}/AssemblyBasedAnalysis",
         mode: 'copy',
         pattern: "*stats.{pdf,txt}"
     )
     input:
+    val settings
     path cov_table
     path contigFile
 
@@ -101,24 +104,25 @@ process r2c_jsonTable {
     path "*_coverage.table.json"
 
     script:
-    def rowLimit = params.rowLimit != null ? "$params.rowLimit" : "3000"
-    def outPrefix = params.prefix!=null ? "$params.prefix" : "readsToContigs"
+    def rowLimit = settings["rowLimit"] != null ? "${settings["rowLimit"]} " : "3000"
     
     """
     tab2Json_for_dataTable.pl -project_dir . -mode contig -limit $rowLimit  \
-    ${outPrefix}_coverage.table > ${outPrefix}_coverage.table.json
+    readsToContigs_coverage.table > readsToContigs_coverage.table.json
 
     contig_stats.pl -p $contigFile > contigs_stats.txt
     """
 }
 
 process extractUnmapped {
+    label 'r2c'
     publishDir(
-        path:"$params.outDir/AssemblyBasedAnalysis/readsMappingToContig/",
+        path:"${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig/",
         mode: 'copy',
         overwrite: true
     )
     input:
+    val settings
     path bamFile
     path logFile
 
@@ -135,18 +139,22 @@ process extractUnmapped {
 
 }
 
-workflow {
+workflow READSTOCONTIGS {
+    take:
+    settings
+    paired
+    unpaired
+    contigs
+
+    main:
     "mkdir nf_assets".execute().text
     "touch nf_assets/NO_FILE".execute().text
     "touch nf_assets/NO_FILE2".execute().text
-    paired_ch = channel.fromPath(params.pairFile, checkIfExists:true).collect()
-    unpaired_ch = channel.fromPath(params.unpairFile, checkIfExists:true)
-    contig_ch = channel.fromPath(params.contigFile, checkIfExists:true)
 
-    r2c(paired_ch, unpaired_ch, contig_ch)
-    r2c_jsonTable(r2c.out.cov_table, r2c.out.contig_file)
-    if(params.extractUnmapped) {
-        extractUnmapped(r2c.out.sortedBam, r2c.out.logFile)
+    validationAlignment(settings, paired, unpaired, contigs)
+    makeCoverageTable(settings, validationAlignment.out.cov_table, validationAlignment.out.contig_file)
+    if(settings["extractUnmapped"]) {
+        extractUnmapped(settings, validationAlignment.out.sortedBam, validationAlignment.out.logFile)
     }
 
 }
