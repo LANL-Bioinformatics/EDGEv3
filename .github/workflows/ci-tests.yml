@@ -16,6 +16,13 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
+      - name: Set up Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.0
+      - name: Run an apptainer container
+        run: apptainer run docker://alpine cat /etc/os-release
+
       - name: Setup Nextflow latest-edge
         uses: nf-core/setup-nextflow@v1
         with:
