@@ -165,13 +165,8 @@ workflow HOSTREMOVAL{
 
     cleaned1_ch = hostRemoval.out.cleaned1.collect()
     cleaned2_ch = hostRemoval.out.cleaned2.collect()
-    print("at host branch\n")
     //more than one host
     if (([] + settings["host"]).size() > 1) {
-        print("in multihost branch\n")
-        print(settings["host"] + "\n")
-        print(settings["host"].size())
-        print("\n")
         //merge clean paired-end reads (intersection)
         collectCleanPairedReads(settings, cleaned1_ch, cleaned2_ch, hostRemoval.out.hostReads.collect())
         paired = collectCleanPairedReads.out.paired
@@ -180,14 +175,12 @@ workflow HOSTREMOVAL{
         paired.view()
     } 
     else {
-        print("in single host branch\n")
         //no need to merge if only reads from one host were removed
         paired = collectCleanPairedReadsOneHost(settings, cleaned1_ch.concat(cleaned2_ch)).collect()
         //calculate overall stats and create PDF
         hostRemovalStats(settings, hostRemoval.out.cleanstats.collect(), hostRemoval.out.hostReads)
         paired.view()
     }
-    print("after host branch \n")
     //merge clean unpaired reads (removing any duplicates by read name)
     unpaired = collectCleanSingleReads(settings, hostRemoval.out.cleanedSingleton.collect())
 
