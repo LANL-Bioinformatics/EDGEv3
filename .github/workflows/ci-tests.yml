@@ -5,6 +5,9 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
 
     steps:
       - name: Checkout
@@ -18,13 +21,13 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Set up Apptainer
+      - name: Set up Apptainer 1.3.0
         uses: eWaterCycle/setup-apptainer@v2
         with:
           apptainer-version: 1.3.0
 
 
-      - name: Setup Nextflow latest-edge
+      - name: Setup Nextflow 24.10.1
         uses: nf-core/setup-nextflow@v1
         with:
           version: "24.10.1"
@@ -34,5 +37,5 @@ jobs:
           wget -qO- https://get.nf-test.com | bash
           sudo mv nf-test /usr/local/bin/
 
-      - name: Run Tests
-        run: nf-test test --ci
+      - name: Run Tests (Shard ${{ matrix.shard }}/${{ strategy.job-total }})
+        run: nf-test test --ci --shard ${{ matrix.shard }}/${{ strategy.job-total }}

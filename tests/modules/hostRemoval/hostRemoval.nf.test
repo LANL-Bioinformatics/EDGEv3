@@ -28,9 +28,6 @@ nextflow_workflow {
         }
 
         then {
-            print(workflow.out)
-            print(path(workflow.out.paired.get(0)[0]).readLines()[0])
-            print(path(workflow.out.paired.get(0)[0]).readLines().subList(0,5))
             assertAll(
                 {assert workflow.success},
                 {assert snapshot(workflow.out).match()}
