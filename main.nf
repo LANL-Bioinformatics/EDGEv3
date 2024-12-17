@@ -44,11 +44,10 @@ workflow {
     }
 
     if(params.modules.runAssembly && !params.r2c.useAssembledContigs) {
-       ASSEMBLY(params.assembly.plus(params.shared), paired, unpaired, avgLen)
-       contigs = ASSEMBLY.out.outContigs
+        ASSEMBLY(params.assembly.plus(params.shared), paired, unpaired, avgLen)
+        contigs = ASSEMBLY.out.outContigs
+        READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
     }
-
-    READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
 
 
 }

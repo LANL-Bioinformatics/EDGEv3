@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM continuumio/miniconda3:23.5.2-0 AS build
+FROM continuumio/miniconda3:main AS build
 
 ENV container=docker
 
@@ -14,6 +14,7 @@ RUN conda init bash \
 
 RUN conda install -n readsToContig -c conda-forge r-base
 RUN conda install -n readsToContig -c conda-forge python=3.11
+RUN conda install -n readsToContig -c bioconda minimap2=2.24
 RUN conda install -n readsToContig -c bioconda perl-json
 RUN conda install -n readsToContig -c bioconda samclip=0.4.0
 RUN conda install -n readsToContig -c bioconda bwa
@@ -39,6 +40,7 @@ FROM debian:buster AS runtime
 #RUN apk add --no-cache bash
 
 COPY --from=build /venv /venv
+RUN apt-get update && apt-get install procps -y && apt-get clean
 ENV PERL5LIB=/venv/lib/perl5/core_perl
 ENV PATH=/venv/bin:$PATH
     

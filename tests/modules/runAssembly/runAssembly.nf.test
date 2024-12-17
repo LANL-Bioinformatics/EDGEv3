@@ -79,6 +79,9 @@ nextflow_workflow {
                 }
                 assembly{
                     assembler = "lrasm"
+                    lrasm {
+                        ec = true
+                    }
                 }
             }
             workflow {
