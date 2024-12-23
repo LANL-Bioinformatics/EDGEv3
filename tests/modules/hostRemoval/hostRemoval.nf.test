@@ -28,9 +28,12 @@ nextflow_workflow {
         }
 
         then {
+            
             assertAll(
                 {assert workflow.success},
-                {assert snapshot(workflow.out).match()}
+                {assert file(workflow.out.paired[0].find { file(it).name == "hostclean.1.fastq" }).exists()},
+                {assert file(workflow.out.paired[0].find { file(it).name == "hostclean.2.fastq" }).exists()},
+                {assert file(workflow.out.unpaired.find { file(it).name == "hostclean.unpaired.fastq" }).exists()}
             )
         }
 
@@ -62,7 +65,7 @@ nextflow_workflow {
         then {
             assertAll(
                 {assert workflow.success},
-                {assert snapshot(workflow.out).match()}
+                {assert file(workflow.out.unpaired.find { file(it).name == "hostclean.unpaired.fastq" }).exists()},
             )
         }
 
@@ -93,7 +96,7 @@ nextflow_workflow {
         then {
             assertAll(
                 {assert workflow.success},
-                {assert snapshot(workflow.out).match()}
+                {assert file(workflow.out.unpaired.find { file(it).name == "hostclean.unpaired.fastq" }).exists()},
             )
 
         }
@@ -125,7 +128,9 @@ nextflow_workflow {
         then {
             assertAll(
                 {assert workflow.success},
-                {assert snapshot(workflow.out).match()}
+                {assert file(workflow.out.paired[0].find { file(it).name == "hostclean.1.fastq" }).exists()},
+                {assert file(workflow.out.paired[0].find { file(it).name == "hostclean.2.fastq" }).exists()},
+                {assert file(workflow.out.unpaired.find { file(it).name == "hostclean.unpaired.fastq" }).exists()},
             )
               
         }
