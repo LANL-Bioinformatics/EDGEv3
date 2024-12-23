@@ -73,7 +73,7 @@ process collectCleanPairedReads {
     path(hostFiles, stageAs: 'host?.fastq')
 
     output:
-    path "hostclean.{1,2}.fastq"
+    path "hostclean.{1,2}.fastq", emit: paired
     path "merged_host_unique.fastq", emit: hostMerged
     
     script:
@@ -97,7 +97,7 @@ process collectCleanPairedReadsOneHost {
     path cleanedFiles
 
     output:
-    path "hostclean.{1,2}.fastq"
+    path "hostclean.{1,2}.fastq", emit:paired
 
     
     script:
@@ -119,7 +119,7 @@ process collectCleanSingleReads {
     path remainingUnpairedReads
 
     output:
-    path "hostclean.unpaired.fastq"
+    path "hostclean.unpaired.fastq", emit:unpaired
 
     script:
     """
@@ -158,7 +158,6 @@ workflow HOSTREMOVAL{
     unpaired
 
     main:
-
     providedRef = channel.fromPath(settings["host"], checkIfExists:true)
 
     //remove host reads in parallel
@@ -166,23 +165,26 @@ workflow HOSTREMOVAL{
 
     cleaned1_ch = hostRemoval.out.cleaned1.collect()
     cleaned2_ch = hostRemoval.out.cleaned2.collect()
-
     //more than one host
-    if (settings["host"].size() > 1) {
+    if (([] + settings["host"]).size() > 1) {
         //merge clean paired-end reads (intersection)
         collectCleanPairedReads(settings, cleaned1_ch, cleaned2_ch, hostRemoval.out.hostReads.collect())
+        paired = collectCleanPairedReads.out.paired
         //calculate overall stats and create PDF
         hostRemovalStats(settings, hostRemoval.out.cleanstats.collect(), collectCleanPairedReads.out.hostMerged)
     } 
     else {
         //no need to merge if only reads from one host were removed
-        collectCleanPairedReadsOneHost(settings, cleaned1_ch.concat(cleaned2_ch))
+        paired = collectCleanPairedReadsOneHost(settings, cleaned1_ch.concat(cleaned2_ch)).collect()
         //calculate overall stats and create PDF
         hostRemovalStats(settings, hostRemoval.out.cleanstats.collect(), hostRemoval.out.hostReads)
     }
-    
     //merge clean unpaired reads (removing any duplicates by read name)
-    collectCleanSingleReads(settings, hostRemoval.out.cleanedSingleton.collect())
+    unpaired = collectCleanSingleReads(settings, hostRemoval.out.cleanedSingleton.collect())
+
+    emit:
+    paired
+    unpaired
 
     
 }
