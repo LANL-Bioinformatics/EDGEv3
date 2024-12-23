@@ -3,37 +3,26 @@ process countFastq {
     label "countFastq"
 
     input:
-    path paired
-    path unpaired
+    val settings
+    path fastq
 
     output:
     path "fastqCount.txt", emit: counts
-    path "all.{1,2}.fastq", emit: allPaired, optional:true
-    path "all.se.fastq", emit: allUnpaired, optional:true
+    path "all.*.fastq", emit: allFiles
 
     script:
 
-    if(paired.size() > 1 && paired[0] =~ /NO_FILE/) {
-        paired = paired.tail().join(" ")
+    file_list = ""
+    if(settings["pairedFile"]) {
+        file_list = "-p $fastq"
     }
     else {
-        paired = paired.join(" ")
+        file_list = "-u $fastq"
     }
-    if(unpaired.size() > 1 && unpaired[0] =~ /NO_FILE/) {
-        unpaired = unpaired.tail().join(" ")
-    }
-    else {
-        unpaired = unpaired.join(" ")
-    }
-    
-
-    paired_list = paired.startsWith("NO_FILE") ? "" : "-p ${paired}"
-    unpaired_list = unpaired.startsWith("NO_FILE2") ? "" : "-u ${unpaired}"
 
     """
     getAvgLen.pl\
-    $paired_list\
-    $unpaired_list\
+    $file_list\
     -d .
     """
 }
@@ -70,19 +59,16 @@ process avgLen {
 //calculates average read length and concatenates input files
 workflow COUNTFASTQ {
     take:
-    pairedFiles
-    unpairedFiles
+    settings
+    inputFastq
 
     main:
 
-    countFastq(pairedFiles, unpairedFiles)
+    countFastq(settings, inputFastq)
     avgReadLen = avgLen(countFastq.out.counts)
-    paired = countFastq.out.allPaired
-    unpaired = countFastq.out.allUnpaired
-
+    fastqFiles = countFastq.out.allFiles
 
     emit:
     avgReadLen
-    paired
-    unpaired
+    fastqFiles
 }

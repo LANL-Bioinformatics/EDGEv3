@@ -10,29 +10,27 @@ include {READSTOCONTIGS} from './modules/runReadsToContig/runReadsToContig.nf'
 workflow {
 
     //input specification
-
-    pairedFiles = channel.fromPath(params.pairedFiles, checkIfExists:true)
-    unpairedFiles = channel.fromPath(params.unpairedFiles, checkIfExists:true)
+    
+    fastqFiles = channel.fromPath(params.shared.inputFastq, checkIfExists:true)
     contigs = channel.empty()
     if(params.r2c.useAssembledContigs) {
-        contigs = channel.fromPath(params.inputContigs, checkIfExists:true)
+        contigs = channel.fromPath(params.shared.inputContigs, checkIfExists:true)
     }
+
 
     if(params.modules.sra2fastq) {
         SRA2FASTQ(params.sra2fastq.plus(params.shared))
-        pairedFiles = pairedFiles.concat(SRA2FASTQ.out.paired).flatten()
-        unpairedFiles = unpairedFiles.concat(SRA2FASTQ.out.unpaired).flatten()
+        fastqFiles = fastqFiles.concat(SRA2FASTQ.out.fastq).flatten()
     }
     
-    COUNTFASTQ(pairedFiles.collect(), unpairedFiles.collect())
+    COUNTFASTQ(params.shared, fastqFiles.collect())
 
     avgLen = COUNTFASTQ.out.avgReadLen
-    paired = COUNTFASTQ.out.paired.ifEmpty(params.pairedFiles)
-    unpaired = COUNTFASTQ.out.unpaired.ifEmpty(params.unpairedFiles)
+    fastqFiles = COUNTFASTQ.out.fastqFiles
 
 
     if(params.modules.faqcs) {
-        FAQCS(params.faqcs.plus(params.shared),paired,unpaired,avgLen)
+        FAQCS(params.faqcs.plus(params.shared), fastqFiles,avgLen)
         paired = FAQCS.out.paired.ifEmpty(params.pairedFiles)
         unpaired = FAQCS.out.unpaired.ifEmpty(params.unpairedFiles)
     }

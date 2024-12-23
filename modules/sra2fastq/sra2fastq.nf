@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-//to run: nextflow [OPT: -log /path/to/log file] run sra2fastq.nf -params-file [JSON parameter file]
+//to run: nextflow run sra2fastq.nf -params-file [JSON parameter file]
 //not supporting filesize or run count restrictions
 
 
@@ -9,7 +9,7 @@ process sraDownload {
     tag "$accession"
     publishDir "${settings["outDir"]}/SRA_Download", mode: 'copy'
 
-    //retries download in case of transient failure, then completes any processes that didn't fail
+    //retries download in case of transient failure, then completes any downloads that didn't fail
     maxRetries 3
     errorStrategy { (task.attempt <= maxRetries) ? 'retry' : 'finish' }
 
@@ -19,15 +19,14 @@ process sraDownload {
     val settings
 
     output:
-    path "$accession/${accession}.fastq.gz", emit: unpairedSRA, optional:true
-    path "$accession/${accession}_{1,2}.fastq.gz", emit: pairedSRA, optional:true
+    path "$accession/${accession}*.fastq.gz", emit: files
     path "$accession/${accession}_metadata.txt"
     path "$accession/sra2fastq_temp/*", optional: true //needed output?
 
     script: 
     //conditionally create command-line options based on non-empty parameters, for use in the command below
-    def clean = settings["clean"] != null ? "--clean True" : "" 
-    def platform_restrict = settings["platformRestrict"] != null ? "--platform_restrict ${settings["platformRestrict"]}" : ""
+    def clean = settings["clean"] ? "--clean True" : "" 
+    def platform_restrict = settings["fastqSource"] != null ? "--platform_restrict ${settings["fastqSource"]}" : ""
 
     //invoke sra2fastq.py with those options
     """
@@ -46,10 +45,8 @@ workflow SRA2FASTQ {
     accessions_ch = channel.of(settings["accessions"])
     sraDownload(accessions_ch.flatten().unique(), settings)
 
-    paired = sraDownload.out.pairedSRA
-    unpaired = sraDownload.out.unpairedSRA
+    fastq = sraDownload.out.files
 
     emit:
-    paired
-    unpaired
+    fastq
 }
