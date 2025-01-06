@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         shard: [1, 2, 3, 4]
@@ -19,10 +19,10 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Set up Apptainer 1.3.0
+      - name: Set up Apptainer 1.3.6
         uses: eWaterCycle/setup-apptainer@v2
         with:
-          apptainer-version: 1.3.0
+          apptainer-version: 1.3.6
 
 
       - name: Setup Nextflow 24.10.1
