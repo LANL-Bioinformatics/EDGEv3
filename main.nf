@@ -29,6 +29,8 @@ workflow {
     fastqFiles = COUNTFASTQ.out.fastqFiles
 
 
+    paired = channel.empty()
+    unpaired = channel.empty()
     if(params.modules.faqcs) {
         FAQCS(params.faqcs.plus(params.shared), fastqFiles,avgLen)
         paired = FAQCS.out.paired.ifEmpty(params.pairedFiles)

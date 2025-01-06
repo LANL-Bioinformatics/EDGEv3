@@ -8,11 +8,13 @@ nextflow_workflow {
 
         when {
             params {
-                // no special parameters
+                shared {
+                    pairedFile = false
+                }
             }
             workflow {
                 """
-                input[0] = file("${projectDir}/nf_assets/NO_FILE")
+                input[0] = params.shared
                 input[1] = file("${projectDir}/test_data/Ecoli_10x.1.fastq")
                 """
             }
@@ -33,12 +35,14 @@ nextflow_workflow {
 
         when {
             params {
-                // no special parameters
+                shared {
+                    pairedFile = true
+                }
             }
             workflow {
                 """
-                input[0] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
-                input[1] = file("${projectDir}/nf_assets/NO_FILE2")
+                input[0] = params.shared
+                input[1] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
                 """
             }
         }
@@ -54,29 +58,5 @@ nextflow_workflow {
 
     }
 
-    
-    test("PE and SE files") {
 
-        when {
-            params {
-                // no special parameters
-            }
-            workflow {
-                """
-                input[0] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
-                input[1] = file("${projectDir}/test_data/Ecoli_10x_copy.1.fastq")
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                {assert workflow.success},
-                {assert snapshot(workflow.out).match()},
-                {assert workflow.out.avgReadLen.get(0) == "151"}
-            )
-            
-        }
-
-    }
 }
