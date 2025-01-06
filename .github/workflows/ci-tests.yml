@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         shard: [1, 2, 3, 4]
@@ -28,7 +28,7 @@ jobs:
       - name: Setup Nextflow 24.10.1
         uses: nf-core/setup-nextflow@v1
         with:
-          version: "24.10.1"
+          version: "24.10.3"
 
       - name: Install nf-test
         run: |
