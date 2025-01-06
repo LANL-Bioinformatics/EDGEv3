@@ -35,10 +35,17 @@ process hostRemoval {
     def prefix = "-prefix ${ref.name.take(ref.name.lastIndexOf('.'))}.clean "
     def similarity = settings["similarity"] != null ? "-similarity ${settings["similarity"]} " : ""
     def minScore = settings["bwaMemOptions"] != null ? "${settings["bwaMemOptions"]} " : "-T 50 "
-    def ontFlag = settings["fastqSource"].equalsIgnoreCase("nanopore") ? "-x ont2d " : ""
-    ontFlag = settings["fastqSource"].equalsIgnoreCase("pacbio") ? "-x pacbio " : ontFlag
+    ontFlag = ""
+    if(settings["fastqSource"] != null) {
+        if(settings["fastqSource"].equalsIgnoreCase("nanopore")) {
+            ontFlag = "-x ont2d "
+        }
+        else if(settings["fastqSource"].equalsIgnoreCase("pacbio")) {
+            ontFlag = "-x pacbio "
+        }
+    }
     minScore = ontFlag != "" ? "-T ${settings["minLen"]} " : minScore
-    def bwaMemOptions = "-bwaMemOptions \"${ontFlag} ${minScore}\" "
+    bwaMemOptions = "-bwaMemOptions \"${ontFlag} ${minScore}\" "
     def cpu = settings["cpus"] != null ? "-cpu ${settings["cpus"]} " : ""
     
     """
