@@ -57,6 +57,4 @@ nextflow_workflow {
         }
 
     }
-
-
 }

@@ -13,6 +13,7 @@
                         "QC.1.trimmed.fastq:md5,deb773f1726c6134a7d2fc069af7b21b",
                         "QC.2.trimmed.fastq:md5,a793e8ccfe60c0f9462a80d520eecd7a"
                     ]
+
                 ]
             }
         ],
@@ -21,6 +22,7 @@
             "nextflow": "24.10.3"
         },
         "timestamp": "2025-01-06T14:15:19.062459705"
+
     },
     "Basic SE": {
         "content": [
@@ -30,6 +32,7 @@
                 ],
                 "trimmed": [
                     "QC.unpaired.trimmed.fastq:md5,3a0138c06e9cd504e2cca8e5d93532f1"
+
                 ]
             }
         ],
@@ -38,6 +41,7 @@
             "nextflow": "24.10.3"
         },
         "timestamp": "2025-01-06T14:14:24.933787665"
+
     },
     "SE with adapter removal": {
         "content": [
@@ -47,6 +51,7 @@
                 ],
                 "trimmed": [
                     "QC.unpaired.trimmed.fastq:md5,3e43d37648eea875f5583f5cfcbb16ca"
+
                 ]
             }
         ],
@@ -55,6 +60,7 @@
             "nextflow": "24.10.3"
         },
         "timestamp": "2025-01-06T14:15:03.845678151"
+
     },
     "Basic PE": {
         "content": [
@@ -70,6 +76,7 @@
                         "QC.1.trimmed.fastq:md5,deb773f1726c6134a7d2fc069af7b21b",
                         "QC.2.trimmed.fastq:md5,a793e8ccfe60c0f9462a80d520eecd7a"
                     ]
+
                 ]
             }
         ],
@@ -78,6 +85,7 @@
             "nextflow": "24.10.3"
         },
         "timestamp": "2025-01-06T14:14:13.196766924"
+
     },
     "PE with adapter removal": {
         "content": [
@@ -93,6 +101,7 @@
                         "QC.1.trimmed.fastq:md5,1e70223f29baaced4509b62a5e84f074",
                         "QC.2.trimmed.fastq:md5,649bf376592b80e9ae1cee81d018a65f"
                     ]
+
                 ]
             }
         ],

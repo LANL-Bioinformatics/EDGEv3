@@ -1,6 +1,5 @@
 #!/usr/bin/env nextflow
 
-
 //double-checks that any provided adapter file is in FASTA format
 process adapterFileCheck {
     label "qc"

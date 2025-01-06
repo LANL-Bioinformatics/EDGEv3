@@ -10,6 +10,7 @@ process sraDownload {
     publishDir "${settings["outDir"]}/SRA_Download", mode: 'copy'
 
     //retries download in case of transient failure, then completes any downloads that didn't fail
+
     maxRetries 3
     errorStrategy { (task.attempt <= maxRetries) ? 'retry' : 'finish' }
 
@@ -49,4 +50,5 @@ workflow SRA2FASTQ {
 
     emit:
     fastq
+
 }

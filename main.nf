@@ -9,8 +9,7 @@ include {READSTOCONTIGS} from './modules/runReadsToContig/runReadsToContig.nf'
 
 workflow {
 
-    //input specification
-    
+    //input specification    
     fastqFiles = channel.fromPath(params.shared.inputFastq, checkIfExists:true)
     contigs = channel.empty()
     if(params.r2c.useAssembledContigs) {
@@ -33,6 +32,7 @@ workflow {
     unpaired = channel.empty()
     if(params.modules.faqcs) {
         FAQCS(params.faqcs.plus(params.shared), fastqFiles,avgLen)
+
         paired = FAQCS.out.paired.ifEmpty(params.pairedFiles)
         unpaired = FAQCS.out.unpaired.ifEmpty(params.unpairedFiles)
     }

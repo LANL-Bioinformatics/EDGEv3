@@ -27,6 +27,7 @@
             "nextflow": "24.10.3"
         },
         "timestamp": "2025-01-06T13:53:45.128251613"
+
     },
     "1 Unpaired File": {
         "content": [
@@ -35,12 +36,14 @@
                     "151"
                 ],
                 "1": [
+
                     "all.se.fastq:md5,c9cd5b2586c75c7448674ff3ff5451de"
                 ],
                 "avgReadLen": [
                     "151"
                 ],
                 "fastqFiles": [
+
                     "all.se.fastq:md5,c9cd5b2586c75c7448674ff3ff5451de"
                 ]
             }
