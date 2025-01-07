@@ -32,5 +32,22 @@
             "nextflow": "24.10.3"
         },
         "timestamp": "2025-01-06T17:33:53.778426755"
+    },
+    "Basic workflow": {
+        "content": [
+            {
+                "0": [
+                    "SRR29462562.fastq.gz:md5,31506ee0f339cb6398dd326d5cb23b77"
+                ],
+                "fastq": [
+                    "SRR29462562.fastq.gz:md5,31506ee0f339cb6398dd326d5cb23b77"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.3"
+        },
+        "timestamp": "2025-01-06T18:04:07.033920358"
     }
 }
