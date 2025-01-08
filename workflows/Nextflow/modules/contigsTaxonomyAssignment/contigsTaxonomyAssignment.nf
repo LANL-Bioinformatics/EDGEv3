@@ -5,10 +5,13 @@
 //base process. Takes a FASTA file containing contigs and performs taxonomic analysis with MICCR (https://github.com/chienchi/miccr).
 process contigTaxonomy {
     label 'cta'
+    containerOptions "--compat --cleanenv --home \
+                        --bind /media/volume/sdb/nextflow/database/miccrDB:/venv/database/miccrDB"
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Taxonomy",
         mode: 'copy'
     )
+
     input:
     val settings
     path contigs
@@ -31,6 +34,8 @@ process contigTaxonomy {
 //adds multi-level taxonomic classification to results file. Takes in a .ctg.tsv file produced by MICCR.
 process addLineage {
     label 'cta'
+    containerOptions "--compat --cleanenv --home \
+                        --bind /media/volume/sdb/nextflow/database/miccrDB:/venv/database/miccrDB"
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Taxonomy",
         mode: 'copy'

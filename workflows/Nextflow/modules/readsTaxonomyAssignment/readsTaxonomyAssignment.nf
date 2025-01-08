@@ -3,6 +3,11 @@
 //main RTA process
 process readsTaxonomy {
     label 'rta'
+
+    containerOptions "--compat --cleanenv --home \
+                        --bind /media/volume/sdd/nextflow/database:/venv/bin/../../../database \
+                        --bind /media/volume/sdd/nextflow/krona_dbs:/venv/opt/krona/taxonomy"
+
     publishDir(
         path: "${settings["outDir"]}/ReadsBasedAnalysis/Taxonomy",
 	mode: 'copy',
@@ -42,6 +47,10 @@ process readsTaxonomy {
 //creates RTA config file based on input settings
 process readsTaxonomyConfig {
     label 'rta'
+
+    containerOptions "--compat --cleanenv --home \
+                        --bind /media/volume/sdd/nextflow/database:/venv/bin/../../../database \
+                        --bind /media/volume/sdd/nextflow/krona_dbs:/venv/opt/krona/taxonomy"
 
     input:
     val settings
