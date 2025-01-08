@@ -7,6 +7,7 @@ include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
 include {ASSEMBLY} from './modules/runAssembly/runAssembly.nf'
 include {READSTOCONTIGS} from './modules/runReadsToContig/runReadsToContig.nf'
 include {READSTAXONOMYASSIGNMENT} from './modules/readsTaxonomyAssignment/readsTaxonomyAssignment.nf'
+include {CONTIGSTAXONOMYASSIGNMENT} from '.modules/contigsTaxonomyAssignment/contigsTaxonomyAssignment.nf'
 
 workflow {
 
@@ -50,8 +51,15 @@ workflow {
         READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
     }
 
+    //should always run if contigs were provided or generated
+    READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
+
     if(params.modules.readsTaxonomyAssignment) {
         READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs.minLen), paired, unpaired, avgLen)
+    }
+
+    if(params.modules.contigsTaxonomyAssignment) {
+        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, READSTOCONTIGS.out.)
     }
 
 }

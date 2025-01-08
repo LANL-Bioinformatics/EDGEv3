@@ -101,7 +101,7 @@ process makeCoverageTable {
     output:
     path "contigs_stats.txt"
     path "contigs_stats.pdf"
-    path "*_coverage.table.json"
+    path "*_coverage.table.json", emit: coverageTable
 
     script:
     def rowLimit = settings["rowLimit"] != null ? "${settings["rowLimit"]} " : "3000"
@@ -156,5 +156,10 @@ workflow READSTOCONTIGS {
     if(settings["extractUnmapped"]) {
         extractUnmapped(settings, validationAlignment.out.sortedBam, validationAlignment.out.logFile)
     }
+
+    covTable = makeCoverageTable.out.coverageTable
+    emit:
+    covTable
+
 
 }
