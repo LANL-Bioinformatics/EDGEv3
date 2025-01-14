@@ -77,7 +77,7 @@ process plotAndTable {
     script:
     """
     classification_plot.R $lineage ${settings["projName"]} $covTable
-    tab2Json_for_dataTable.pl -project_dir $${settings["outDir"]} -mode contig -limit ${settings["rowLimit"]} $lcaResult > ${settings["projName"]}.ctg_class.LCA.json
+    tab2Json_for_dataTable.pl -project_dir ${settings["outDir"]} -mode contig -limit ${settings["rowLimit"]} $lcaResult > ${settings["projName"]}.ctg_class.LCA.json
     """
 }
 

@@ -468,7 +468,7 @@ close $list_fh if $list_fh;
 
 if( $tools->{system}->{RUN_POST_PROCESS} ){
 	&_notify("\n[POST PROCESS] Generate report...\n");
-	`bash $post_script`;
+	`bash $post_script >post_process_log.txt 2>&1`;
 	&_notify("\n[POST PROCESS] Done.\n");
 }
 

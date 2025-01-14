@@ -147,10 +147,6 @@ workflow READSTOCONTIGS {
     contigs
 
     main:
-    "mkdir nf_assets".execute().text
-    "touch nf_assets/NO_FILE".execute().text
-    "touch nf_assets/NO_FILE2".execute().text
-
     validationAlignment(settings, paired, unpaired, contigs)
     makeCoverageTable(settings, validationAlignment.out.cov_table, validationAlignment.out.contig_file)
     if(settings["extractUnmapped"]) {

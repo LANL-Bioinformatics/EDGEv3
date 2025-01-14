@@ -8,7 +8,8 @@ process countFastq {
 
     output:
     path "fastqCount.txt", emit: counts
-    path "all.*.fastq", emit: allFiles
+    path "all.se.fastq", emit: unpaired, optional:true
+    path "all.{1,2}.fastq", emit: paired, optional:true
 
     script:
 
@@ -66,9 +67,11 @@ workflow COUNTFASTQ {
 
     countFastq(settings, inputFastq)
     avgReadLen = avgLen(countFastq.out.counts)
-    fastqFiles = countFastq.out.allFiles
+    paired = countFastq.out.paired
+    unpaired = countFastq.out.unpaired
 
     emit:
     avgReadLen
-    fastqFiles
+    paired
+    unpaired
 }

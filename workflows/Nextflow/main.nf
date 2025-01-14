@@ -7,7 +7,7 @@ include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
 include {ASSEMBLY} from './modules/runAssembly/runAssembly.nf'
 include {READSTOCONTIGS} from './modules/runReadsToContig/runReadsToContig.nf'
 include {READSTAXONOMYASSIGNMENT} from './modules/readsTaxonomyAssignment/readsTaxonomyAssignment.nf'
-include {CONTIGSTAXONOMYASSIGNMENT} from '.modules/contigsTaxonomyAssignment/contigsTaxonomyAssignment.nf'
+include {CONTIGSTAXONOMYASSIGNMENT} from './modules/contigsTaxonomyAssignment/contigsTaxonomyAssignment.nf'
 
 workflow {
 
@@ -27,16 +27,15 @@ workflow {
     COUNTFASTQ(params.shared, fastqFiles.collect())
 
     avgLen = COUNTFASTQ.out.avgReadLen
-    fastqFiles = COUNTFASTQ.out.fastqFiles
+    paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE","${projectDir}/nf_assets/NO_FILE2"])
+    unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE")
 
 
-    paired = channel.empty()
-    unpaired = channel.empty()
     if(params.modules.faqcs) {
-        FAQCS(params.faqcs.plus(params.shared), fastqFiles,avgLen)
+        FAQCS(params.faqcs.plus(params.shared), paired, unpaired,avgLen)
 
-        paired = FAQCS.out.paired.ifEmpty(params.pairedFiles)
-        unpaired = FAQCS.out.unpaired.ifEmpty(params.unpairedFiles)
+        paired = FAQCS.out.paired
+        unpaired = FAQCS.out.unpaired
     }
 
     if(params.modules.hostRemoval) {
@@ -55,11 +54,11 @@ workflow {
     READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
 
     if(params.modules.readsTaxonomyAssignment) {
-        READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs.minLen), paired, unpaired, avgLen)
+        READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs), paired, unpaired, avgLen)
     }
 
     if(params.modules.contigsTaxonomyAssignment) {
-        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, READSTOCONTIGS.out.)
+        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, READSTOCONTIGS.out.covTable)
     }
 
 }

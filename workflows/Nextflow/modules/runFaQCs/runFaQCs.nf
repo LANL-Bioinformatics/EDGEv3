@@ -1,5 +1,47 @@
 #!/usr/bin/env nextflow
 
+// process nanoplot {
+//     label "qc"
+//     publishDir(
+//         path: "${settings["outDir"]}/QcReads",
+//         mode: 'copy'
+//     )
+//     input:
+//     val settings
+//     path unpaired
+
+//     output:
+//     path "*" //lots of output plots
+
+//     script:
+//     """
+//     NanoPlot --fastq $unpaired --N50 --loglength -t ${settings["cpus"]} -f pdf --outdir . 2>/dev/null
+//     """
+
+// }
+
+// //Porechop for removing adapters from ONT or PacBio reads
+// process porechop {
+//     label "qc"
+//     publishDir(
+//         path: "${settings["outDir"]}/QcReads",
+//         mode: 'copy'
+//     )
+
+
+//     input:
+//     val settings
+//     path trimmed
+//     path log
+//     output:
+//     path "*.porechop.fastq", emit: porechopped
+    
+//     script:
+//     """
+//     porechop -i $trimmed -o ./QC.unpaired.porechop.fastq -t ${settings["cpus"]} > $log
+//     """
+// }
+
 //double-checks that any provided adapter file is in FASTA format
 process adapterFileCheck {
     label "qc"
@@ -16,6 +58,8 @@ process adapterFileCheck {
 }
 
 //main QC process. puts parameters together and runs FaQCs.
+//EDGE currently uses a custom script (illumina_fastq_QC.pl) to handle QC for long reads,
+//but it was unable to create report files when I attempted using it. For now, all input reads go through FaQCs.
 process qc {
     label "qc"
     publishDir(
@@ -25,7 +69,8 @@ process qc {
 
     input:
     val settings
-    path fastq
+    path paired
+    path unpaired
     val validAdapter
     path adapter
     val avgLen
@@ -39,15 +84,20 @@ process qc {
 
     script:
     //adjust minLength
-    def min = settings["minLen"]
-    if(settings["minLen"] < 1) {
-        min = Math.abs(settings["minLen"] * avgLen.toInteger())
+    def min = settings["minLength"]
+    if(settings["minLength"] < 1) {
+        min = Math.abs(settings["minLength"] * avgLen.toInteger())
     }
 
     def qcSoftware = "FaQCs"
-
-    
-    def inputArg = settings["pairedFile"] ? "-1 ${fastq[0]} -2 ${fastq[1]}" : "-u $fastq"
+    // if(params.ontFlag || params.pacbioFlag) {
+    //     qcSoftware = "illumina_fastq_QC.pl"
+    // }
+    def pairedArg = paired.name != "NO_FILE" ? "-1 ${paired[0]} -2 ${paired[1]}" : ""
+    // if(pairedArg != "" && (params.ontFlag || params.pacbioFlag)) {
+    //     pairedArg = "-p $paired"
+    // }
+    def unpairedArg = unpaired.name != "NO_FILE2" ? "-u $unpaired" : ""
 
     def adapterArg = ""
     if(adapter.name != "NO_FILE3" && validAdapter == "Yes"){
@@ -55,24 +105,31 @@ process qc {
     } 
 
     def polyA = settings["polyA"] ? "--polyA" : ""
-    def phiX = settings["filtPhiX"] ? "--phiX" : ""
+    def trim = ""
+    // if(params.ontFlag || params.pacbioFlag) {
+    //     trim = "--trim_only"
+    // }
+    def ascii = settings["phredOffset"] != null ? "--ascii ${settings["phredOffset"]}" : ""
 
     """
-    $qcSoftware $inputArg \
-    -q ${settings["trimQual"]} --min_L $min --avg_q ${settings["avgQual"]} \
-    -n ${settings["numN"]} --lc ${settings["filtLC"]} --5end ${settings["trim5end"]} --3end ${settings["trim3end"]} \
-    --split_size 1000000 -d . -t ${settings["cpus"]} \
+    $qcSoftware $pairedArg $unpairedArg \
+    -q ${settings["qualityCutoff"]} --min_L $min --avg_q ${settings["avgQuality"]} \
+    -n ${settings["numN"]} --lc ${settings["lowComplexity"]} --5end ${settings["cut5end"]} --3end ${settings["cut3end"]} \
+    --split_size ${settings["splitSize"]} -d . -t ${settings["cpus"]} \
     $polyA \
+    $trim \
     $adapterArg \
-    $phiX
+    $ascii \
     1>QC.log 2>&1
     """
 }
 
+
 workflow FAQCS {
     take:
     settings
-    fastq
+    paired
+    unpaired
     avgLen
 
 
@@ -84,20 +141,14 @@ workflow FAQCS {
     adapterFileCheck(adapter_ch)
 
     //main QC process
-    qc(settings, fastq, adapterFileCheck.out, adapter_ch, avgLen)
+    qc(settings, paired, unpaired, adapterFileCheck.out, adapter_ch, avgLen)
     
 
-    trimmed = channel.empty()
-    if(settings["pairedFile"]) {
-        trimmed = qc.out.pairedQC
-    }
-    else {
-        trimmed = qc.out.unpairedQC
-    }
     paired = qc.out.pairedQC
     unpaired = qc.out.unpairedQC
     
     emit:
-    trimmed
+    paired
+    unpaired
 
 }
