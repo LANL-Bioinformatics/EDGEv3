@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM continuumio/miniconda3:24.5.0-0 AS build
+FROM continuumio/miniconda3:main AS build
 
 ENV container=docker
 
@@ -12,8 +12,8 @@ RUN conda init bash \
     && conda create --name readsTaxonomyAssignment \
     && conda activate readsTaxonomyAssignment 
 
-RUN conda install -n readsTaxonomyAssignment -c bioconda metaphlan=4.1.1
 RUN conda install -n readsTaxonomyAssignment python=3.10
+RUN conda install -n readsTaxonomyAssignment -c bioconda gottcha2=2.1.8.8 minimap2=2.17 metaphlan=4.1.1
 #the required version of diamond is 2.0.5, but this runs into conda installation problems
 #we will install it here to handle any dependencies, then later replace diamond with the appropriate release
 RUN conda install -n readsTaxonomyAssignment -c bioconda diamond 
@@ -25,8 +25,6 @@ RUN conda install -n readsTaxonomyAssignment -c bioconda kraken2
 RUN conda install -n readsTaxonomyAssignment -c bioconda krona
 RUN conda install -n readsTaxonomyAssignment -c bioconda perl-yaml
 RUN conda install -n readsTaxonomyAssignment -c bioconda centrifuge
-RUN conda install -n readsTaxonomyAssignment -c bioconda gottcha2
-RUN conda install -n readsTaxonomyAssignment -c bioconda minimap2=2.17
 RUN conda install -n readsTaxonomyAssignment -c bioconda pybedtools
 RUN conda install -n readsTaxonomyAssignment -c conda-forge parallel
 #conda does not have the most recent version of gottcha (1.0b instead of 1.0c), 
@@ -63,7 +61,7 @@ RUN wget https://github.com/LANL-Bioinformatics/GOTTCHA/archive/refs/tags/1.0c.t
 
 
 #add scripts from this project to bin
-ADD bin/* /opt/conda/envs/readsTaxonomyAssignment/bin
+#ADD bin/* /opt/conda/envs/readsTaxonomyAssignment/bin
 
 #pack environment for runtime image
 RUN conda-pack -n readsTaxonomyAssignment -o /tmp/env.tar && \
