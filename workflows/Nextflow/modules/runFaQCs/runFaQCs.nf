@@ -3,6 +3,8 @@
 //double-checks that any provided adapter file is in FASTA format
 process adapterFileCheck {
     label "qc"
+    label "small"
+
     input:
     path adapterFile
 
@@ -18,6 +20,8 @@ process adapterFileCheck {
 //main QC process. puts parameters together and runs FaQCs.
 process qc {
     label "qc"
+    label "medium"
+
     publishDir(
         path: "${settings["outDir"]}/QcReads",
         mode: 'copy'
@@ -61,7 +65,7 @@ process qc {
     $qcSoftware $inputArg \
     -q ${settings["trimQual"]} --min_L $min --avg_q ${settings["avgQual"]} \
     -n ${settings["numN"]} --lc ${settings["filtLC"]} --5end ${settings["trim5end"]} --3end ${settings["trim3end"]} \
-    --split_size 1000000 -d . -t ${settings["cpus"]} \
+    --split_size 1000000 -d . -t ${task.cpus} \
     $polyA \
     $adapterArg \
     $phiX

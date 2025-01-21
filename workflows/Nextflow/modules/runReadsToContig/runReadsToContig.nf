@@ -2,6 +2,8 @@
 
 process validationAlignment {
     label 'r2c'
+    label "medium"
+
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
         mode: 'copy'
@@ -25,7 +27,6 @@ process validationAlignment {
     def paired = paired.name != "NO_FILE" ? "-p \'${paired[0]} ${paired[1]}\' " : ""
     def unpaired = unpaired.name != "NO_FILE2" ? "-u $unpaired " : ""
     def cutoff = settings["useAssembledContigs"] ? "-c 0 " : "-c 0.1 "
-    def cpu = settings["cpus"] != null ? "-cpu ${settings["cpus"]} " : ""
     def max_clip = settings["r2g_max_clip"] != null ? "-max_clip ${settings["r2g_max_clip"]} " : ""
 
 
@@ -67,7 +68,7 @@ process validationAlignment {
     """
     runReadsToContig.pl \
     $cutoff\
-    $cpu\
+    -cpu ${task.cpus}\
     $paired\
     $unpaired\
     -d . -pre $outPrefix\
@@ -83,6 +84,8 @@ process validationAlignment {
 
 process makeCoverageTable {
     label 'r2c'
+    label "small"
+
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
         mode: 'copy',
@@ -116,6 +119,8 @@ process makeCoverageTable {
 
 process extractUnmapped {
     label 'r2c'
+    label "small"
+    
     publishDir(
         path:"${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig/",
         mode: 'copy',
