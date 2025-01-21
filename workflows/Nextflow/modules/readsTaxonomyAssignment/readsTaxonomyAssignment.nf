@@ -5,8 +5,8 @@ process readsTaxonomy {
     label 'rta'
 
     containerOptions "--compat --cleanenv \
-                        --bind=/media/volume/sdb/nextflow/database:/venv/bin/../../../database \
-                        --bind=/media/volume/sdb/nextflow/krona_dbs:/venv/opt/krona/taxonomy"
+                        --bind=${settings["baseDB"]}:/venv/bin/../../../database \
+                        --bind=${settings["baseDB"]}:/venv/opt/krona/taxonomy"
 
     publishDir(
         path: "${settings["outDir"]}/ReadsBasedAnalysis/Taxonomy",
@@ -30,14 +30,12 @@ process readsTaxonomy {
     path "report**"
 
     script:
-    def debugging = (settings["debugFlag"] != null && settings["debugFlag"]) ? "--debug " : ""
     def numCPU = settings["cpus"] != null ? settings["cpus"] : 8
     """
     cat $paired $unpaired > allReads.fastq
-    microbial_profiling.pl $debugging -o . \
+    microbial_profiling.pl -o . \
     -s $taxonomyConfig \
     -c $numCPU \
-    $debugging \
     allReads.fastq 2>>$errorlog
 
     svg2pdf.sh  report/*/*/*.svg 2>>$errorlog
@@ -49,8 +47,8 @@ process readsTaxonomyConfig {
     label 'rta'
 
     containerOptions "--compat --cleanenv \
-                        --bind=/media/volume/sdb/nextflow/database:/venv/bin/../../../database \
-                        --bind=/media/volume/sdb/nextflow/krona_dbs:/venv/opt/krona/taxonomy"
+                        --bind=${settings["baseDB"]}:/venv/bin/../../../database \
+                        --bind=${settings["baseDB"]}:/venv/opt/krona/taxonomy"
 
     input:
     val settings
@@ -75,8 +73,9 @@ process readsTaxonomyConfig {
     }
     bwaScoreCut = bwaScoreCut as Integer
     tools = settings["enabledTools"] != null ? "-tools \'${settings["enabledTools"]}\' " : ""
-    template = settings["template"] != null ? "-template ${settings["template"]} " : ""
     splitTrimMinQ = settings["splitTrimMinQ"] != null ? "-splitrim-minq ${settings["splitTrimMinQ"]} " : ""
+
+    base = settings["baseDB"] != null ? "-base-db ${settings["baseDB"]}" : ""
 
     bwa = settings["custom_bwa_db"] != null ? "-bwa-db ${settings["custom_bwa_db"]} " : ""
     metaphlan = settings["custom_metaphlan_db"] != null ? "-metaphlan-db ${settings["custom_metaphlan_db"]} " : ""
@@ -99,6 +98,7 @@ process readsTaxonomyConfig {
     np = (settings["fastqSource"] != null && settings["fastqSource"].equalsIgnoreCase("nanopore")) ? "--nanopore " : ""
 
     """
+
     mkdir -p /venv/opt/krona/taxonomy
     touch /venv/opt/krona/taxonomy/taxdump.tar.gz
     chmod 777 /venv/opt/krona/taxonomy/taxdump.tar.gz
@@ -106,8 +106,9 @@ process readsTaxonomyConfig {
 
     updateAccessions.sh 
     
-    microbial_profiling_configure.pl $template \
+    microbial_profiling_configure.pl \
     $tools -bwaScoreCut $bwaScoreCut\
+    $base\
     $bwa\
     $metaphlan\
     $kraken\

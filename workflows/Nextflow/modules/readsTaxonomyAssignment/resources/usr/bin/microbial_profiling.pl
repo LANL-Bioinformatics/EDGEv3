@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 # Paul Li, B-11  (April 2013)
 #
+# Edits by André Watson (2025)
 
 use strict;
 use Getopt::Long;
@@ -441,9 +442,9 @@ biom convert -i $tmpdir/$fnb.strain.otu.txt -o $p_repdir/$fnb.strain.biom --to-h
 wait
 
 echo \"==> Generating heatmaps...\";
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.genus.heatmap.matrix   --out $p_repdir/heatmap_DATASET-$fnb.genus.pdf --title $fnb.genus 2>/dev/null &
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.species.heatmap.matrix --out $p_repdir/heatmap_DATASET-$fnb.species.pdf --title $fnb.species 2>/dev/null  &
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.strain.heatmap.matrix  --out $p_repdir/heatmap_DATASET-$fnb.strain.pdf --title $fnb.strain 2>/dev/null &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.genus.heatmap.matrix   --out $p_repdir/heatmap_DATASET-$fnb.genus.pdf --title $fnb.genus &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.species.heatmap.matrix --out $p_repdir/heatmap_DATASET-$fnb.species.pdf --title $fnb.species &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.strain.heatmap.matrix  --out $p_repdir/heatmap_DATASET-$fnb.strain.pdf --title $fnb.strain &
 ";
 	print $post_fh "\nwait\n";
 	print $post_fh "echo \"[END #$idx $fnb]\"\n\n";
@@ -468,7 +469,7 @@ close $list_fh if $list_fh;
 
 if( $tools->{system}->{RUN_POST_PROCESS} ){
 	&_notify("\n[POST PROCESS] Generate report...\n");
-	`bash $post_script >post_process_log.txt 2>&1`;
+	`bash $post_script`;
 	&_notify("\n[POST PROCESS] Done.\n");
 }
 

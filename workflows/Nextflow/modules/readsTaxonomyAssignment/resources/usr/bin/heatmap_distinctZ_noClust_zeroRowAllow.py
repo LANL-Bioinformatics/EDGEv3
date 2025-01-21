@@ -2,8 +2,11 @@
 
 import sys
 import numpy as np
+import numpy.ma as ma
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.cm
+import matplotlib.pyplot as plt
 import scipy
 import pylab
 import scipy.cluster.hierarchy as sch
@@ -223,7 +226,7 @@ def init_fig(xsize,ysize,ncol):
     return fig
 
 def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, label_font_size, cb_offset, cb_l, flabelson, slabelson, cm_ticks, gridon, bar_offset ):
-    cm = pylab.get_cmap(cm_name).copy()
+    cm = matplotlib.cm.get_cmap(cm_name).copy()
     cm.set_under('#DDDDDD')
 
     cm.set_bad('#DDDDDD')
@@ -241,10 +244,9 @@ def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, l
 
     norm_f = matplotlib.colors.LogNorm if scale == 'log' else matplotlib.colors.Normalize
 
-    im = axmatrix.matshow(  D, norm = norm_f(   vmin=D.min() if scale == 'log' else minv if  minv > 0.0 else 0.000000001,
-                                                vmax=maxv),
-                            aspect='auto', origin='lower', cmap=cm)
-                            #aspect='auto', origin='lower', cmap=cm, vmax=maxv, vmin=None if scale == 'log' else 0.000000001)
+    #im = axmatrix.matshow(D, norm=norm_f(vmin=minv if minv > 0.0 else None,vmax=maxv),aspect='auto', origin='lower', cmap=cm) 
+    im = axmatrix.matshow(  D, norm = norm_f(vmin=ma.masked_values(D, 0.0).min() if scale == 'log' else minv if  minv > 0.0 else 0.000000001, vmax=maxv),aspect='auto', origin='lower', cmap=cm)
+    plt.savefig('testing.png')
     axmatrix.invert_yaxis()
     axmatrix2 = axmatrix.twinx()
     axmatrix3 = axmatrix.twiny()
@@ -383,7 +385,7 @@ def hclust(  fin, fout, title,
              slabelon = True,
              cm_ticks = None,
              legend_ncol = 3,
-             pad_inches = 1,
+             pad_inches = 1.0,
              legend_font_size = 7,
              gridon = 0,
              tax_lev = 's'):

@@ -15,6 +15,7 @@ GetOptions(\%opt,
            "tools=s",
            "bwaScoreCut=i",
            "configJson=s",
+           "base-db=s",
            "bwa-db=s",
            "metaphlan-db=s",
            "kraken-db=s",
@@ -44,28 +45,28 @@ $opt{'template'}        = $opt{'template'}||$ARGV[0]||"$Bin/microbial_profiling.
 $opt{'tools'}           ||= $ARGV[1];
 $opt{'bwaScoreCut'}     ||= 30;
 $opt{'splitrim-minq'}   ||= 20;
-$opt{'bwa-db'}          ||= "$EDGE_HOME/database/bwa_index/NCBI-Bacteria-Virus.fna";
-$opt{"metaphlan-db"}    ||= "$EDGE_HOME/database/metaphlan4";
-$opt{"kraken-db"}       ||= "$EDGE_HOME/database/kraken2/taxo.k2d";
-$opt{"gottcha-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species";
-$opt{"gottcha-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species";
-$opt{"gottcha-v-strDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.strain";
-$opt{"gottcha-b-strDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.strain";
-$opt{"gottcha-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus";
-$opt{"gottcha-b-genDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus";
-$opt{"gottcha2-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz";
-$opt{"gottcha2-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaArchaeaViruses.species.fna";
-$opt{"gottcha2-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release90.cg.Viruses.species.fna";
-$opt{"gottcha2-e-plnDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz";
-$opt{"gottcha2-e-fugDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz";
-$opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz";
-$opt{"diamond-db"} ||= "$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd";
-$opt{"centrifuge-db"} ||= "$EDGE_HOME/database/Centrifuge/hpv.1.cf";
+$opt{'bwa-db'}          ||= "$opt{'base-db'}/bwa_index/NCBI-Bacteria-Virus.fna";
+$opt{"metaphlan-db"}    ||= "$opt{'base-db'}/metaphlan4";
+$opt{"kraken-db"}       ||= "$opt{'base-db'}/kraken2/taxo.k2d";
+$opt{"gottcha-v-speDB"} ||= "$opt{'base-db'}/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species";
+$opt{"gottcha-b-speDB"} ||= "$opt{'base-db'}/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species";
+$opt{"gottcha-v-strDB"} ||= "$opt{'base-db'}/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.strain";
+$opt{"gottcha-b-strDB"} ||= "$opt{'base-db'}/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.strain";
+$opt{"gottcha-v-genDB"} ||= "$opt{'base-db'}/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus";
+$opt{"gottcha-b-genDB"} ||= "$opt{'base-db'}/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus";
+$opt{"gottcha2-v-genDB"} ||= "$opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz";
+$opt{"gottcha2-b-speDB"} ||= "$opt{'base-db'}/GOTTCHA2/RefSeq-r90.cg.BacteriaArchaeaViruses.species.fna";
+$opt{"gottcha2-v-speDB"} ||= "$opt{'base-db'}/GOTTCHA2/RefSeq-Release90.cg.Viruses.species.fna";
+$opt{"gottcha2-e-plnDB"} ||= "$opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz";
+$opt{"gottcha2-e-fugDB"} ||= "$opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz";
+$opt{"gottcha2-e-ptzDB"} ||= "$opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz";
+$opt{"diamond-db"} ||= "$opt{'base-db'}/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd";
+$opt{"centrifuge-db"} ||= "$opt{'base-db'}/Centrifuge/hpv.1.cf";
 
 #PanGIA configs
 my $config_json = readListFromJson($opt{"configJson"});
-$opt{"pangia-db"} = $config_json->{"edge-taxa-pangia-db"} || "$EDGE_HOME/database/PanGIA/NCBI_genomes_refseq89*.fa";
-$opt{"pangia-bg"} = "-b $EDGE_HOME/database/PanGIA/background/$config_json->{'edge-taxa-pangia-bg'}" if $config_json->{'edge-taxa-pangia-bg'};
+$opt{"pangia-db"} = $config_json->{"edge-taxa-pangia-db"} || "$opt{'base-db'}/PanGIA/NCBI_genomes_refseq89*.fa";
+$opt{"pangia-bg"} = "-b $opt{'base-db'}/PanGIA/background/$config_json->{'edge-taxa-pangia-bg'}" if $config_json->{'edge-taxa-pangia-bg'};
 $opt{"pangia-ra"} = $config_json->{"edge-taxa-pangia-ra"} || "DEPTH_COV";
 $opt{"pangia-ms"} = $config_json->{"edge-taxa-pangia-ms"} || "0" ;
 $opt{"pangia-mr"} = $config_json->{"edge-taxa-pangia-mr"} || "3" ;
@@ -130,23 +131,23 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -template           $Bin/microbial_profiling.settings.tmpl
     -tools              comma separated tools: bwa,kraken-mini, ...
     -bwaScoreCut        minimum score to output for BWA [30]
-    -bwa-db             $EDGE_HOME/database/bwa_index/NCBI-Bacteria-Virus.fna
-    -metaphlan-db       $EDGE_HOME/database/metaphlan4
-    -kraken-db          $EDGE_HOME/database/kraken2
-    -centrifuge-db      $EDGE_HOME/database//Centrifuge/hpv.1.cf
-    -gottcha-v-speDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species
-    -gottcha-b-speDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species
-    -gottcha-v-strDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.strain
-    -gottcha-b-strDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.strain
-    -gottcha-v-genDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus
-    -gottcha-b-genDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus
-    -gottcha2-v-genDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz
-    -gottcha2-b-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaViruses.species.fna
-    -gottcha2-v-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.species.fna.gz
-    -gottcha2-e-plnDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz
-    -gottcha2-e-ptzDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz
-    -gottcha2-e-fugDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz
-    -diamond-db         $EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
+    -bwa-db             $opt{'base-db'}/bwa_index/NCBI-Bacteria-Virus.fna
+    -metaphlan-db       $opt{'base-db'}/metaphlan4
+    -kraken-db          $opt{'base-db'}/kraken2
+    -centrifuge-db      $opt{'base-db'}//Centrifuge/hpv.1.cf
+    -gottcha-v-speDB    $opt{'base-db'}/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species
+    -gottcha-b-speDB    $opt{'base-db'}/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species
+    -gottcha-v-strDB    $opt{'base-db'}/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.strain
+    -gottcha-b-strDB    $opt{'base-db'}/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.strain
+    -gottcha-v-genDB    $opt{'base-db'}/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus
+    -gottcha-b-genDB    $opt{'base-db'}/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus
+    -gottcha2-v-genDB   $opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz
+    -gottcha2-b-speDB   $opt{'base-db'}/GOTTCHA2/RefSeq-r90.cg.BacteriaViruses.species.fna
+    -gottcha2-v-speDB   $opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Virus.species.fna.gz
+    -gottcha2-e-plnDB   $opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz
+    -gottcha2-e-ptzDB   $opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz
+    -gottcha2-e-fugDB   $opt{'base-db'}/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz
+    -diamond-db         $opt{'base-db'}/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
     --nanopore          
 
 USAGE
