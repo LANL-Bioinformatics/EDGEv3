@@ -23,13 +23,6 @@ RUN conda install -n readsToContig -c bioconda samtools=1.6
 RUN conda install -c conda-forge conda-pack
 
 
-ADD bin/bam_to_fastq.pl /opt/conda/envs/readsToContig/bin
-ADD bin/contig_stats.pl /opt/conda/envs/readsToContig/bin
-ADD bin/ContigCoverageFold_plots_from_samPileup.pl /opt/conda/envs/readsToContig/bin
-ADD bin/fastq_utility.pm /opt/conda/envs/readsToContig/bin
-ADD bin/runReadsToContig.pl /opt/conda/envs/readsToContig/bin
-ADD bin/tab2Json_for_dataTable.pl /opt/conda/envs/readsToContig/bin
-
 RUN conda-pack -n readsToContig -o /tmp/env.tar && \
     mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
     rm /tmp/env.tar
