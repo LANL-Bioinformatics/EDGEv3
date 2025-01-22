@@ -44,21 +44,21 @@ workflow {
         unpaired = HOSTREMOVAL.out.unpaired.ifEmpty(params.unpairedFiles)
     }
 
+    coverageTable = channel.fromPath("DNE")
     if(params.modules.runAssembly && !params.r2c.useAssembledContigs) {
         ASSEMBLY(params.assembly.plus(params.shared), paired, unpaired, avgLen)
         contigs = ASSEMBLY.out.outContigs
         READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
+        coverageTable = READSTOCONTIGS.out.covTable
     }
 
-    //should always run if contigs were provided or generated
-    READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
 
     if(params.modules.readsTaxonomyAssignment) {
         READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs), paired, unpaired, avgLen)
     }
 
     if(params.modules.contigsTaxonomyAssignment) {
-        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, READSTOCONTIGS.out.covTable)
+        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, coverageTable)
     }
 
 }

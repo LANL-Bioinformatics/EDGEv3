@@ -81,7 +81,7 @@ process validationAlignment {
 
 }
 
-process makeCoverageTable {
+process makeJSONcoverageTable {
     label 'r2c'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
@@ -101,7 +101,7 @@ process makeCoverageTable {
     output:
     path "contigs_stats.txt"
     path "contigs_stats.pdf"
-    path "*_coverage.table.json", emit: coverageTable
+    path "*_coverage.table.json"
 
     script:
     def rowLimit = settings["rowLimit"] != null ? "${settings["rowLimit"]} " : "3000"
@@ -148,12 +148,12 @@ workflow READSTOCONTIGS {
 
     main:
     validationAlignment(settings, paired, unpaired, contigs)
-    makeCoverageTable(settings, validationAlignment.out.cov_table, validationAlignment.out.contig_file)
+    makeJSONcoverageTable(settings, validationAlignment.out.cov_table, validationAlignment.out.contig_file)
     if(settings["extractUnmapped"]) {
         extractUnmapped(settings, validationAlignment.out.sortedBam, validationAlignment.out.logFile)
     }
 
-    covTable = makeCoverageTable.out.coverageTable
+    covTable = validationAlignment.out.cov_table
     emit:
     covTable
 
