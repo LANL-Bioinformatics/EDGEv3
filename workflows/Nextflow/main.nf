@@ -2,20 +2,34 @@
 
 include {SRA2FASTQ} from './modules/sra2fastq/sra2fastq.nf'
 include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
+include {PROCESSCONTIGS} from './modules/processProvidedContigs/processProvidedContigs.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
 include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
 include {ASSEMBLY} from './modules/runAssembly/runAssembly.nf'
 include {READSTOCONTIGS} from './modules/runReadsToContig/runReadsToContig.nf'
 include {READSTAXONOMYASSIGNMENT} from './modules/readsTaxonomyAssignment/readsTaxonomyAssignment.nf'
 include {CONTIGSTAXONOMYASSIGNMENT} from './modules/contigsTaxonomyAssignment/contigsTaxonomyAssignment.nf'
+include {ANNOTATION} from './modules/runAnnotation/runAnnotation.nf'
 
 workflow {
 
-    //input specification    
-    fastqFiles = channel.fromPath(params.shared.inputFastq, checkIfExists:true)
+    //input specification
+    fastqFiles = channel.empty()
+    if(params.shared.inputFastq != null) {
+        fastqFiles = channel.fromPath(params.shared.inputFastq, checkIfExists:true)
+    }
+    
     contigs = channel.empty()
-    if(params.r2c.useAssembledContigs) {
-        contigs = channel.fromPath(params.shared.inputContigs, checkIfExists:true)
+    annContigs = channel.empty()
+    if(params.shared.inputContigs != "${projectDir}/nf_assets/NO_FILE3" || params.shared.assembledContigs != "${projectDir}/nf_assets/NO_FILE3") {
+        if(params.shared.inputContigs != "${projectDir}/nf_assets/NO_FILE3") {
+            contigs = channel.fromPath(params.shared.inputContigs, checkIfExists:true)
+        }
+        else if(params.shared.assembledContigs != "${projectDir}/nf_assets/NO_FILE3") {
+            contigs = channel.fromPath(params.shared.assembledContigs, checkIfExists:true)
+        }
+        PROCESSCONTIGS(params.shared.plus(params.assembly).plus(params.annotation).plus(params.modules), contigs)
+        annContigs = PROCESSCONTIGS.out.annotationContigs
     }
 
 
@@ -44,10 +58,15 @@ workflow {
         unpaired = HOSTREMOVAL.out.unpaired.ifEmpty(params.unpairedFiles)
     }
 
-    coverageTable = channel.fromPath("DNE")
-    if(params.modules.runAssembly && !params.r2c.useAssembledContigs) {
-        ASSEMBLY(params.assembly.plus(params.shared), paired, unpaired, avgLen)
-        contigs = ASSEMBLY.out.outContigs
+    coverageTable = channel.empty()
+    if(params.modules.runAssembly) {
+        //assemble if not already using assembled or provided contigs
+        if (params.inputContigs == "${projectDir}/nf_assets/NO_FILE3" && params.assembledContigs == "${projectDir}/nf_assets/NO_FILE3") {
+            ASSEMBLY(params.assembly.plus(params.shared).plus(params.annotation).plus(params.modules), paired, unpaired, avgLen)
+            contigs = ASSEMBLY.out.outContigs
+            annContigs = ASSEMBLY.out.annotationContigs
+        }
+        //run validation alignment if reads were provided
         READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
         coverageTable = READSTOCONTIGS.out.covTable
     }
@@ -58,7 +77,10 @@ workflow {
     }
 
     if(params.modules.contigsTaxonomyAssignment) {
-        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, coverageTable)
+        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, coverageTable.ifEmpty{"DNE"})
     }
 
+    if(params.modules.annotation) {
+        ANNOTATION(params.annotation.plus(params.shared), annContigs)
+    }
 }
