@@ -7,6 +7,7 @@
 //main process for assembly with IDBA
 process idbaUD {
     label "assembly"
+    label "medium"
     publishDir (
     path:"${settings["outDir"]}/AssemblyBasedAnalysis",
     mode: 'copy',
@@ -64,7 +65,7 @@ process idbaUD {
 
     memLimit = settings["memLimit"] != null ? "ulimit -v ${settings["memLimit"]} 2>/dev/null;" : ""
     """
-    ${memLimit}idba_ud --pre_correction -o . --num_threads ${settings["cpus"]}\
+    ${memLimit}idba_ud --pre_correction -o . --num_threads ${task.cpus}\
     $runFlag\
     $longReadsFile\
     $maxK_option\
@@ -80,6 +81,7 @@ process idbaUD {
 //prep for idba
 process idbaExtractLong {
     label "assembly"
+    label "small"
 
     input:
     path paired
@@ -104,6 +106,8 @@ process idbaExtractLong {
 //prep for idba
 process idbaPrepReads {
     label "assembly"
+    label "small"
+
     input:
     path paired
     path unpaired
@@ -127,6 +131,7 @@ process idbaPrepReads {
 //assemble using spades
 process spades {
     label "assembly"
+    label "medium"
 
     publishDir (
     path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
@@ -191,7 +196,7 @@ process spades {
     def memLimit = settings["memLimit"] != null ? "-m ${settings["memLimit"]}" : ""
 
     """
-    spades.py -o . -t ${settings["cpus"]}\
+    spades.py -o . -t ${task.cpus}\
     $paired\
     $meta_flag\
     $sc_flag\
@@ -211,8 +216,9 @@ process spades {
 
 //assemble using megahit
 process megahit {
-
     label "assembly"
+    label "medium"
+
     publishDir(
     path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
     mode: 'copy',
@@ -254,7 +260,7 @@ process megahit {
     def megahit_preset = settings["megahit"]["preset"] != null ? "--presets ${settings["megahit"]["preset"]} " : ""
 
     """
-    megahit -o ./megahit -t ${settings["cpus"]}\
+    megahit -o ./megahit -t ${task.cpus}\
     $megahit_preset\
     $paired\
     $unpaired\
@@ -271,6 +277,8 @@ process megahit {
 //assembly using unicycler
 process unicycler {
     label "assembly"
+    label "medium"
+
     publishDir (
         path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
         mode: 'copy',
@@ -316,7 +324,7 @@ process unicycler {
     """
     export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm';
 
-    unicycler -t ${settings["cpus"]} -o .\
+    unicycler -t ${task.cpus} -o .\
     $paired\
     $filt_lr\
     $bridge 2>&1 1>/dev/null
@@ -327,6 +335,7 @@ process unicycler {
 //filter long reads for unicycler
 process unicyclerPrep {
     label "assembly"
+    label "small"
 
     input:
     val settings
@@ -349,6 +358,7 @@ process unicyclerPrep {
 //assembly using lrasm
 process lrasm {
     label "assembly"
+    label "medium"
 
     publishDir (
         path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
@@ -414,7 +424,7 @@ process lrasm {
     def flyeOpt = settings["lrasm"]["algorithm"] == "metaflye" ? "--fo '--meta' ": ""
 
     """
-    lrasm -o . -t ${settings["cpus"]} \
+    lrasm -o . -t ${task.cpus} \
     $preset\
     $consensus\
     $errorCorrection\
@@ -427,6 +437,8 @@ process lrasm {
 
 process renameFilterFasta {
     label "assembly"
+    label "small"
+
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis",
         mode: 'copy'
@@ -458,6 +470,8 @@ process renameFilterFasta {
 
 process bestIncompleteAssembly {
     label "assembly"
+    label "small"
+
     input:
 
     val x

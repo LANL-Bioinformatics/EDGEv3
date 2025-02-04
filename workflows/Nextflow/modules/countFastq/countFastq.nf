@@ -1,6 +1,7 @@
 //creates fastqCount.txt as preparation for downstream processes
 process countFastq {
     label "countFastq"
+    label "small"
 
     input:
     val settings
@@ -30,6 +31,7 @@ process countFastq {
 //gets average read length from fastqCount.txt
 process avgLen {
     label "countFastq"
+    label "small"
 
     input:
     path countFastq

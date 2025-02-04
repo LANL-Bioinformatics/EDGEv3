@@ -5,6 +5,8 @@
 //clean input FASTQ files of reads that map to provided host references, one process per given host
 process hostRemoval {
     label "hostRemoval"
+    label "medium"
+
     publishDir(
         path: "${settings["outDir"]}/HostRemoval",
         mode: 'copy'
@@ -46,13 +48,12 @@ process hostRemoval {
     }
     minScore = ontFlag != "" ? "-T ${settings["minLen"]} " : minScore
     bwaMemOptions = "-bwaMemOptions \"${ontFlag} ${minScore}\" "
-    def cpu = settings["cpus"] != null ? "-cpu ${settings["cpus"]} " : ""
     
     """
     host_reads_removal_by_mapping.pl\
     $refFile\
     $prefix\
-    $cpu\
+    -cpu ${task.cpus} \
     -host \
     $bwaMemOptions\
     $pairedFiles\
@@ -68,6 +69,8 @@ process hostRemoval {
 //merge cleaned FASTQ files into files cleaned of ALL reads mapping to ANY provided host reference
 process collectCleanPairedReads {
     label "hostRemoval"
+    label "small"
+
     publishDir(
         path: "${settings["outDir"]}/HostRemoval",
         mode: 'copy'
@@ -94,6 +97,8 @@ process collectCleanPairedReads {
 
 process collectCleanPairedReadsOneHost {
     label "hostRemoval"
+    label "small"
+
     publishDir(
         path: "${settings["outDir"]}/HostRemoval",
         mode: 'copy'
@@ -116,6 +121,8 @@ process collectCleanPairedReadsOneHost {
 //Concatenate leftover unpaired reads that didn't map to a host reference, and remove any name duplicates (i.e., leftovers appearing in multiple cleanings)
 process collectCleanSingleReads {
     label "hostRemoval"
+    label "small"
+
     publishDir(
         path: "${settings["outDir"]}/HostRemoval",
         mode: 'copy'
@@ -137,6 +144,8 @@ process collectCleanSingleReads {
 
 process hostRemovalStats {
     label "hostRemoval"
+    label "small"
+
     publishDir "${settings["outDir"]}/HostRemoval", mode: 'copy'
 
     input:
