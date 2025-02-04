@@ -17,7 +17,7 @@ process validationAlignment {
     path "*.alnstats.txt"
     path "*_coverage.table", emit: cov_table
     path "*_plots.pdf"
-    path "Final_contigs.fasta", emit: contig_file
+    path "Final_contigs.fasta", emit: contig_file, optional:true //not present if using already-assembled contigs
     path "mapping.log", emit: logFile
 
     script:

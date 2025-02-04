@@ -1,46 +1,5 @@
 #!/usr/bin/env nextflow
 
-// process nanoplot {
-//     label "qc"
-//     publishDir(
-//         path: "${settings["outDir"]}/QcReads",
-//         mode: 'copy'
-//     )
-//     input:
-//     val settings
-//     path unpaired
-
-//     output:
-//     path "*" //lots of output plots
-
-//     script:
-//     """
-//     NanoPlot --fastq $unpaired --N50 --loglength -t ${settings["cpus"]} -f pdf --outdir . 2>/dev/null
-//     """
-
-// }
-
-// //Porechop for removing adapters from ONT or PacBio reads
-// process porechop {
-//     label "qc"
-//     publishDir(
-//         path: "${settings["outDir"]}/QcReads",
-//         mode: 'copy'
-//     )
-
-
-//     input:
-//     val settings
-//     path trimmed
-//     path log
-//     output:
-//     path "*.porechop.fastq", emit: porechopped
-    
-//     script:
-//     """
-//     porechop -i $trimmed -o ./QC.unpaired.porechop.fastq -t ${settings["cpus"]} > $log
-//     """
-// }
 
 //double-checks that any provided adapter file is in FASTA format
 process adapterFileCheck {
@@ -84,9 +43,9 @@ process qc {
 
     script:
     //adjust minLength
-    def min = settings["minLength"]
-    if(settings["minLength"] < 1) {
-        min = Math.abs(settings["minLength"] * avgLen.toInteger())
+    min = settings["minLen"]
+    if(settings["minLen"] < 1) {
+        min = Math.abs(settings["minLen"] * avgLen.toInteger())
     }
 
     def qcSoftware = "FaQCs"
@@ -104,26 +63,68 @@ process qc {
         adapterArg = "--adapter --artifactFile $adapter"
     } 
 
-    def polyA = settings["polyA"] ? "--polyA" : ""
+    polyA = settings["trimPolyA"] ? "--polyA" : ""
+    phiX = settings["filtPhiX"] ? "--phiX" : ""
+
     def trim = ""
     // if(params.ontFlag || params.pacbioFlag) {
     //     trim = "--trim_only"
     // }
-    def ascii = settings["phredOffset"] != null ? "--ascii ${settings["phredOffset"]}" : ""
 
     """
     $qcSoftware $pairedArg $unpairedArg \
-    -q ${settings["qualityCutoff"]} --min_L $min --avg_q ${settings["avgQuality"]} \
-    -n ${settings["numN"]} --lc ${settings["lowComplexity"]} --5end ${settings["cut5end"]} --3end ${settings["cut3end"]} \
-    --split_size ${settings["splitSize"]} -d . -t ${settings["cpus"]} \
+    -q ${settings["trimQual"]} --min_L $min --avg_q ${settings["avgQual"]} \
+    -n ${settings["numN"]} --lc ${settings["filtLC"]} --5end ${settings["trim5end"]} --3end ${settings["trim3end"]} \
+    --split_size 1000000  -d . -t ${settings["cpus"]} \
     $polyA \
     $trim \
     $adapterArg \
-    $ascii \
+    $phiX \
     1>QC.log 2>&1
     """
 }
 
+// process nanoplot {
+//     label "qc"
+//     publishDir(
+//         path: "${settings["outDir"]}/QcReads",
+//         mode: 'copy'
+//     )
+//     input:
+//     val settings
+//     path unpaired
+
+//     output:
+//     path "*" //lots of output plots
+
+//     script:
+//     """
+//     NanoPlot --fastq $unpaired --N50 --loglength -t ${settings["cpus"]} -f pdf --outdir . 2>/dev/null
+//     """
+
+// }
+
+// //Porechop for removing adapters from ONT or PacBio reads
+// process porechop {
+//     label "qc"
+//     publishDir(
+//         path: "${settings["outDir"]}/QcReads",
+//         mode: 'copy'
+//     )
+
+
+//     input:
+//     val settings
+//     path trimmed
+//     path log
+//     output:
+//     path "*.porechop.fastq", emit: porechopped
+    
+//     script:
+//     """
+//     porechop -i $trimmed -o ./QC.unpaired.porechop.fastq -t ${settings["cpus"]} > $log
+//     """
+// }
 
 workflow FAQCS {
     take:

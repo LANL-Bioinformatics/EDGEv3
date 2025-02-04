@@ -10,12 +10,14 @@ include {READSTOCONTIGS} from './modules/runReadsToContig/runReadsToContig.nf'
 include {READSTAXONOMYASSIGNMENT} from './modules/readsTaxonomyAssignment/readsTaxonomyAssignment.nf'
 include {CONTIGSTAXONOMYASSIGNMENT} from './modules/contigsTaxonomyAssignment/contigsTaxonomyAssignment.nf'
 include {ANNOTATION} from './modules/runAnnotation/runAnnotation.nf'
+include {PHAGEFINDER} from './modules/phageFinder/phageFinder.nf'
+include {ANTISMASH} from './modules/runAntiSmash/runAntiSmash.nf'
 
 workflow {
 
     //input specification
     fastqFiles = channel.empty()
-    if(params.shared.inputFastq != null) {
+    if(params.shared.inputFastq.size() != 0) {
         fastqFiles = channel.fromPath(params.shared.inputFastq, checkIfExists:true)
     }
     
@@ -41,8 +43,8 @@ workflow {
     COUNTFASTQ(params.shared, fastqFiles.collect())
 
     avgLen = COUNTFASTQ.out.avgReadLen
-    paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE","${projectDir}/nf_assets/NO_FILE2"])
-    unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE")
+    paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
+    unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
 
 
     if(params.modules.faqcs) {
@@ -54,21 +56,23 @@ workflow {
 
     if(params.modules.hostRemoval) {
         HOSTREMOVAL(params.hostRemoval.plus(params.shared),paired,unpaired)
-        paired = HOSTREMOVAL.out.paired.ifEmpty(params.pairedFiles)
-        unpaired = HOSTREMOVAL.out.unpaired.ifEmpty(params.unpairedFiles)
+        paired = HOSTREMOVAL.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
+        unpaired = HOSTREMOVAL.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
     }
 
     coverageTable = channel.empty()
     if(params.modules.runAssembly) {
         //assemble if not already using assembled or provided contigs
-        if (params.inputContigs == "${projectDir}/nf_assets/NO_FILE3" && params.assembledContigs == "${projectDir}/nf_assets/NO_FILE3") {
+        if (params.shared.inputContigs == "${projectDir}/nf_assets/NO_FILE3" && params.shared.assembledContigs == "${projectDir}/nf_assets/NO_FILE3") {
             ASSEMBLY(params.assembly.plus(params.shared).plus(params.annotation).plus(params.modules), paired, unpaired, avgLen)
             contigs = ASSEMBLY.out.outContigs
             annContigs = ASSEMBLY.out.annotationContigs
         }
         //run validation alignment if reads were provided
-        READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
-        coverageTable = READSTOCONTIGS.out.covTable
+        if(params.shared.inputFastq.size() != 0 && params.sra2fastq.accessions.size() == 0) {
+            READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
+            coverageTable = READSTOCONTIGS.out.covTable
+        }
     }
 
 
@@ -80,7 +84,18 @@ workflow {
         CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, coverageTable.ifEmpty{"DNE"})
     }
 
+    antismashInput = contigs
     if(params.modules.annotation) {
         ANNOTATION(params.annotation.plus(params.shared), annContigs)
+
+        if(params.modules.phageFinder && (params.annotation.taxKingdom == null || !(params.annotation.taxKingdom.equalsIgnoreCase("viruses")))) {
+            PHAGEFINDER(params.shared, ANNOTATION.out.gff, ANNOTATION.out.faa, ANNOTATION.out.fna)
+        }
+
+        antismashInput = ANNOTATION.out.gbk
+    }
+
+    if(params.modules.secondaryMetaboliteAnalysis) {
+        ANTISMASH(params.shared.plus(params.SMA), antismashInput)
     }
 }
