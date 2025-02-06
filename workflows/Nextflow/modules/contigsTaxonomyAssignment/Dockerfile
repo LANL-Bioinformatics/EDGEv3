@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM continuumio/miniconda3:24.5.0-0 AS build
+FROM continuumio/miniconda3:main AS build
 
 ENV container=docker
 
@@ -20,8 +20,6 @@ RUN conda install -n contigsTaxonomyAssignment -c bioconda perl-json
 RUN conda install -c conda-forge conda-pack
 #use latest miccr (v0.0.3) with Chienchi's fix for tokenizing alignment file
 RUN git clone --depth 1 https://github.com/chienchi/miccr.git
-#add scripts from this project to bin
-ADD bin/* /opt/conda/envs/contigsTaxonomyAssignment/bin
 
 #pack environment for runtime image
 RUN conda-pack -n contigsTaxonomyAssignment -o /tmp/env.tar && \

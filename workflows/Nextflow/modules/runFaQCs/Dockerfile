@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM continuumio/miniconda3:23.5.2-0 AS build
+FROM continuumio/miniconda3:main AS build
 
 ENV container=docker
 
@@ -26,8 +26,6 @@ RUN conda install -n runFaQCs -c bioconda perl-string-approx
 RUN conda install -n runFaQCs -c conda-forge r-base
 
 RUN conda install -c conda-forge conda-pack
-
-ADD bin/* /opt/conda/envs/runFaQCs/bin
 
 RUN conda-pack -n runFaQCs -o /tmp/env.tar && \
     mkdir /venv && cd /venv && tar xf /tmp/env.tar && \

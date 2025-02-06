@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM continuumio/miniconda3:24.5.0-0 AS build
+FROM continuumio/miniconda3:main AS build
 
 ENV container=docker
 
@@ -15,9 +15,6 @@ RUN conda init bash \
 RUN conda install -n countFastq -c conda-forge perl
 
 RUN conda install -c conda-forge conda-pack
-
-#add scripts from this project to bin
-ADD bin/* /opt/conda/envs/countFastq/bin
 
 #pack environment for runtime image
 RUN conda-pack -n countFastq -o /tmp/env.tar && \

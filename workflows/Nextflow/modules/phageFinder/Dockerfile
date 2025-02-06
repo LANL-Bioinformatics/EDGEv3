@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM continuumio/miniconda3:23.5.2-0 AS build
+FROM continuumio/miniconda3:main AS build
 
 ENV container=docker
 
@@ -18,8 +18,6 @@ RUN conda install -n phageFinder -c bioconda blast-legacy
 RUN conda install -n phageFinder -c bioconda hmmer
 RUN conda install -n phageFinder -c bioconda trnascan-se
 RUN conda install -c conda-forge conda-pack
-
-ADD bin/*.pl /opt/conda/envs/phageFinder/bin
 
 RUN conda-pack -n phageFinder -o /tmp/env.tar && \
     mkdir /venv && cd /venv && tar xf /tmp/env.tar && \

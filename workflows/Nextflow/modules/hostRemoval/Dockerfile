@@ -18,9 +18,6 @@ RUN conda install -n hostRemoval -c conda-forge r-base=4.4.0
 RUN conda install -n hostRemoval -c bioconda seqkit
 RUN conda install -c conda-forge conda-pack
 
-ADD bin/host_reads_removal_by_mapping.pl /opt/conda/envs/hostRemoval/bin
-ADD bin/removal_stats.pl /opt/conda/envs/hostRemoval/bin
-
 
 RUN conda-pack -n hostRemoval -o /tmp/env.tar && \
     mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
