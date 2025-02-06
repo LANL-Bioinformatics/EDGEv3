@@ -20,7 +20,8 @@ process sraDownload {
     val settings
 
     output:
-    path "$accession/${accession}*.fastq.gz", emit: files
+    path "$accession/${accession}.fastq.gz", emit: unpaired, optional:true
+    path "$accession/${accession}_{1,2}.fastq.gz", emit: paired, optional:true
     path "$accession/${accession}_metadata.txt"
     path "$accession/sra2fastq_temp/*", optional: true //needed output?
 
@@ -45,9 +46,12 @@ workflow SRA2FASTQ {
     accessions_ch = channel.of(settings["accessions"])
     sraDownload(accessions_ch.flatten().unique(), settings)
 
-    fastq = sraDownload.out.files
+    paired = sraDownload.out.paired
+    unpaired = sraDownload.out.unpaired
+
 
     emit:
-    fastq
+    paired
+    unpaired
 
 }

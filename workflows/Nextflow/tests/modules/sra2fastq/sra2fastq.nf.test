@@ -57,7 +57,7 @@ nextflow_workflow {
             assertAll (
                 {assert workflow.success},
                 {assert snapshot(workflow.out).match()},
-                {assert workflow.out.fastq.size() == 1}
+                {assert workflow.out.unpaired.size() == 1}
             )
         }
 
