@@ -1,10 +1,10 @@
-
+//EDIT TO DO SRA2FASTQ
 params {
 
     //which modules are run
     modules {
-        sra2fastq = false
-        faqcs = true
+        sra2fastq = true
+        faqcs = false
         hostRemoval = false
         runAssembly = false
         annotation = false
@@ -17,8 +17,8 @@ params {
     //module parameters -- passed directly into subworkflows according to best practices
     //these are the default values
     shared {
-        inputFastq = <%- JSON.stringify(inputFastq) %>
-        pairedFile = <%= pairedFile %>
+        inputFastq = []
+        pairedFile = false
         inputContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided as input to entire pipeline
         assembledContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided to bypass assembly
         outDir = "<%= outdir %>"
@@ -28,21 +28,21 @@ params {
     }
 
     sra2fastq {
-        accessions = []
+        accessions = <%- JSON.stringify(accessions) %>
     }
 
     faqcs{
-        trimQual = <%= trimQual %>
-        trim5end = <%= trim5end %>
-        trim3end = <%= trim3end %>
-        trimAdapter = <%= trimAdapter %>
-        trimPolyA = <%= trimPolyA %>
-        artifactFile = "<%= artifactFile %>"
-        minLen = <%= minLen %>
-        avgQual = <%= avgQual %>
-        numN = <%= numN %>
-        filtLC = <%= filtLC %>
-        filtPhiX = <%= filtPhiX %>
+        trimQual = 20
+        trim5end = 0
+        trim3end = 0
+        trimAdapter = false
+        trimPolyA = false
+        artifactFile = "${projectDir}/nf_assets/NO_FILE3"
+        minLen = 50
+        avgQual = 0
+        numN = 2
+        filtLC = 0.85
+        filtPhiX = false
     }
 
     hostRemoval {

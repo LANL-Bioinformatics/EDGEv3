@@ -26,13 +26,12 @@ process sraDownload {
 
     script: 
     //conditionally create command-line options based on non-empty parameters, for use in the command below
-    def clean = settings["clean"] ? "--clean True" : "" 
     def platform_restrict = settings["fastqSource"] != null ? "--platform_restrict ${settings["fastqSource"]}" : ""
 
     //invoke sra2fastq.py with those options
     """
     sra2fastq.py $accession \
-    $clean \
+    --clean \
     $platform_restrict \
     """
 }
