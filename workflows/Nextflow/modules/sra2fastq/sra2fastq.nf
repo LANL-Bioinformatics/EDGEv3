@@ -31,7 +31,7 @@ process sraDownload {
     //invoke sra2fastq.py with those options
     """
     sra2fastq.py $accession \
-    --clean \
+    --clean True \
     $platform_restrict \
     """
 }
