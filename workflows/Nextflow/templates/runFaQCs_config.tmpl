@@ -50,7 +50,6 @@ params {
         similarity = 90
         bwaMemOptions = null
     }
-
     assembly {
         //assemblers: IDBA_UD, SPAdes, Unicycler, Megahit, LRASM
         assembler = "IDBA_UD"
@@ -152,7 +151,6 @@ params {
 
 
 
-
 }
 
 //container settings
@@ -164,6 +162,7 @@ apptainer {
 
 //discover and auto-bind subworkflow bin folders
 nextflow.enable.moduleBinaries = true
+
 
 //which containers to use for which processes
 process {
