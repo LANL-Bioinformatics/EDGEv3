@@ -4,3 +4,7 @@
 */logs/*
 **/ec_info/*
 .nf-test*
+.DS_Store
+.env
+io
+node_modules

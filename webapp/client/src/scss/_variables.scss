@@ -1,0 +1,22 @@
+// Variable overrides
+//
+// If you want to customize your project please add your variables below.
+
+$enable-deprecation-messages: false !default;
+
+// set max to big #
+// scss-docs-start container-max-widths
+$container-max-widths: (
+  sm: 5400px,
+  md: 7200px,
+  lg: 9600px,
+  xl: 11400px,
+  xxl: 13200px
+) !default;
+
+.body {
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 100px;
+  padding-left: 0px;
+}

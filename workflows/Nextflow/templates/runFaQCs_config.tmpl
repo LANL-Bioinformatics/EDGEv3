@@ -1,0 +1,90 @@
+
+params {
+
+    //which modules are run
+    modules {
+        sra2fastq = false
+        faqcs = true
+        hostRemoval = false
+        annotation = false
+    }
+
+    //module parameters -- passed directly into subworkflows according to best practices
+    //these are the default values
+    shared {
+        inputFastq = <%- JSON.stringify(inputFastq) %>
+        pairedFile = <%= pairedFile %>
+        outDir = "<%= outdir %>"
+        projName = "<%= project %>"
+        cpus = 8
+        fastqSource = null
+    }
+
+    sra2fastq {
+        clean = false
+        accessions = []
+    }
+
+    faqcs{
+        trimQual = <%= trimQual %>
+        trim5end = <%= trim5end %>
+        trim3end = <%= trim3end %>
+        trimAdapter = <%= trimAdapter %>
+        trimPolyA = <%= trimPolyA %>
+        artifactFile = "<%= artifactFile %>"
+        minLen = <%= minLen %>
+        avgQual = <%= avgQual %>
+        numN = <%= numN %>
+        filtLC = <%= filtLC %>
+        filtPhiX = <%= filtPhiX %>
+    }
+
+    hostRemoval {
+        host = ["${projectDir}/nf_assets/NO_FILE3"]
+        similarity = 90
+        bwaMemOptions = null
+    }
+
+    annotation {
+        taxKingdom = null
+        annotateProgram = "prokka" //default
+        customProtein = "${projectDir}/nf_assets/NO_FILE" //setup for optional file pattern
+        customHMM = "${projectDir}/nf_assets/NO_FILE2"
+        sourceGBK = null
+        evalue = null
+        gcode = null
+        keggView = false
+    }
+
+
+}
+
+//container settings
+apptainer {
+    enabled = true
+    runOptions = "--compat"
+}
+
+
+//which containers to use for which processes
+process {
+    withLabel: 'sra2fastq' {
+        container = 'kaijli/sra2fastq:1.6.3'
+    }
+    withLabel: 'countFastq' {
+        container = 'apwat/count_fastq:0.2'
+    }
+    withLabel: 'qc'{
+        container= 'apwat/run_faqcs:1.5'
+    }
+    withLabel: 'hostRemoval' {
+        container= 'apwat/host_removal:1.7.4'
+    }
+}
+
+//submission rate limit: needed for sra2fastq to operate correctly
+executor {
+    submitRateLimit = '1/5sec'
+}
+
+includeConfig "<%= report_config %>"
