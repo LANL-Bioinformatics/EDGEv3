@@ -1,4 +1,3 @@
-
 params {
 
     //which modules are run
@@ -18,17 +17,17 @@ params {
     //these are the default values
     shared {
         inputFastq = []
+        pairedFile = false
         inputContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided as input to entire pipeline
         assembledContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided to bypass assembly
-        pairedFile = false
-        outDir = "EDGE_output"
-        projName = "Project"
+        outDir = "<%= outdir %>"
+        projName = "<%= project %>"
         cpus = 8
         fastqSource = null
     }
 
     sra2fastq {
-        accessions = ["SRR29462562"]
+        accessions = <%- JSON.stringify(accessions) %>
     }
 
     faqcs{
@@ -43,7 +42,6 @@ params {
         numN = 2
         filtLC = 0.85
         filtPhiX = false
-
     }
 
     hostRemoval {
@@ -85,6 +83,15 @@ params {
 
     }
 
+    
+    r2c {
+        r2c_aligner = "bwa"
+        r2c_aligner_options = ""
+        r2g_max_clip = null
+        extractUnmapped = false
+        rowLimit = null
+    }
+    
     annotation {
         contigSizeForAnnotation = 700
         taxKingdom = null
@@ -96,15 +103,6 @@ params {
         evalue = null
         gcode = null
         keggView = false
-    }
-
-
-    r2c {
-        r2c_aligner = "bwa"
-        r2c_aligner_options = ""
-        r2g_max_clip = null
-        extractUnmapped = false
-        rowLimit = null
     }
 
     readsTaxonomy {
@@ -150,6 +148,8 @@ params {
         tigrfam = false
         cassis = false //only with fungi
     }
+
+
 
 
 }
@@ -209,6 +209,4 @@ executor {
     submitRateLimit = '1/5sec'
 }
 
-//cleanup
-cleanup = false
-
+includeConfig "<%= report_config %>"

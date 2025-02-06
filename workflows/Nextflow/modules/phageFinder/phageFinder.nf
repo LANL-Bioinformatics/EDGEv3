@@ -2,7 +2,7 @@
 
 
 process phageFinderPrep {
-    container "apwat/phage_finder:noWrite"
+    label 'phageFinder'
 
     input:
     path gff
@@ -20,7 +20,7 @@ process phageFinderPrep {
 } 
 
 process phageFinder {
-    container "apwat/phage_finder:noWrite"
+    label 'phageFinder'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Prophage",
         mode: 'copy',
@@ -45,7 +45,7 @@ process phageFinder {
 }
 
 process summary {
-    container "apwat/phage_finder:noWrite"
+    label 'phageFinder'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Prophage",
         mode: 'copy'
@@ -66,7 +66,7 @@ process summary {
 }
 
 
-workflow PHAGE_FINDER {
+workflow PHAGEFINDER {
     take:
     settings
     gff

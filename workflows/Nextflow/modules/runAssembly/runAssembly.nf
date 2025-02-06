@@ -339,6 +339,7 @@ process unicyclerPrep {
     script:
 
     """
+    echo "Filter long reads with ${settings["unicycler"]["minLongReads"]} (bp) cutoff"
     seqtk seq -A -L \
     ${settings["unicycler"]["minLongReads"]} \
     $longreads > long_reads.fasta
@@ -507,9 +508,9 @@ workflow ASSEMBLY {
         (c1,c2) = idbaPrepReads(paired, unpaired)
         (sp,su,l) = idbaExtractLong(c1,c2.ifEmpty({file("nf_assets/NO_FILE")}))
 
-        idbaUD(settings, sp.filter{ it.size()>0 }.ifEmpty({file("nf_assets/NO_FILE")}),
-            su.filter{ it.size()>0 }.ifEmpty({file("nf_assets/NO_FILE2")}),
-            l.filter{ it.size()>0 }.ifEmpty({file("nf_assets/NO_FILE3")}),
+        idbaUD(settings, sp.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE")}),
+            su.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE2")}),
+            l.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE3")}),
             avgLen)
         
         bestIncompleteAssembly(idbaUD.out.contigs.ifEmpty('EMPTY'), idbaUD.out.intContigs)
@@ -536,12 +537,11 @@ workflow ASSEMBLY {
     }
     else if (settings["assembler"].equalsIgnoreCase("UniCycler")) {
         if (settings["unicycler"]["longreads"] != "nf_assets/NO_FILE3") {
-            println("Filter long reads with ${settings["unicycler"]["minLongReads"]} (bp) cutoff")
             unicycler(
                 settings,
                 paired,
                 unpaired,
-                unicyclerPrep(settings,unicycler_lr).filter{it.size()>0}.ifEmpty({file("nf_assets/NO_FILE3")})
+                unicyclerPrep(settings,unicycler_lr).filter{it.size()>0}.ifEmpty({file("${projectDir}/nf_assets/NO_FILE3")})
                 )
             //unicycler produces no intermediate contigs, we let it error out above rather than try to rescue a failed assembly
             renameFilterFasta(settings, unicycler.out.contigs)
