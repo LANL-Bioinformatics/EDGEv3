@@ -14,6 +14,7 @@ process validationAlignment {
 
     output:
     path "*.sort.bam", emit: sortedBam
+    path "*.bai"
     path "*.alnstats.txt"
     path "*_coverage.table", emit: cov_table
     path "*_plots.pdf"

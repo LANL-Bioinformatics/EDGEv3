@@ -1,5 +1,5 @@
 process runBinning {
-
+    label 'binning'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Binning",
         mode: 'copy'
@@ -8,17 +8,17 @@ process runBinning {
     input:
     val settings
     path contigs
+    path abundances
 
     output:
+    path "*" //many outputs
 
     script:
-    abundanceFile = channel.fromPath(settings["abundFile"], checkIfExists:true)
-
     """
     run_MaxBin.pl \
     -contig $contigs \
-    -out ${project_name}_bin \
-    -abund $abundanceFile -thread ${settings['cpus']} \
+    -out ${settings['projName']}_bin \
+    -abund $abundances -thread ${settings['cpus']} \
     -plotmarker -min_contig_length ${settings["binningMinLength"]} \
     -max_iteration ${settings["binningMaxItr"]} \
     -prob_threshold ${settings["binningProb"]} \
@@ -31,10 +31,11 @@ workflow BINNING {
     take:
     settings
     contigs
+    abundances
 
 
     main:
     
-    runBinning(settings, contigs)
+    runBinning(settings, contigs, abundances)
 
 }

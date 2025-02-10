@@ -12,6 +12,7 @@ include {CONTIGSTAXONOMYASSIGNMENT} from './modules/contigsTaxonomyAssignment/co
 include {ANNOTATION} from './modules/runAnnotation/runAnnotation.nf'
 include {PHAGEFINDER} from './modules/phageFinder/phageFinder.nf'
 include {ANTISMASH} from './modules/runAntiSmash/runAntiSmash.nf'
+include {BINNING} from './modules/readsBinning/readsBinning.nf'
 
 workflow {
 
@@ -61,6 +62,10 @@ workflow {
     }
 
     coverageTable = channel.empty()
+    abundances = channel.empty()
+    if(!params.binning.binningAbundFile.endsWith("NO_FILE3")) { //user provided abundance file
+        abundances = channel.fromPath(params.binning.binningAbundFile, checkIfExists:true)
+    }
     if(params.modules.runAssembly) {
         //assemble if not already using assembled or provided contigs
         if (params.shared.inputContigs == "${projectDir}/nf_assets/NO_FILE3" && params.shared.assembledContigs == "${projectDir}/nf_assets/NO_FILE3") {
@@ -72,6 +77,9 @@ workflow {
         if(params.shared.inputFastq.size() != 0 && params.sra2fastq.accessions.size() == 0) {
             READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
             coverageTable = READSTOCONTIGS.out.covTable
+            if(params.binning.binningAbundFile.endsWith("NO_FILE3")) { //user did not provide abundance file and assembly was run
+                abundances = READSTOCONTIGS.out.magnitudes
+            }
         }
     }
 
@@ -97,5 +105,9 @@ workflow {
 
     if(params.modules.secondaryMetaboliteAnalysis) {
         ANTISMASH(params.shared.plus(params.SMA), antismashInput)
+    }
+
+    if(params.modules.readsBinning) {
+        BINNING(params.shared.plus(params.binning), contigs, abundances)
     }
 }

@@ -440,9 +440,9 @@ process renameFilterFasta {
     output:
     path "*_contigs.fa", emit: contigs
     path "*_contigs_*up.fa", emit: annotationContigs
+    path "id_map.txt"
 
     script:
-    def annotation = settings["annotation"] ? "-ann 1" : ""
     """
     CONTIG_NUMBER=\$(grep -c '>' ${contigs})
     
@@ -453,7 +453,8 @@ process renameFilterFasta {
     -maxseq \$CONTIG_NUMBER\
     -ann_size ${settings["contigSizeForAnnotation"]} \
     -n ${settings["projName"]} \
-    $annotation
+    -id 1 \
+    -ann 1
     """
 
 }
