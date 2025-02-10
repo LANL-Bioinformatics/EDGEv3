@@ -17,6 +17,7 @@ process validationAlignment {
     path "*.alnstats.txt"
     path "*_coverage.table", emit: cov_table
     path "*_plots.pdf"
+    path "magnitudes.txt", emit: magnitudes
     path "Final_contigs.fasta", emit: contig_file, optional:true //not present if using already-assembled contigs
     path "mapping.log", emit: logFile
 
@@ -154,8 +155,10 @@ workflow READSTOCONTIGS {
     }
 
     covTable = validationAlignment.out.cov_table
+    magnitudes = validationAlignment.out.magnitudes
     emit:
     covTable
+    magnitudes
 
 
 }

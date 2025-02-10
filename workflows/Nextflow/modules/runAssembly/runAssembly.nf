@@ -63,6 +63,7 @@ process idbaUD {
     minLen = settings["minContigSize"] != null ? "--min_contig ${settings["minContigSize"]} " : ""
 
     memLimit = settings["memLimit"] != null ? "ulimit -v ${settings["memLimit"]} 2>/dev/null;" : ""
+    //TODO: expose errors in case of (e.g.) segfault when given only SE reads
     """
     ${memLimit}idba_ud --pre_correction -o . --num_threads ${settings["cpus"]}\
     $runFlag\
@@ -70,7 +71,7 @@ process idbaUD {
     $maxK_option\
     $minK\
     $step\
-    $minLen
+    $minLen  || true
 
     mv contig-${maxK}.fa contig-max.fa
     """
@@ -109,8 +110,8 @@ process idbaPrepReads {
     path unpaired
 
     output:
-    path "pairedForAssembly.fasta", emit:idba_prep_paired
-    path "unpairedForAssembly.fasta", optional:true
+    path "pairedForAssembly.fasta", emit:idba_prep_paired, optional:true
+    path "unpairedForAssembly.fasta", emit: idba_prep_unpaired, optional:true
 
     script:
     def pair_process = paired.name != "NO_FILE" ? "fq2fa --filter --merge ${paired[0]} ${paired[1]} pairedForAssembly.fasta;" : "" 
@@ -505,8 +506,10 @@ workflow ASSEMBLY {
 
     if (settings["assembler"].equalsIgnoreCase("IDBA_UD")) {
 
-        (c1,c2) = idbaPrepReads(paired, unpaired)
-        (sp,su,l) = idbaExtractLong(c1,c2.ifEmpty({file("nf_assets/NO_FILE")}))
+        idbaPrepReads(paired, unpaired)
+        c1 = idbaPrepReads.out.idba_prep_paired.ifEmpty({file("${projectDir}/nf_assets/NO_FILE")})
+        c2 = idbaPrepReads.out.idba_prep_unpaired.ifEmpty({file("${projectDir}/nf_assets/NO_FILE2")})
+        (sp,su,l) = idbaExtractLong(c1,c2)
 
         idbaUD(settings, sp.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE")}),
             su.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE2")}),
