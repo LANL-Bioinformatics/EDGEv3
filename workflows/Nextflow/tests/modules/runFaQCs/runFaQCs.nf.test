@@ -29,8 +29,15 @@ nextflow_workflow {
         }
 
         then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
+            assertAll (
+                {assert workflow.success},
+                {assert snapshot(
+                    workflow.out.qcStats,
+                    workflow.out.paired,
+                    workflow.out.unpaired
+                    ).match()},
+                {assert file(workflow.out.qcReport.find { file(it).name == "QC_qc_report.pdf" }).exists()}
+            )
         }
 
     }
@@ -60,8 +67,15 @@ nextflow_workflow {
         }
 
         then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
+            assertAll (
+                {assert workflow.success},
+                {assert snapshot(
+                    workflow.out.qcStats,
+                    workflow.out.paired,
+                    workflow.out.unpaired
+                    ).match()},
+                {assert file(workflow.out.qcReport.find { file(it).name == "QC_qc_report.pdf" }).exists()}
+            )
         }
 
     }
@@ -91,8 +105,15 @@ nextflow_workflow {
         }
 
         then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
+            assertAll (
+                {assert workflow.success},
+                {assert snapshot(
+                    workflow.out.qcStats,
+                    workflow.out.paired,
+                    workflow.out.unpaired
+                    ).match()},
+                {assert file(workflow.out.qcReport.find { file(it).name == "QC_qc_report.pdf" }).exists()}
+            )
         }
 
     }
@@ -122,8 +143,15 @@ nextflow_workflow {
         }
 
         then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
+            assertAll (
+                {assert workflow.success},
+                {assert snapshot(
+                    workflow.out.qcStats,
+                    workflow.out.paired,
+                    workflow.out.unpaired
+                    ).match()},
+                {assert file(workflow.out.qcReport.find { file(it).name == "QC_qc_report.pdf" }).exists()}
+            )
         }
 
     }
@@ -153,8 +181,15 @@ nextflow_workflow {
         }
 
         then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
+            assertAll (
+                {assert workflow.success},
+                {assert snapshot(
+                    workflow.out.qcStats,
+                    workflow.out.paired,
+                    workflow.out.unpaired
+                    ).match()},
+                {assert file(workflow.out.qcReport.find { file(it).name == "QC_qc_report.pdf" }).exists()}
+            )
         }
     }
 }
