@@ -3,6 +3,25 @@
 
 process report {
     label 'report'
+    publishDir (
+    path:"${settings["outDir"]}",
+    mode: 'copy',
+    saveAs: {
+        filename ->
+        if(filename.endsWith(".png")) {
+            "HTML_Report/images/${filename}"
+        }
+        else if(filename.endsWith("final_report.pdf")) {
+            "${filename}"
+        }
+        else if(filename.endsWith("alnstats.pdf")) {
+            "AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.alnstats.pdf"
+        }
+        else{
+            null //publish no other files at this time
+        }
+    }
+    )
 
     input:
     val settings
@@ -23,7 +42,6 @@ process report {
     script:
     //TODO: will need reference-based analysis updates as those workflows develop
     //TODO: add in taxonomy classification reports
-    //TODO: see "conversions" section in original pipeline
     """
     #!/usr/bin/env perl
     my \$time=time();
