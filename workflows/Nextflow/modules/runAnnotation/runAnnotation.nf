@@ -136,7 +136,7 @@ process annPlot {
 
     output:
     path "plot_gff3.log"
-    path "annotation_stats_plots.pdf"
+    path "annotation_stats_plots.pdf", emit: annStats
     path "${settings["projName"]}.txt", optional:true
 
     script:
@@ -188,6 +188,7 @@ workflow ANNOTATION {
     gff = channel.empty()
     faa = channel.empty()
     fna = channel.empty()
+    annStats = channel.empty()
 
     //workflow logic
     if (settings["annotateProgram"].equalsIgnoreCase("prokka")) {
@@ -203,6 +204,7 @@ workflow ANNOTATION {
         gff = prokkaAnnotate.out.gff
         faa = prokkaAnnotate.out.faa
         fna = prokkaAnnotate.out.fna
+        annStats = annPlot.out.annStats
     }
     else if (settings["annotateProgram"].equalsIgnoreCase("ratt")) {
         gb_ch = channel.fromPath(settings["sourceGBK"], checkIfExists:true)
@@ -215,6 +217,7 @@ workflow ANNOTATION {
         gff = rattAnnotate.out.gff
         faa = rattAnnotate.out.faa
         fna = rattAnnotate.out.fna
+        annStats = annPlot.out.annStats
     }
 
     emit:
@@ -222,4 +225,5 @@ workflow ANNOTATION {
     gff
     faa
     fna
+    annStats
 }
