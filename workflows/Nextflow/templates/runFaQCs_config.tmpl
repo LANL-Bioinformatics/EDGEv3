@@ -8,6 +8,7 @@ params {
         hostRemoval = false
         runAssembly = false
         annotation = false
+        readsBinning = false
         phageFinder = true //true by default -- will run if non-viral reads are annotated
         readsTaxonomyAssignment = false
         contigsTaxonomyAssignment = false
@@ -105,6 +106,16 @@ params {
         keggView = false
     }
 
+    binning {
+        binningMinLength = 1000
+        binningMaxItr = 50
+        binningProb = 0.9
+        //107 or 40
+        binningMarkerSet =107
+        binningAbundFile = "${projectDir}/nf_assets/NO_FILE3"
+        doCheckM = false
+    }
+
     readsTaxonomy {
         splitTrimMinQ = 20
         //RTA tools: gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,pangia,bwa,metaphlan4,kraken2,centrifuge,diamond
@@ -170,19 +181,19 @@ process {
         container = 'kaijli/sra2fastq:1.6.3'
     }
     withLabel: 'countFastq' {
-        container = 'apwat/count_fastq:0.2'
+        container = 'apwat/count_fastq:0.3'
     }
     withLabel: 'processContigs' {
         container = 'apwat/count_fastq:0.2'
     }
     withLabel: 'qc'{
-        container= 'apwat/run_faqcs:1.5'
+        container= 'apwat/run_faqcs:1.6'
     }
     withLabel: 'hostRemoval' {
-        container= 'apwat/host_removal:1.7.4'
+        container= 'apwat/host_removal:1.7.5'
     }
     withLabel: 'assembly' {
-        container = 'apwat/run_assembly:1.5'
+        container = 'apwat/run_assembly:1.6'
     }
     withLabel: 'r2c' {
         container = 'apwat/run_r2c:1.7'
@@ -191,16 +202,22 @@ process {
         container = 'apwat/reads_taxonomy:1.14'
     }
     withLabel: 'cta' {
-        container = 'apwat/contigs_taxonomy:1.10'
+        container = 'apwat/contigs_taxonomy:1.11'
     }
     withLabel: 'annotation' {
-        container = 'apwat/annotation:0.4'
+        container = 'apwat/annotation:0.5'
     }
     withLabel: 'phageFinder' {
-        container = 'apwat/phage_finder:1.0'
+        container = 'apwat/phage_finder:1.1'
     }
     withLabel: 'sma' {
         container = 'apwat/sma:0.14'
+    }
+    withLabel: 'binning' {
+        container = 'apwat/reads_binning:0.1'
+    }
+    withLabel: 'report' {
+        container = 'apwat/edge_report:0.5'
     }
 }
 
