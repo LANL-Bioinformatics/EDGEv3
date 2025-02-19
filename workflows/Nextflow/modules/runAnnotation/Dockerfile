@@ -14,7 +14,7 @@ RUN conda init bash \
 
 RUN conda install -n annotation -c bioconda perl-lwp-protocol-https
 RUN conda install -n annotation -c conda-forge r-base
-RUN conda install -n annotation -c bioconda prokka
+RUN conda install -y -n annotation -c bioconda prokka
 RUN conda install -n annotation -c bioconda mummer
 RUN conda install -n annotation -c bioconda blast=2.16
 RUN conda install -n annotation -c bioconda perl-yaml
@@ -27,8 +27,6 @@ RUN wget https://ref-db.edgebioinformatics.org/EDGE/dev/edge_dev_thirdParty_soft
     && tar -xvzf thirdParty/RATT.tar.gz -C . \
     && mv RATT /opt/conda/envs/annotation/opt
 
-#add scripts from this project to bin
-ADD bin/* /opt/conda/envs/annotation/bin
 
 #pack environment for runtime image
 RUN conda-pack -n annotation -o /tmp/env.tar && \

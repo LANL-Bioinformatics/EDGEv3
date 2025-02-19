@@ -30,9 +30,6 @@ RUN conda install -n assembly -c bioconda flye=2.9.2
 RUN conda install -n assembly git
 RUN conda install -c conda-forge conda-pack
 
-ADD bin/extractLongReads.pl /opt/conda/envs/assembly/bin
-ADD bin/renameFilterFasta.pl /opt/conda/envs/assembly/bin
-
 RUN conda-pack -n assembly -o /tmp/env.tar && \
     mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
     rm /tmp/env.tar

@@ -9,15 +9,14 @@ RUN conda config --add channels conda-forge \
 
 RUN conda init bash \
     && . ~/.bashrc \
-    && conda create --name countFastq \
-    && conda activate countFastq 
+    && conda create --name binning \
+    && conda activate binning 
 
-RUN conda install -n countFastq -c conda-forge perl
-
+# install dependencies for phageFinder
+RUN conda install -n binning -c bioconda maxbin2=2.2.7
 RUN conda install -c conda-forge conda-pack
 
-#pack environment for runtime image
-RUN conda-pack -n countFastq -o /tmp/env.tar && \
+RUN conda-pack -n binning -o /tmp/env.tar && \
     mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
     rm /tmp/env.tar
 
@@ -26,9 +25,7 @@ RUN /venv/bin/conda-unpack
 FROM debian:latest AS runtime
 
 COPY --from=build /venv /venv
-
 ENV PATH=/venv/bin:$PATH
-RUN apt-get update && apt-get install procps -y && apt-get clean
-
+    
 SHELL ["/bin/bash", "-c"]
 CMD /bin/bash

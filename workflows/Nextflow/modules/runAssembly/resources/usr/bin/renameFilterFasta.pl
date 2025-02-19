@@ -80,7 +80,7 @@ $/="\n";
 close $fh;
 close $ofh;
 close $ofh2;
-#close $idmap_ofh if ($id_mapping && $configuration->{DoAnnotation});
+close $idmap_ofh;
 if ( -z $id_map) { unlink $id_map ; }
 
 sub open_file
