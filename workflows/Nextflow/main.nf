@@ -2,6 +2,7 @@
 
 include {SRA2FASTQ} from './modules/sra2fastq/sra2fastq.nf'
 include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
+include {COUNTFASTQ_SRA} from './modules/countFastq/countFastq.nf'
 include {PROCESSCONTIGS} from './modules/processProvidedContigs/processProvidedContigs.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
 include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
@@ -37,18 +38,19 @@ workflow {
         annContigs = PROCESSCONTIGS.out.annotationContigs
     }
 
-
-    if(params.modules.sra2fastq) {
-        SRA2FASTQ(params.sra2fastq.plus(params.shared))
-        fastqFiles = fastqFiles.concat(SRA2FASTQ.out.fastq).flatten()
-    }
-    
     COUNTFASTQ(params.shared, fastqFiles.collect())
 
     avgLen = COUNTFASTQ.out.avgReadLen
     counts = COUNTFASTQ.out.counts
     paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
     unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
+    if(params.modules.sra2fastq) {
+        SRA2FASTQ(params.sra2fastq.plus(params.shared))
+        COUNTFASTQ_SRA(SRA2FASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), SRA2FASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"))
+        avgLen = COUNTFASTQ_SRA.out.avgReadLen
+        paired = COUNTFASTQ_SRA.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
+        unpaired = COUNTFASTQ_SRA.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
+    }
 
     qcStats = channel.empty()
     qcReport = channel.empty()
