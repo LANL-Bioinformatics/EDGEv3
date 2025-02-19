@@ -146,7 +146,7 @@ process hostRemovalStats {
 
     output:
     path "hostclean.stats.txt" //issue with counting here
-    path "HostRemovalStats.pdf"
+    path "HostRemovalStats.pdf", emit: hostRemovalReport
 
     script:
     """
@@ -166,6 +166,7 @@ workflow HOSTREMOVAL{
 
     main:
     providedRef = channel.fromPath(settings["host"], checkIfExists:true)
+    hostRemovalReport = channel.empty()
 
     //remove host reads in parallel
     hostRemoval(settings, paired, unpaired, providedRef.collect())
@@ -179,12 +180,14 @@ workflow HOSTREMOVAL{
         paired = collectCleanPairedReads.out.paired
         //calculate overall stats and create PDF
         hostRemovalStats(settings, hostRemoval.out.cleanstats.collect(), collectCleanPairedReads.out.hostMerged)
+        hostRemovalReport = hostRemovalStats.out.hostRemovalReport
     } 
     else {
         //no need to merge if only reads from one host were removed
         paired = collectCleanPairedReadsOneHost(settings, cleaned1_ch.concat(cleaned2_ch)).collect()
         //calculate overall stats and create PDF
         hostRemovalStats(settings, hostRemoval.out.cleanstats.collect(), hostRemoval.out.hostReads)
+        hostRemovalReport = hostRemovalStats.out.hostRemovalReport
     }
     //merge clean unpaired reads (removing any duplicates by read name)
     unpaired = collectCleanSingleReads(settings, hostRemoval.out.cleanedSingleton.collect())
@@ -192,6 +195,7 @@ workflow HOSTREMOVAL{
     emit:
     paired
     unpaired
+    hostRemovalReport
 
     
 }

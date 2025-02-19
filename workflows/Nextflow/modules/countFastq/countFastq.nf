@@ -69,9 +69,11 @@ workflow COUNTFASTQ {
     avgReadLen = avgLen(countFastq.out.counts)
     paired = countFastq.out.paired
     unpaired = countFastq.out.unpaired
+    counts = countFastq.out.counts
 
     emit:
     avgReadLen
+    counts
     paired
     unpaired
 }
