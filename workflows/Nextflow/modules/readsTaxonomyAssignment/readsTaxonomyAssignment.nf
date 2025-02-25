@@ -32,6 +32,8 @@ process readsTaxonomy {
     script:
     def numCPU = settings["cpus"] != null ? settings["cpus"] : 8
     """
+    ls /venv/bin/../../../database
+    echo "Three"
     cat $paired $unpaired > allReads.fastq
     microbial_profiling.pl -o . \
     -s $taxonomyConfig \
@@ -75,7 +77,7 @@ process readsTaxonomyConfig {
     tools = settings["enabledTools"] != null ? "-tools \'${settings["enabledTools"]}\' " : ""
     splitTrimMinQ = settings["splitTrimMinQ"] != null ? "-splitrim-minq ${settings["splitTrimMinQ"]} " : ""
 
-    base = settings["baseDB"] != null ? "-base-db ${settings["baseDB"]}" : ""
+    base = settings["baseDB"] != null ? "-base-db /database" : ""
 
     bwa = settings["custom_bwa_db"] != null ? "-bwa-db ${settings["custom_bwa_db"]} " : ""
     metaphlan = settings["custom_metaphlan_db"] != null ? "-metaphlan-db ${settings["custom_metaphlan_db"]} " : ""
