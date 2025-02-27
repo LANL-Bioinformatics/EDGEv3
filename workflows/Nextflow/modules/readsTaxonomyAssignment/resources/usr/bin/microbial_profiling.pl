@@ -12,7 +12,7 @@ my $script_dirname = dirname(__FILE__);
 
 $|=1;
 #$ENV{PATH} = "$Bin:$Bin/../:$Bin/script/:$Bin/bin/:$ENV{PATH}:/cm/shared/apps/uge/8.4.4/bin/lx-amd64/";
-$ENV{EDGE_HOME} = "$Bin/../../..";
+$ENV{EDGE_HOME} = "";
 my $main_pid = $$;
 
 my %opt;
