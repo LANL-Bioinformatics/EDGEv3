@@ -3,7 +3,7 @@
 process validationAlignment {
     label 'r2c'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
+        path: "${settings["assemblyOutDir"]}/readsMappingToContig",
         mode: 'copy'
     )
     input:
@@ -86,12 +86,12 @@ process validationAlignment {
 process makeJSONcoverageTable {
     label 'r2c'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
+        path: "${settings["assemblyOutDir"]}/readsMappingToContig",
         mode: 'copy',
         pattern: "*_coverage.table.json"
     )
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis",
+        path: "${settings["assemblyOutDir"]}",
         mode: 'copy',
         pattern: "*stats.{pdf,txt}"
     )
@@ -119,7 +119,7 @@ process makeJSONcoverageTable {
 process extractUnmapped {
     label 'r2c'
     publishDir(
-        path:"${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig/",
+        path:"${settings["assemblyOutDir"]}/readsMappingToContig/",
         mode: 'copy',
         overwrite: true
     )

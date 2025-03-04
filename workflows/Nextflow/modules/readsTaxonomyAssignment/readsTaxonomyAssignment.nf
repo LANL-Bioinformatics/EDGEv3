@@ -9,7 +9,7 @@ process readsTaxonomy {
                         --bind=${settings["baseDB"]}:/venv/opt/krona/taxonomy"
 
     publishDir(
-        path: "${settings["outDir"]}/ReadsBasedAnalysis/Taxonomy",
+        path: "${settings["readsTaxonomyOutDir"]}",
 	mode: 'copy',
 	pattern: "{*.log,log**,report**}"
     )

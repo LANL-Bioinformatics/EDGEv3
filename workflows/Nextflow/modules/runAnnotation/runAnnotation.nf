@@ -25,7 +25,7 @@ process prokkaAnnotate {
     label 'annotation'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
 
@@ -88,7 +88,7 @@ process rattAnnotate {
     label 'annotation'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
 
@@ -126,7 +126,7 @@ process annPlot {
     label 'annotation'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
     
@@ -152,7 +152,7 @@ process keggPlots {
     label 'annotation'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
 

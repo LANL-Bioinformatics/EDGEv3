@@ -3,7 +3,7 @@
 process processProvidedContigs {
     label "processContigs"
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/",
+        path: "${settings["processProvidedContigsOutDir"]}",
 	    mode: 'copy'
     )
 

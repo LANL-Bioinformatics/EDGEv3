@@ -4,7 +4,7 @@
 process report {
     label 'report'
     publishDir (
-    path:"${settings["outDir"]}",
+    path:"${settings["reportOutDir"]}",
     mode: 'copy',
     saveAs: {
         filename ->

@@ -6,7 +6,7 @@
 process hostRemoval {
     label "hostRemoval"
     publishDir(
-        path: "${settings["outDir"]}/HostRemoval",
+        path: "${settings["hostRemovalOutDir"]}",
         mode: 'copy'
     )
     
@@ -69,7 +69,7 @@ process hostRemoval {
 process collectCleanPairedReads {
     label "hostRemoval"
     publishDir(
-        path: "${settings["outDir"]}/HostRemoval",
+        path: "${settings["hostRemovalOutDir"]}",
         mode: 'copy'
     )
 
@@ -95,7 +95,7 @@ process collectCleanPairedReads {
 process collectCleanPairedReadsOneHost {
     label "hostRemoval"
     publishDir(
-        path: "${settings["outDir"]}/HostRemoval",
+        path: "${settings["hostRemovalOutDir"]}",
         mode: 'copy'
     )
 
@@ -117,7 +117,7 @@ process collectCleanPairedReadsOneHost {
 process collectCleanSingleReads {
     label "hostRemoval"
     publishDir(
-        path: "${settings["outDir"]}/HostRemoval",
+        path: "${settings["hostRemovalOutDir"]}",
         mode: 'copy'
     )
     
@@ -137,7 +137,7 @@ process collectCleanSingleReads {
 
 process hostRemovalStats {
     label "hostRemoval"
-    publishDir "${settings["outDir"]}/HostRemoval", mode: 'copy'
+    publishDir "${settings["hostRemovalOutDir"]}", mode: 'copy'
 
     input:
     val settings

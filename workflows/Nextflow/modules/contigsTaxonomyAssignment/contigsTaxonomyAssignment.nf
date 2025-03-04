@@ -8,7 +8,7 @@ process contigTaxonomy {
     containerOptions "--compat --cleanenv \
                         --bind=${settings["miccrDB"]}:/venv/database/miccrDB"
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Taxonomy",
+        path: "${settings["contigsTaxonomyOutDir"]}",
         mode: 'copy'
     )
 
@@ -37,7 +37,7 @@ process addLineage {
     containerOptions "--compat --cleanenv \
                         --bind=${settings["miccrDB"]}:/venv/database/miccrDB"
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Taxonomy",
+        path: "${settings["contigsTaxonomyOutDir"]}",
         mode: 'copy'
     )
     
@@ -60,7 +60,7 @@ process addLineage {
 process plotAndTable {
     label 'cta'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Taxonomy",
+        path: "${settings["contigsTaxonomyOutDir"]}",
 	mode: 'copy'
     )
     input:

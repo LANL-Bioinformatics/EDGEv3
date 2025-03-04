@@ -8,7 +8,7 @@
 process idbaUD {
     label "assembly"
     publishDir (
-    path:"${settings["outDir"]}/AssemblyBasedAnalysis",
+    path:"${settings["assemblyOutDir"]}",
     mode: 'copy',
     saveAs: {
         filename ->
@@ -130,7 +130,7 @@ process spades {
     label "assembly"
 
     publishDir (
-    path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
+    path: "${settings["assemblyOutDir"]}", 
     mode: 'copy',
     saveAs: {
         filename ->
@@ -215,7 +215,7 @@ process megahit {
 
     label "assembly"
     publishDir(
-    path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
+    path: "${settings["assemblyOutDir"]}", 
     mode: 'copy',
     saveAs: {
         filename ->
@@ -273,7 +273,7 @@ process megahit {
 process unicycler {
     label "assembly"
     publishDir (
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
+        path: "${settings["assemblyOutDir"]}", 
         mode: 'copy',
         saveAs: {
         filename ->
@@ -353,7 +353,7 @@ process lrasm {
     label "assembly"
 
     publishDir (
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
+        path: "${settings["assemblyOutDir"]}", 
         mode: 'copy',
         saveAs: {
         filename ->
@@ -430,7 +430,7 @@ process lrasm {
 process renameFilterFasta {
     label "assembly"
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis",
+        path: "${settings["assemblyOutDir"]}",
         mode: 'copy'
     )
     input:
