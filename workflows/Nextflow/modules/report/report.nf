@@ -14,9 +14,6 @@ process report {
         else if(filename.endsWith("final_report.pdf")) {
             "${filename}"
         }
-        else if(filename.endsWith("alnstats.pdf")) {
-            "AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.alnstats.pdf"
-        }
         else{
             null //publish no other files at this time
         }
