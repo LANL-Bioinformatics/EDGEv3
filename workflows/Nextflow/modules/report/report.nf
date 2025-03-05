@@ -76,7 +76,6 @@ process report {
     plot(0:1,0:1,type='n',xlab="",ylab="",xaxt='n',yaxt='n')
     text(0,1,\\"EDGE Version: DEV_3.0\\",adj=0,font=2)
     text(0,1-0.08,\\"Project: ${settings["projName"]}\\",adj=0,font=2)
-    text(0,1-0.24,paste("Output Dir:", \\"${settings["outDir"]}\\"),adj=0,font=2)
     nextPos<-1-0.32
     parameters_pos<-nextPos-0.14
     input_pos<-nextPos-0.28
