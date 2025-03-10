@@ -5,6 +5,7 @@
 //clean input FASTQ files of reads that map to provided host references, one process per given host
 process hostRemoval {
     label "hostRemoval"
+    label "medium"
     publishDir(
         path: "${settings["outDir"]}/HostRemoval",
         mode: 'copy'
@@ -68,6 +69,7 @@ process hostRemoval {
 //merge cleaned FASTQ files into files cleaned of ALL reads mapping to ANY provided host reference
 process collectCleanPairedReads {
     label "hostRemoval"
+    label "small"
     publishDir(
         path: "${settings["outDir"]}/HostRemoval",
         mode: 'copy'
@@ -94,6 +96,7 @@ process collectCleanPairedReads {
 
 process collectCleanPairedReadsOneHost {
     label "hostRemoval"
+    label "tiny"
     publishDir(
         path: "${settings["outDir"]}/HostRemoval",
         mode: 'copy'
@@ -137,6 +140,7 @@ process collectCleanSingleReads {
 
 process hostRemovalStats {
     label "hostRemoval"
+    label "small"
     publishDir "${settings["outDir"]}/HostRemoval", mode: 'copy'
 
     input:

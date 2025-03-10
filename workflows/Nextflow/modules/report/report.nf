@@ -3,6 +3,7 @@
 
 process report {
     label 'report'
+    label 'medium'
     publishDir (
     path:"${settings["outDir"]}",
     mode: 'copy',

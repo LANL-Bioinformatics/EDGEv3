@@ -4,6 +4,7 @@
 //double-checks that any provided adapter file is in FASTA format
 process adapterFileCheck {
     label "qc"
+    label "tiny"
     input:
     path adapterFile
 
@@ -21,6 +22,7 @@ process adapterFileCheck {
 //but it was unable to create report files when I attempted using it. For now, all input reads go through FaQCs.
 process qc {
     label "qc"
+    label "medium"
     publishDir(
         path: "${settings["outDir"]}/ReadsQC",
         mode: 'copy'
