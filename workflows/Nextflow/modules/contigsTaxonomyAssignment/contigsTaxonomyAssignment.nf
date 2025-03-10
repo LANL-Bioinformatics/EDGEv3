@@ -72,7 +72,7 @@ process plotAndTable {
     output:
     path "${settings["projName"]}.ctg_class.LCA.json"
     path "summary_by_*.txt"
-    path "*.pdf"
+    path "*.pdf", emit: ctaReport
     
     script:
     """
@@ -91,4 +91,9 @@ workflow CONTIGSTAXONOMYASSIGNMENT {
     contigTaxonomy(settings, contigs)
     addLineage(settings, contigTaxonomy.out.taxResult)
     plotAndTable(settings, addLineage.out.lineage, coverageTable, contigTaxonomy.out.taxLcaResult)
+
+    ctaReport = plotAndTable.out.ctaReport
+
+    emit:
+    ctaReport
 }
