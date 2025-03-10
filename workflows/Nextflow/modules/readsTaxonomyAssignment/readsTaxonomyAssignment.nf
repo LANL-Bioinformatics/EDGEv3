@@ -114,6 +114,7 @@ process readsTaxonomyConfig {
     gottcha2_genDB_v = settings["custom_gottcha2_genDB_v"] != null ? "-gottcha2-v-genDB /gottcha2_genDBv_custom/${Paths.get(settings["custom_gottcha2_genDB_v"].toString()).getFileName()} " : ""
     gottcha2_speDB_v = settings["custom_gottcha2_speDB_v"] != null ? "-gottcha2-v-speDB /gottcha2_speDBv_custom/${Paths.get(settings["custom_gottcha2_speDB_v"].toString()).getFileName()} " : ""
     gottcha2_speDB_b = settings["custom_gottcha2_speDB_b"] != null ? "-gottcha2-b-speDB /gottcha2_speDBb_custom/${Paths.get(settings["custom_gottcha2_speDB_b"].toString()).getFileName()} " : ""
+
     np = (settings["fastqSource"] != null && settings["fastqSource"].equalsIgnoreCase("nanopore")) ? "--nanopore " : ""
 
     """

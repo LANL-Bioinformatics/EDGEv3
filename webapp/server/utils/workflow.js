@@ -3,8 +3,8 @@ const fs = require('fs');
 const Upload = require('../edge-api/models/upload');
 const config = require('../config');
 
-const cromwellWorkflows = ['sra2fastq'];
-const nextflowWorkflows = ['runFaQCs'];
+const cromwellWorkflows = [];
+const nextflowWorkflows = ['runFaQCs', 'sra2fastq'];
 const nextflowConfigs = {
   report_config: 'report.config',
 };
@@ -12,17 +12,22 @@ const nextflowConfigs = {
 const workflowList = {
   default_wdl_version: '1.0',
   sra2fastq: {
+    // cromwell
+    // set if not default 1.0
+    // wdl_version: '1.0',
     wdl: 'data/sra2fastq.wdl',
     wdl_imports: 'data/imports.zip',
     inputs_tmpl: 'data/sra2fastq_inputs.tmpl',
     cromwell_calls: ['sra.sra2fastq'],
     outdir: 'output/sra2fastq',
-    // set if not default 1.0
-    // wdl_version: '1.0',
+    // nextflow
+    nextflow_main: 'main.nf',
+    config_tmpl: 'SRAdownload_config.tmpl',
+
   },
   runFaQCs: {
     // workflow will create 'ReadsQC' directory in the output/.
-    outdir: 'output',
+    outdir: 'output/ReadsQC',
     nextflow_main: 'main.nf',
     config_tmpl: 'runFaQCs_config.tmpl',
   },

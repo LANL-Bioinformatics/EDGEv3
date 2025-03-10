@@ -71,7 +71,7 @@
     "vite-plugin-commonjs": "^0.10.3"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -81,6 +81,6 @@
     "postcss": "^8.4.47",
     "prettier": "3.3.3",
     "sass": "^1.79.3",
-    "vite": "^5.4.14"
+    "vite": "^6.2.0"
   }
 }

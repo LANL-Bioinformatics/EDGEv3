@@ -100,7 +100,6 @@ workflow {
         }
     }
 
-
     rtaReports = channel.empty()
     if(params.modules.readsTaxonomyAssignment) {
         READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs), paired, unpaired, avgLen)

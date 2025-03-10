@@ -19,6 +19,9 @@ const generateInputs = async (projHome, projectConf, proj) => {
     project: proj.name,
     report_config: `${config.NEXTFLOW.CONFIG_DIR}/${nextflowConfigs.report_config}`
   };
+  if (projectConf.workflow.name === 'sra2fastq') {
+    params.outdir = config.IO.SRA_BASE_DIR;
+  }
   // render input template and write to nextflow_params.json
   const inputs = ejs.render(template, params);
   await fs.promises.writeFile(`${projHome}/nextflow.config`, inputs);
@@ -41,7 +44,7 @@ const submitWorkflow = async (proj, projectConf, inputsize) => {
   }
   // submit workflow
   const runName = `edge-${proj.code}`;
-  const cmd = `cd ${workDir}; nextflow -c ${projHome}/nextflow.config -bg -q run ${config.NEXTFLOW.WORKFLOW_DIR}/${workflowList[projectConf.workflow.name].nextflow_main} -name ${runName}`;
+  const cmd = `cd ${workDir}; ${config.NEXTFLOW.PATH} -c ${projHome}/nextflow.config -bg -q run ${config.NEXTFLOW.WORKFLOW_DIR}/${workflowList[projectConf.workflow.name].nextflow_main} -name ${runName}`;
   write2log(log, 'Run pipeline');
   // Don't need to wait for the command to complete. It may take long time to finish and cause an error.
   // The updateJobStatus will catch the error if this command failed.
@@ -145,7 +148,7 @@ const updateJobStatus = async (job, proj) => {
   // get job status
   const projHome = `${config.IO.PROJECT_BASE_DIR}/${proj.code}`;
   // Pipeline status. Possible values are: OK, ERR and empty
-  let cmd = `cd ${projHome}/nextflow; nextflow log|awk '/${job.id}/ &&(/OK/||/ERR/)'|awk '{split($0,array,/\t/); print array[4]}'`;
+  let cmd = `cd ${projHome}/nextflow; ${config.NEXTFLOW.PATH} log|awk '/${job.id}/ &&(/OK/||/ERR/)'|awk '{split($0,array,/\t/); print array[4]}'`;
   let ret = await execCmd(cmd);
 
   if (!ret || ret.code !== 0) {
@@ -174,7 +177,7 @@ const updateJobStatus = async (job, proj) => {
   }
 
   // Task status. Possible values are: COMPLETED, FAILED, and ABORTED.
-  cmd = `cd ${projHome}/nextflow; nextflow log ${job.id} -f status`;
+  cmd = `cd ${projHome}/nextflow; ${config.NEXTFLOW.PATH} log ${job.id} -f status`;
   ret = await execCmd(cmd);
   if (!ret || ret.code !== 0) {
     // command failed

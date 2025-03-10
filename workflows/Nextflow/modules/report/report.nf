@@ -46,7 +46,6 @@ process report {
     #!/usr/bin/env perl
     use File::Basename;
 
-
     my \$time=time();
     my \$Rscript="./merge.R";
     my \$InputLogPDF="./Inputs.pdf";
@@ -148,6 +147,7 @@ process report {
     \$mergeFiles .= '$annStats'."," if ( -e '$annStats');
 
     \$mergeFiles .= \$taxonomyPDFfiles if (\$taxonomyPDFfiles);
+
     \$mergeFiles =~ s/\\,\$//g;
     my \$command = "R --vanilla --slave --silent < \$Rscript";
     if (system(\$command) != 0)

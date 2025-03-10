@@ -77,6 +77,7 @@ const config = {
     BUILD_DIR: process.env.CLIENT_BASE_DIR || path.join(CLIENT_BASE_DIR, 'build'),
   },
   NEXTFLOW: {
+    PATH: process.env.NEXTFLOW_PATH || 'nextflow',
     // Max allowed number of jobs in nextflow.
     NUM_JOBS_MAX: makeIntIfDefined(process.env.NEXTFLOW_NUM_JOBS_MAX) || 100000,
     // Total size of the input files allowed per job.
