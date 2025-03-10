@@ -44,6 +44,8 @@ process readsTaxonomy {
     path "error.log", emit: logfile
     path "taxonomyProfiling.log"
     path "report/**/**/*.svg", emit: svgs
+    path "report/**/**/*.tree.pdf", emit: trees
+    path "report/heatmap_DATASET*", emit: heatmaps
     path "log**"
     path "report**"
 
@@ -157,5 +159,11 @@ workflow READSTAXONOMYASSIGNMENT {
     main:
     readsTaxonomyConfig(settings, avgLen)
     readsTaxonomy(settings, paired, unpaired, readsTaxonomyConfig.out.config, readsTaxonomyConfig.out.errorlog)
+    trees = readsTaxonomy.out.trees
+    heatmaps = readsTaxonomy.out.heatmaps
+   
+    emit:
+    trees
+    heatmaps
 
 }

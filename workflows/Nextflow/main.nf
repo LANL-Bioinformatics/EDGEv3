@@ -101,12 +101,16 @@ workflow {
     }
 
 
+    rtaReports = channel.empty()
     if(params.modules.readsTaxonomyAssignment) {
         READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs), paired, unpaired, avgLen)
+        rtaReports = rtaReports.concat(READSTAXONOMYASSIGNMENT.out.trees, READSTAXONOMYASSIGNMENT.out.heatmaps).collect()
     }
 
+    ctaReport = channel.empty()
     if(params.modules.contigsTaxonomyAssignment) {
         CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, coverageTable.ifEmpty{"DNE"})
+        ctaReport = CONTIGSTAXONOMYASSIGNMENT.out.ctaReport
     }
 
     antismashInput = contigs
@@ -136,8 +140,8 @@ workflow {
         qcStats.ifEmpty{file("DNE1")},
         qcReport.ifEmpty{file("DNE2")},
         hostRemovalReport.ifEmpty{file("DNE3")},
-        channel.empty().ifEmpty{file("DNE4")}, 
-        channel.empty().ifEmpty{file("DNE5")},
+        rtaReports.ifEmpty{file("DNE4")}, 
+        ctaReport.ifEmpty{file("DNE5")},
         contigStatsReport.ifEmpty{file("DNE6")},
         contigPlots.ifEmpty{file("DNE7")},
         annStats.ifEmpty{file("DNE8")},
