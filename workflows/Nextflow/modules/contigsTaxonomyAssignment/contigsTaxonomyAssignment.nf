@@ -5,6 +5,7 @@
 //base process. Takes a FASTA file containing contigs and performs taxonomic analysis with MICCR (https://github.com/chienchi/miccr).
 process contigTaxonomy {
     label 'cta'
+    label 'medium'
     containerOptions "--compat --cleanenv \
                         --bind=${settings["miccrDB"]}:/venv/database/miccrDB"
     publishDir(
@@ -34,6 +35,7 @@ process contigTaxonomy {
 //adds multi-level taxonomic classification to results file. Takes in a .ctg.tsv file produced by MICCR.
 process addLineage {
     label 'cta'
+    label 'tiny'
     containerOptions "--compat --cleanenv \
                         --bind=${settings["miccrDB"]}:/venv/database/miccrDB"
     publishDir(
@@ -59,6 +61,7 @@ process addLineage {
 //and a coverage table (see https://github.com/chienchi/miccr/blob/master/utils/README.md), or from workflow runReadsToContig 
 process plotAndTable {
     label 'cta'
+    label 'tiny'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Taxonomy",
 	mode: 'copy'
