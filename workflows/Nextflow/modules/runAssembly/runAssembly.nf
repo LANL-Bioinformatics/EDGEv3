@@ -7,6 +7,7 @@
 //main process for assembly with IDBA
 process idbaUD {
     label "assembly"
+    label "small"
     publishDir (
     path:"${settings["outDir"]}/AssemblyBasedAnalysis",
     mode: 'copy',
@@ -81,6 +82,7 @@ process idbaUD {
 //prep for idba
 process idbaExtractLong {
     label "assembly"
+    label "tiny"
 
     input:
     path paired
@@ -105,6 +107,7 @@ process idbaExtractLong {
 //prep for idba
 process idbaPrepReads {
     label "assembly"
+    label "tiny"
     input:
     path paired
     path unpaired
@@ -128,6 +131,7 @@ process idbaPrepReads {
 //assemble using spades
 process spades {
     label "assembly"
+    label "small"
 
     publishDir (
     path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
@@ -212,8 +216,9 @@ process spades {
 
 //assemble using megahit
 process megahit {
-
     label "assembly"
+    label "small"
+
     publishDir(
     path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
     mode: 'copy',
@@ -272,6 +277,7 @@ process megahit {
 //assembly using unicycler
 process unicycler {
     label "assembly"
+    label "small"
     publishDir (
         path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
         mode: 'copy',
@@ -328,6 +334,7 @@ process unicycler {
 //filter long reads for unicycler
 process unicyclerPrep {
     label "assembly"
+    label "tiny"
 
     input:
     val settings
@@ -351,6 +358,7 @@ process unicyclerPrep {
 //assembly using lrasm
 process lrasm {
     label "assembly"
+    label "small"
 
     publishDir (
         path: "${settings["outDir"]}/AssemblyBasedAnalysis", 
@@ -429,6 +437,8 @@ process lrasm {
 
 process renameFilterFasta {
     label "assembly"
+    label "small"
+
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis",
         mode: 'copy'
@@ -461,6 +471,7 @@ process renameFilterFasta {
 
 process bestIncompleteAssembly {
     label "assembly"
+    label "tiny"
     input:
 
     val x
