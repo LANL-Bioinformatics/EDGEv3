@@ -3,6 +3,7 @@
 
 process phageFinderPrep {
     label 'phageFinder'
+    label 'tiny'
 
     input:
     path gff
@@ -21,6 +22,7 @@ process phageFinderPrep {
 
 process phageFinder {
     label 'phageFinder'
+    label 'small'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Prophage",
         mode: 'copy',
@@ -46,6 +48,7 @@ process phageFinder {
 
 process summary {
     label 'phageFinder'
+    label 'tiny'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Prophage",
         mode: 'copy'

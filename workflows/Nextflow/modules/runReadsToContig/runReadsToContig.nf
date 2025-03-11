@@ -2,6 +2,7 @@
 
 process validationAlignment {
     label 'r2c'
+    label 'small'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
         mode: 'copy'
@@ -85,6 +86,7 @@ process validationAlignment {
 
 process makeJSONcoverageTable {
     label 'r2c'
+    label 'tiny'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig",
         mode: 'copy',
@@ -118,6 +120,7 @@ process makeJSONcoverageTable {
 
 process extractUnmapped {
     label 'r2c'
+    label 'small'
     publishDir(
         path:"${settings["outDir"]}/AssemblyBasedAnalysis/readsMappingToContig/",
         mode: 'copy',
