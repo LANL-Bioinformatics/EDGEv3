@@ -1,5 +1,6 @@
 process runBinning {
     label 'binning'
+    label 'small'
     publishDir(
         path: "${settings["outDir"]}/AssemblyBasedAnalysis/Binning",
         mode: 'copy'

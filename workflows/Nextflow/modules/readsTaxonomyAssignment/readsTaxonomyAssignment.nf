@@ -3,6 +3,7 @@
 //main RTA process
 process readsTaxonomy {
     label 'rta'
+    label 'large'
 
     containerOptions "--compat --cleanenv \
                         --bind=${settings["baseDB"]}:/venv/bin/../../../database \
@@ -45,6 +46,7 @@ process readsTaxonomy {
 //creates RTA config file based on input settings
 process readsTaxonomyConfig {
     label 'rta'
+    label 'small'
 
     containerOptions "--compat --cleanenv \
                         --bind=${settings["baseDB"]}:/venv/bin/../../../database \
