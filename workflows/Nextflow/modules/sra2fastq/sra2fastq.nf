@@ -6,6 +6,7 @@
 
 process sraDownload {
     label "sra2fastq"
+    label "small"
     tag "$accession"
     publishDir "${settings["outDir"]}/SRA_Download", mode: 'copy'
 
