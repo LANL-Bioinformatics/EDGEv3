@@ -1,5 +1,6 @@
 process runBinning {
     label 'binning'
+    label 'small'
     publishDir(
         path: "${settings["readBinningOutDir"]}",
         mode: 'copy'
