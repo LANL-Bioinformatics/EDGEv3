@@ -14,6 +14,7 @@ include {ANNOTATION} from './modules/runAnnotation/runAnnotation.nf'
 include {PHAGEFINDER} from './modules/phageFinder/phageFinder.nf'
 include {ANTISMASH} from './modules/runAntiSmash/runAntiSmash.nf'
 include {BINNING} from './modules/readsBinning/readsBinning.nf'
+include {PHYLOGENETICANALYSIS} from './modules/SNPtree/SNPtree.nf'
 include {REPORT} from './modules/report/report.nf'
 
 workflow {
@@ -127,6 +128,10 @@ workflow {
 
     if(params.modules.readsBinning) {
         BINNING(params.shared.plus(params.binning).plus(params.outputLocations), contigs, abundances)
+    }
+
+    if(params.modules.snpTree) {
+        PHYLOGENETICANALYSIS(params.shared.plus(params.snpTree).plus(params.annotation), paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"), contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
     }
     //TODO: channel.empty() parameters here indicate files from upstream processes not yet implemented into report generation
     REPORT(
