@@ -131,7 +131,7 @@ workflow {
     }
 
     if(params.modules.snpTree) {
-        PHYLOGENETICANALYSIS(params.shared.plus(params.snpTree).plus(params.annotation), paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"), contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
+        PHYLOGENETICANALYSIS(params.shared.plus(params.snpTree).plus(params.annotation).plus(params.outputLocations), paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"), contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
     }
     //TODO: channel.empty() parameters here indicate files from upstream processes not yet implemented into report generation
     REPORT(

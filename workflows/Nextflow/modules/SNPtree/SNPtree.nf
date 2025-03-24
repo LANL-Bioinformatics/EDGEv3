@@ -2,12 +2,23 @@
 
 process prepareSNPphylogeny {
 
+    publishDir(
+        path: "${settings["phylogenyOutDir"]}",
+        mode: 'copy'
+    )
+
     input:
     val settings
     path paired
     path unpaired
     path contigs
     output:
+    path "results/trees/{*all.fasttree,RAxML_bestTree.*_all}", emit: allTree
+    path "results/${settings["projName"]}_*"
+    path "results/RaXML_*", optional: true
+    path "results/RAxML_bipartitions.*_all_best", emit: bootstrapTree, optional: true
+    path "annotation.txt", emit: phyloAnn
+
     script:
 
     def kingdom = settings["taxKingdom"] != null ? "-kingdom ${settings["taxKingdom"]}" : ""
@@ -47,6 +58,28 @@ process prepareSNPphylogeny {
 
 }
 
+process prepareXMLphylogeny {
+    publishDir(
+        path: "${settings["phylogenyOutDir"]}",
+        mode: 'copy'
+    )
+
+    input:
+    val settings
+    path tree
+    path ann
+
+    output:
+    path "*"
+
+    script:
+    """
+    newickToPhyloXML.pl -m -i  \
+    $tree -o . \
+    $ann
+    """
+}
+
 
 
 
@@ -60,6 +93,10 @@ workflow PHYLOGENETICANALYSIS {
 
     main:
     prepareSNPphylogeny(settings,paired,unpaired,contigs)
+    resultTree = prepareSNPphylogeny.out.bootstrapTree.concat(prepareSNPphylogeny.out.allTree)
+    prepareXMLphylogeny(settings,
+                        resultTree.first(),
+                        prepareSNPphylogeny.out.phyloAnn)
 
 
 }
