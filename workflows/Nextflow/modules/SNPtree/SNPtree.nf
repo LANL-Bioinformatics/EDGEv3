@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 process prepareSNPphylogeny {
+    label 'phyl'
 
     publishDir(
         path: "${settings["phylogenyOutDir"]}",
@@ -59,6 +60,8 @@ process prepareSNPphylogeny {
 }
 
 process prepareXMLphylogeny {
+    label 'phyl'
+    
     publishDir(
         path: "${settings["phylogenyOutDir"]}",
         mode: 'copy'
