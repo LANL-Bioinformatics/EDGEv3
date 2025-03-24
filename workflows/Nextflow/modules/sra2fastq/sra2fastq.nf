@@ -6,8 +6,10 @@
 
 process sraDownload {
     label "sra2fastq"
+    label "small"
     tag "$accession"
-    publishDir "${settings["outDir"]}", mode: 'copy'
+    publishDir "${settings["outDir"]}/SRA_Download", mode: 'copy'
+    containerOptions "--no-home"
 
     //retries download in case of transient failure, then completes any downloads that didn't fail
 
@@ -30,7 +32,9 @@ process sraDownload {
     def platform_restrict = settings["fastqSource"] != null ? "--platform_restrict ${settings["fastqSource"]}" : ""
 
     //invoke sra2fastq.py with those options
+    //set vdb-config cache to work directory to avoid running out of space in container
     """
+    vdb-config -s /repository/user/main/public/root="\$PWD"
     sra2fastq.py $accession \
     --clean True \
     $platform_restrict \

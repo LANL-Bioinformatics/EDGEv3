@@ -2,9 +2,10 @@
 //runs ANTISMASH on provided .fa or .gbk input.
 process antismash {
     label 'sma'
+    label 'medium'
     containerOptions "--bind ${settings["database"]}:/venv/database/antiSMASH"
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/AntiSmash",
+        path: "${settings["smaOutDir"]}",
         mode: 'copy'
     )
 

@@ -32,6 +32,11 @@ export const components = {
     validForm: false,
     selectInput: null,
   },
+  fileUpload: {
+    file: '',
+    validForm: false,
+    errMessage: 'File is required',
+  },
   fileInput: {
     validForm: false,
     fileInput: null,

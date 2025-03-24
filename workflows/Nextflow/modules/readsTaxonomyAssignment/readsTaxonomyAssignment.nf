@@ -5,6 +5,7 @@ import java.nio.file.Paths
 //main RTA process
 process readsTaxonomy {
     label 'rta'
+    label 'large'
 
     //bind in base database directory and any custom DBs
     containerOptions "--compat --cleanenv \
@@ -27,7 +28,7 @@ process readsTaxonomy {
                         ${settings["custom_gottcha2_speDB_b"] != null ? "--bind=${Paths.get(settings["custom_gottcha2_speDB_b"].toString()).getParent()}:/gottcha2_speDBb_custom" : ""}"
 
     publishDir(
-        path: "${settings["outDir"]}/ReadsBasedAnalysis/Taxonomy",
+        path: "${settings["readsTaxonomyOutDir"]}",
 	mode: 'copy',
 	pattern: "{*.log,log**,report**}"
     )
@@ -65,6 +66,7 @@ process readsTaxonomy {
 //creates RTA config file based on input settings
 process readsTaxonomyConfig {
     label 'rta'
+    label 'small'
 
     containerOptions "--compat --cleanenv \
                         --bind=${settings["baseDB"]}:/venv/bin/../../../database \

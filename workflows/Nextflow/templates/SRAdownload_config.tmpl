@@ -14,6 +14,24 @@ params {
         secondaryMetaboliteAnalysis = false
     }
 
+        outputLocations {
+        //everything in its separate output for the moment
+        sra2fastqOutDir = "<%= outdir %>"
+        processProvidedContigsOutDir = ""
+        qcOutDir = ""
+        hostRemovalOutDir = ""
+        assemblyOutDir = ""
+        contigsTaxonomyOutDir = ""
+        phageFinderOutDir = ""
+        readBinningOutDir = ""
+        readsTaxonomyOutDir = ""
+        annotationOutDir = ""
+        smaOutDir = ""
+        reportOutDir = "<%= projOutdir %>"
+
+    }
+
+
     //module parameters -- passed directly into subworkflows according to best practices
     //these are the default values
     shared {
@@ -228,3 +246,4 @@ executor {
 }
 
 includeConfig "<%= report_config %>"
+includeConfig "<%= slurm_config %>"

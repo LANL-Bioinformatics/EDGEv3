@@ -22,7 +22,7 @@ process adapterFileCheck {
 process qc {
     label "qc"
     publishDir(
-        path: "${settings["outDir"]}/ReadsQC",
+        path: "${settings["qcOutDir"]}",
         mode: 'copy'
     )
 

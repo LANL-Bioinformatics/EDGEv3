@@ -15,6 +15,17 @@ const addOne = async (req, res) => {
   try {
     const data = req.body;
     logger.debug(`/api/auth-user/projects add: ${JSON.stringify(data)}`);
+
+    if (typeof data.project === 'string') {
+      data.project = JSON.parse(data.project);
+    }
+    if (typeof data.workflows === 'string') {
+      data.workflows = JSON.parse(data.workflows);
+    }
+    if (typeof data.inputDisplay === 'string') {
+      data.inputDisplay = JSON.parse(data.inputDisplay);
+    }
+
     // generate project code and create project home
     let code = randomize('Aa0', 16);
     let projHome = `${config.IO.PROJECT_BASE_DIR}/${code}`;
@@ -52,9 +63,8 @@ const addOne = async (req, res) => {
 
     fs.writeFileSync(`${projHome}/conf.json`, JSON.stringify(data));
 
-    // if it's batch submission, save uploaded excel sheet to project home
-    if (projType.endsWith('/batch')) {
-      // save uploaded file
+    // save uploaded file to project home
+    if (req.files) {
       const { file } = req.files;
       const mvTo = `${projHome}/${file.name}`;
       file.mv(`${mvTo}`, err => {

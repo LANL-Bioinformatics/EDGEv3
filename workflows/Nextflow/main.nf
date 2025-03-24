@@ -17,7 +17,6 @@ include {BINNING} from './modules/readsBinning/readsBinning.nf'
 include {REPORT} from './modules/report/report.nf'
 
 workflow {
-
     //input specification
     fastqFiles = channel.empty()
 
@@ -34,7 +33,7 @@ workflow {
         else if(params.shared.assembledContigs != "${projectDir}/nf_assets/NO_FILE3") {
             contigs = channel.fromPath(params.shared.assembledContigs, checkIfExists:true)
         }
-        PROCESSCONTIGS(params.shared.plus(params.assembly).plus(params.annotation).plus(params.modules), contigs)
+        PROCESSCONTIGS(params.shared.plus(params.assembly).plus(params.annotation).plus(params.modules).plus(params.outputLocations), contigs)
         annContigs = PROCESSCONTIGS.out.annotationContigs
     }
 
@@ -45,7 +44,7 @@ workflow {
     paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
     unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
     if(params.modules.sra2fastq) {
-        SRA2FASTQ(params.sra2fastq.plus(params.shared))
+        SRA2FASTQ(params.sra2fastq.plus(params.shared).plus(params.outputLocations))
         COUNTFASTQ_SRA(SRA2FASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), SRA2FASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"))
         avgLen = COUNTFASTQ_SRA.out.avgReadLen
         paired = COUNTFASTQ_SRA.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
@@ -55,7 +54,7 @@ workflow {
     qcStats = channel.empty()
     qcReport = channel.empty()
     if(params.modules.faqcs) {
-        FAQCS(params.faqcs.plus(params.shared), paired, unpaired,avgLen)
+        FAQCS(params.faqcs.plus(params.shared).plus(params.outputLocations), paired, unpaired,avgLen)
 
         paired = FAQCS.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = FAQCS.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
@@ -66,7 +65,7 @@ workflow {
     hostRemovalReport = channel.empty()
     if(params.modules.hostRemoval) {
 
-        HOSTREMOVAL(params.hostRemoval.plus(params.shared),paired,unpaired)
+        HOSTREMOVAL(params.hostRemoval.plus(params.shared).plus(params.outputLocations),paired,unpaired)
         paired = HOSTREMOVAL.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = HOSTREMOVAL.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
         hostRemovalReport = HOSTREMOVAL.out.hostRemovalReport
@@ -83,13 +82,13 @@ workflow {
     if(params.modules.runAssembly) {
         //assemble if not already using assembled or provided contigs
         if (params.shared.inputContigs == "${projectDir}/nf_assets/NO_FILE3" && params.shared.assembledContigs == "${projectDir}/nf_assets/NO_FILE3") {
-            ASSEMBLY(params.assembly.plus(params.shared).plus(params.annotation).plus(params.modules), paired, unpaired, avgLen)
+            ASSEMBLY(params.assembly.plus(params.shared).plus(params.annotation).plus(params.modules).plus(params.outputLocations), paired, unpaired, avgLen)
             contigs = ASSEMBLY.out.outContigs
             annContigs = ASSEMBLY.out.annotationContigs
         }
         //run validation alignment if reads were provided
         if(params.shared.inputFastq.size() != 0 && params.sra2fastq.accessions.size() == 0) {
-            READSTOCONTIGS(params.r2c.plus(params.shared), paired, unpaired, contigs)
+            READSTOCONTIGS(params.r2c.plus(params.shared).plus(params.outputLocations), paired, unpaired, contigs)
             alnStats= READSTOCONTIGS.out.alnStats
             coverageTable = READSTOCONTIGS.out.covTable
             contigStatsReport = READSTOCONTIGS.out.contigStatsReport
@@ -102,39 +101,40 @@ workflow {
 
     rtaReports = channel.empty()
     if(params.modules.readsTaxonomyAssignment) {
-        READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs), paired, unpaired, avgLen)
+        READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs).plus(params.outputLocations), paired, unpaired, avgLen)
         rtaReports = rtaReports.concat(READSTAXONOMYASSIGNMENT.out.trees, READSTAXONOMYASSIGNMENT.out.heatmaps).collect()
+
     }
 
     ctaReport = channel.empty()
     if(params.modules.contigsTaxonomyAssignment) {
-        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared), contigs, coverageTable.ifEmpty{"DNE"})
+        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared).plus(params.outputLocations), contigs, coverageTable.ifEmpty{"DNE"})
         ctaReport = CONTIGSTAXONOMYASSIGNMENT.out.ctaReport
     }
 
     antismashInput = contigs
     annStats = channel.empty()
     if(params.modules.annotation) {
-        ANNOTATION(params.annotation.plus(params.shared), annContigs)
+        ANNOTATION(params.annotation.plus(params.shared).plus(params.outputLocations), annContigs)
         annStats = ANNOTATION.out.annStats
 
         if(params.modules.phageFinder && (params.annotation.taxKingdom == null || !(params.annotation.taxKingdom.equalsIgnoreCase("viruses")))) {
-            PHAGEFINDER(params.shared, ANNOTATION.out.gff, ANNOTATION.out.faa, ANNOTATION.out.fna)
+            PHAGEFINDER(params.shared.plus(params.outputLocations), ANNOTATION.out.gff, ANNOTATION.out.faa, ANNOTATION.out.fna)
         }
 
         antismashInput = ANNOTATION.out.gbk
     }
 
     if(params.modules.secondaryMetaboliteAnalysis) {
-        ANTISMASH(params.shared.plus(params.SMA), antismashInput)
+        ANTISMASH(params.shared.plus(params.SMA).plus(params.outputLocations), antismashInput)
     }
 
     if(params.modules.readsBinning) {
-        BINNING(params.shared.plus(params.binning), contigs, abundances)
+        BINNING(params.shared.plus(params.binning).plus(params.outputLocations), contigs, abundances)
     }
     //TODO: channel.empty() parameters here indicate files from upstream processes not yet implemented into report generation
     REPORT(
-        params.shared.plus(params.modules), 
+        params.shared.plus(params.modules).plus(params.outputLocations), 
         counts.ifEmpty{file("DNE")},
         qcStats.ifEmpty{file("DNE1")},
         qcReport.ifEmpty{file("DNE2")},

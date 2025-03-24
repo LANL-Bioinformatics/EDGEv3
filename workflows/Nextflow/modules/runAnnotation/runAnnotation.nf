@@ -3,6 +3,7 @@
 //sets taxonomic kingdom for analysis if none provided
 process autodetectKingdom {
     label 'annotation'
+    label 'tiny'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     input:
     path contigs
@@ -23,9 +24,10 @@ process autodetectKingdom {
 //process to invocate prokka
 process prokkaAnnotate {
     label 'annotation'
+    label 'small'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
 
@@ -86,9 +88,10 @@ process prokkaAnnotate {
 //process to invocate RATT
 process rattAnnotate {
     label 'annotation'
+    label 'small'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
 
@@ -124,9 +127,10 @@ process rattAnnotate {
 //plots feature count, protein size distribution, etc.
 process annPlot {
     label 'annotation'
+    label 'tiny'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
     
@@ -150,9 +154,10 @@ process annPlot {
 //generates KEGG pathway plots
 process keggPlots {
     label 'annotation'
+    label 'tiny'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
-        path: "${settings["outDir"]}/AssemblyBasedAnalysis/Annotation",
+        path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
 
