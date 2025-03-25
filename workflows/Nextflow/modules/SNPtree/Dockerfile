@@ -21,6 +21,7 @@ RUN conda install -n snpTree -c bioconda perl-xml-simple
 RUN conda install -n snpTree -c bioconda perl-xml-libxml
 RUN conda install -n snpTree -c bioconda perl-bio-phylo
 RUN conda install -n snpTree -c bioconda perl-json
+RUN conda install -n snpTree -c bioconda perl-yaml
 RUN conda install -c conda-forge conda-pack
 
 RUN conda-pack -n snpTree -o /tmp/env.tar && \
@@ -33,9 +34,9 @@ RUN /venv/bin/conda-unpack
 FROM debian:latest AS runtime
 
 COPY --from=build /venv /venv
-ENV PERL5LIB=/venv/lib/perl5/core_perl
+
 RUN apt-get update && apt-get install procps -y && apt-get clean
-ENV PERL5LIB=/venv/lib/perl5/core_perl
+ENV PERL5LIB=/venv/lib/perl5/core_perl:/venv/lib/perl5/site_perl
 ENV PATH=/venv/bin:$PATH
 
     
