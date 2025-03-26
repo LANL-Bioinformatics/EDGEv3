@@ -13,6 +13,7 @@ RUN conda init bash \
     && conda activate snpTree 
 
 # install dependencies for snpTree
+
 RUN conda install -n snpTree -c bioconda bcftools=1.9
 RUN conda install -n snpTree -c bioconda samtools=1.9
 RUN conda install -n snpTree -c bioconda phame
@@ -22,6 +23,7 @@ RUN conda install -n snpTree -c bioconda perl-xml-libxml
 RUN conda install -n snpTree -c bioconda perl-bio-phylo
 RUN conda install -n snpTree -c bioconda perl-json
 RUN conda install -n snpTree -c bioconda perl-yaml
+RUN conda install -n snpTree -c conda-forge python=3.7
 RUN conda install -c conda-forge conda-pack
 
 RUN conda-pack -n snpTree -o /tmp/env.tar && \
