@@ -282,7 +282,7 @@ sub extract_ref_seq {
 	my $dir=shift;
 	my $annotion_fh=shift;
 	my $out_file = "$dir/$name.fna";
-	my @tmpl = `ls -d $EDGE_HOME/database/NCBI_genomes/$name*`;
+	my @tmpl = `ls -d $dbBasePath/NCBI_genomes/$name*`;
 	chomp @tmpl;
 	my @gfiles = `ls -S $tmpl[0]/*gbk $tmpl[0]/*gbff 2>/dev/null`;
 	foreach my $gbk (@gfiles){
