@@ -63,7 +63,6 @@ process prokkaAnnotate {
     def gcode = settings["gcode"] == null ? "" : "--gcode ${settings["gcode"]}"
     def locustag = settings["projName"] == null ? "" : "--locustag ${settings["projName"]}"
     def prefix = settings["projName"] == null ? "" : "--prefix ${settings["projName"]}"
-    def cpu = settings["cpus"] == null ? "" : "--cpus ${settings["cpus"]}"
     def taxKingdom = kingdom.equalsIgnoreCase("metagenome") ? "--kingdom Bacteria --metagenome" : "--kingdom $kingdom"
 
     """
@@ -76,7 +75,7 @@ process prokkaAnnotate {
     $gcode \
     $locustag \
     $prefix \
-    $cpu \
+    --cpus ${task.cpus} \
     --outdir . \
     $taxKingdom \
     $contigs 2>>Annotation.log 

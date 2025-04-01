@@ -75,7 +75,7 @@ process qc {
     $qcSoftware $pairedArg $unpairedArg \
     -q ${settings["trimQual"]} --min_L $min --avg_q ${settings["avgQual"]} \
     -n ${settings["numN"]} --lc ${settings["filtLC"]} --5end ${settings["trim5end"]} --3end ${settings["trim3end"]} \
-    --split_size 1000000  -d . -t ${settings["cpus"]} \
+    --split_size 1000000  -d . -t ${task.cpus} \
     $polyA \
     $trim \
     $adapterArg \

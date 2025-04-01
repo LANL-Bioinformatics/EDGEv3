@@ -66,7 +66,7 @@ process idbaUD {
     memLimit = settings["memLimit"] != null ? "ulimit -v ${settings["memLimit"]} 2>/dev/null;" : ""
     //TODO: expose errors in case of (e.g.) segfault when given only SE reads
     """
-    ${memLimit}idba_ud --pre_correction -o . --num_threads ${settings["cpus"]}\
+    ${memLimit}idba_ud --pre_correction -o . --num_threads ${task.cpus}\
     $runFlag\
     $longReadsFile\
     $maxK_option\
@@ -196,7 +196,7 @@ process spades {
     def memLimit = settings["memLimit"] != null ? "-m ${settings["memLimit"]}" : ""
 
     """
-    spades.py -o . -t ${settings["cpus"]}\
+    spades.py -o . -t ${task.cpus}\
     $paired\
     $meta_flag\
     $sc_flag\
@@ -260,7 +260,7 @@ process megahit {
     def megahit_preset = settings["megahit"]["preset"] != null ? "--presets ${settings["megahit"]["preset"]} " : ""
 
     """
-    megahit -o ./megahit -t ${settings["cpus"]}\
+    megahit -o ./megahit -t ${task.cpus}\
     $megahit_preset\
     $paired\
     $unpaired\
@@ -323,7 +323,7 @@ process unicycler {
     """
     export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm';
 
-    unicycler -t ${settings["cpus"]} -o .\
+    unicycler -t ${task.cpus} -o .\
     $paired\
     $filt_lr\
     $bridge 2>&1 1>/dev/null
@@ -424,7 +424,7 @@ process lrasm {
     def flyeOpt = settings["lrasm"]["algorithm"] == "metaflye" ? "--fo '--meta' ": ""
 
     """
-    lrasm -o . -t ${settings["cpus"]} \
+    lrasm -o . -t ${task.cpus} \
     $preset\
     $consensus\
     $errorCorrection\

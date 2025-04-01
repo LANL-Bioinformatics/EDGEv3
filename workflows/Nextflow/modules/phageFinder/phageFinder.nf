@@ -41,7 +41,7 @@ process phageFinder {
     //must be on PATH
     script:
     """
-    phage_finder_v2.1.sh Assembly ${settings["cpus"]} 1>log.txt 2>&1
+    phage_finder_v2.1.sh Assembly ${task.cpus} 1>log.txt 2>&1
     """
 
 }

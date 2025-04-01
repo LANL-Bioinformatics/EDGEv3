@@ -46,13 +46,12 @@ process hostRemoval {
     }
     minScore = ontFlag != "" ? "-T ${settings["minLen"]} " : minScore
     bwaMemOptions = "-bwaMemOptions \"${ontFlag} ${minScore}\" "
-    def cpu = settings["cpus"] != null ? "-cpu ${settings["cpus"]} " : ""
     
     """
     host_reads_removal_by_mapping.pl\
     $refFile\
     $prefix\
-    $cpu\
+    -cpu ${task.cpus}\
     -host \
     $bwaMemOptions\
     $pairedFiles\

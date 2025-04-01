@@ -33,7 +33,7 @@ process antismash {
     def cassis = (settings["smaTaxon"].equalsIgnoreCase("fungi") && settings["cassis"] == true) ? "--cassis" : ""
 
     """
-    antismash -c ${settings["cpus"]} $taxon \
+    antismash -c ${task.cpus} $taxon \
     --logfile antismashLog.txt --output-dir ./output \
     --html-title ${settings["projName"]} --database /venv/database/antiSMASH \
     $clusterblast \

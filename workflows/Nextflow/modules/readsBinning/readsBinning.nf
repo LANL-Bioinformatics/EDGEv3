@@ -19,7 +19,7 @@ process runBinning {
     run_MaxBin.pl \
     -contig $contigs \
     -out ${settings['projName']}_bin \
-    -abund $abundances -thread ${settings['cpus']} \
+    -abund $abundances -thread ${task.cpus} \
     -plotmarker -min_contig_length ${settings["binningMinLength"]} \
     -max_iteration ${settings["binningMaxItr"]} \
     -prob_threshold ${settings["binningProb"]} \

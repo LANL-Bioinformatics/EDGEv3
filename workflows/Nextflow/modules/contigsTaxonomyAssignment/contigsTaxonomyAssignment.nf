@@ -27,7 +27,7 @@ process contigTaxonomy {
     
     script:
     """
-    miccr.py -x asm10 -d /venv/database/miccrDB/NCBI-Bacteria-Virus.fna.mmi -t ${settings["cpus"]} -p ${settings["projName"]} -i $contigs 1>log.txt 2>&1 
+    miccr.py -x asm10 -d /venv/database/miccrDB/NCBI-Bacteria-Virus.fna.mmi -t ${task.cpus} -p ${settings["projName"]} -i $contigs 1>log.txt 2>&1 
     get_unclassified_fasta.pl -in $contigs -classified ${settings["projName"]}.lca_ctg.tsv -output ${settings["projName"]}.unclassified.fasta -log log.txt
     """
 }

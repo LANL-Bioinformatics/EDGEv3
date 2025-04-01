@@ -51,12 +51,11 @@ process readsTaxonomy {
     path "report**"
 
     script:
-    def numCPU = settings["cpus"] != null ? settings["cpus"] : 8
     """
     cat $paired $unpaired > allReads.fastq
     microbial_profiling.pl -o . \
     -s $taxonomyConfig \
-    -c $numCPU \
+    -c ${task.cpus} \
     allReads.fastq 2>>$errorlog
 
     svg2pdf.sh  report/*/*/*.svg 2>>$errorlog
