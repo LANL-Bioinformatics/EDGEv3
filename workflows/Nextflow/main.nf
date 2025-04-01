@@ -2,7 +2,6 @@
 
 include {SRA2FASTQ} from './modules/sra2fastq/sra2fastq.nf'
 include {COUNTFASTQ} from './modules/countFastq/countFastq.nf'
-include {COUNTFASTQ_SRA} from './modules/countFastq/countFastq.nf'
 include {PROCESSCONTIGS} from './modules/processProvidedContigs/processProvidedContigs.nf'
 include {FAQCS} from './modules/runFaQCs/runFaQCs.nf'
 include {HOSTREMOVAL} from './modules/hostRemoval/hostRemoval.nf'
@@ -18,12 +17,19 @@ include {REPORT} from './modules/report/report.nf'
 
 workflow {
     //input specification
-    fastqFiles = channel.empty()
 
-    if(params.shared.inputFastq.size() != 0) {
-        fastqFiles = channel.fromPath(params.shared.inputFastq, checkIfExists:true)
+    //reads as input
+    //allows multiple unpaired read files, or multiple paired read files, but not both
+    paired = channel.empty()
+    unpaired = channel.empty()
+    if(params.shared.pairedFile) {
+        paired = channel.fromPath([params.shared.inputFastq, params.shared.inputFastq2].transpose().flatten(), checkIfExists:true).collect()
+    }
+    else {
+        unpaired = channel.fromPath(params.shared.inputFastq, checkIfExists:true).collect()
     }
     
+    //contigs as input or pre-assembled from reads
     contigs = channel.empty()
     annContigs = channel.empty()
     if(params.shared.inputContigs != "${projectDir}/nf_assets/NO_FILE3" || params.shared.assembledContigs != "${projectDir}/nf_assets/NO_FILE3") {
@@ -37,20 +43,23 @@ workflow {
         annContigs = PROCESSCONTIGS.out.annotationContigs
     }
 
-    COUNTFASTQ(params.shared, fastqFiles.collect())
-
+    //reads processing
+    COUNTFASTQ(paired.ifEmpty("${projectDir}/nf_assets/NO_FILE"), unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"))
     avgLen = COUNTFASTQ.out.avgReadLen
     counts = COUNTFASTQ.out.counts
     paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
     unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
+
+    //SRA download and processing
     if(params.modules.sra2fastq) {
         SRA2FASTQ(params.sra2fastq.plus(params.shared).plus(params.outputLocations))
-        COUNTFASTQ_SRA(SRA2FASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), SRA2FASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"))
+        COUNTFASTQ(SRA2FASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), SRA2FASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"))
         avgLen = COUNTFASTQ_SRA.out.avgReadLen
         paired = COUNTFASTQ_SRA.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = COUNTFASTQ_SRA.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
     }
 
+    //QC
     qcStats = channel.empty()
     qcReport = channel.empty()
     if(params.modules.faqcs) {
@@ -62,6 +71,7 @@ workflow {
         qcReport = FAQCS.out.qcReport
     }
 
+    //Host reads removal
     hostRemovalReport = channel.empty()
     if(params.modules.hostRemoval) {
 
@@ -71,6 +81,7 @@ workflow {
         hostRemovalReport = HOSTREMOVAL.out.hostRemovalReport
     }
 
+    //Assembly and validation alignment
     coverageTable = channel.empty()
     abundances = channel.empty()
     contigStatsReport = channel.empty()
@@ -99,6 +110,7 @@ workflow {
         }
     }
 
+    //Reads-based taxonomic classification
     rtaReports = channel.empty()
     if(params.modules.readsTaxonomyAssignment) {
         READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs).plus(params.outputLocations), paired, unpaired, avgLen)
@@ -106,12 +118,14 @@ workflow {
 
     }
 
+    //Contig-based taxonomic classification
     ctaReport = channel.empty()
     if(params.modules.contigsTaxonomyAssignment) {
         CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared).plus(params.outputLocations), contigs, coverageTable.ifEmpty{"DNE"})
         ctaReport = CONTIGSTAXONOMYASSIGNMENT.out.ctaReport
     }
 
+    //Annotation and PhageFinder
     antismashInput = contigs
     annStats = channel.empty()
     if(params.modules.annotation) {
@@ -125,14 +139,17 @@ workflow {
         antismashInput = ANNOTATION.out.gbk
     }
 
+    //secondary metabolite analysis
     if(params.modules.secondaryMetaboliteAnalysis) {
         ANTISMASH(params.shared.plus(params.SMA).plus(params.outputLocations), antismashInput)
     }
 
+    //binning
     if(params.modules.readsBinning) {
         BINNING(params.shared.plus(params.binning).plus(params.outputLocations), contigs, abundances)
     }
-    //TODO: channel.empty() parameters here indicate files from upstream processes not yet implemented into report generation
+
+    //report generation
     REPORT(
         params.shared.plus(params.modules).plus(params.outputLocations), 
         counts.ifEmpty{file("DNE")},
