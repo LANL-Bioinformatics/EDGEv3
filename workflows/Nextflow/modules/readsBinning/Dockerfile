@@ -12,8 +12,10 @@ RUN conda init bash \
     && conda create --name binning \
     && conda activate binning 
 
-# install dependencies for phageFinder
+# install dependencies
+RUN conda install -n binning -c conda-forge python=3.11
 RUN conda install -n binning -c bioconda maxbin2=2.2.7
+RUN conda install -n binning -c bioconda checkm-genome=1.2.3
 RUN conda install -c conda-forge conda-pack
 
 RUN conda-pack -n binning -o /tmp/env.tar && \
