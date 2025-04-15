@@ -48,11 +48,11 @@ process qc {
     }
 
     def qcSoftware = "FaQCs"
-    if(settings["fastqSource"].equalsIgnoreCase("pacbio") || settings["fastqSource"].equalsIgnoreCase("nanopore")) {
+    if(settings["fastqSource"] && (settings["fastqSource"].equalsIgnoreCase("pacbio") || settings["fastqSource"].equalsIgnoreCase("nanopore"))) {
         qcSoftware = "illumina_fastq_QC.pl"
     }
     def pairedArg = paired[0].name != "NO_FILE" ? "-1 ${paired[0]} -2 ${paired[1]}" : ""
-    if(pairedArg != "" && (settings["fastqSource"].equalsIgnoreCase("pacbio") || settings["fastqSource"].equalsIgnoreCase("nanopore"))) {
+    if(pairedArg != "" && settings["fastqSource"] && (settings["fastqSource"].equalsIgnoreCase("pacbio") || settings["fastqSource"].equalsIgnoreCase("nanopore"))) {
         pairedArg = "-p $paired"
     }
     def unpairedArg = unpaired.name != "NO_FILE2" ? "-u $unpaired" : ""
@@ -66,7 +66,7 @@ process qc {
     phiX = settings["filtPhiX"] ? "--phiX" : ""
 
     def trim = ""
-    if(settings["fastqSource"].equalsIgnoreCase("pacbio") || settings["fastqSource"].equalsIgnoreCase("nanopore")) {
+    if(settings["fastqSource"] && (settings["fastqSource"].equalsIgnoreCase("pacbio") || settings["fastqSource"].equalsIgnoreCase("nanopore"))) {
         trim = "--trim_only"
     }
 
@@ -171,7 +171,7 @@ workflow FAQCS {
     jsonQCstats(settings, qc.out.qcStats)
 
     //run porechop and nanoplot if fastq source is nanopore
-    if(settings["fastqSource"].equalsIgnoreCase("nanopore")) {
+    if(settings["fastqSource"] && settings["fastqSource"].equalsIgnoreCase("nanopore")) {
         porechop(settings, qc.out.unpairedQC, qc.out.log)
         nanoplot(settings, porechop.out.porechopped)
     }
