@@ -43,7 +43,7 @@ const _nav = [
         to: '/workflow/metagenomics',
         badge: {
           color: 'info',
-          text: '4',
+          text: '6',
         },
       },
     ],

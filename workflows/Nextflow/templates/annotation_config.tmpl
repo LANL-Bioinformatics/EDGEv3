@@ -3,7 +3,7 @@ params {
 
     //which modules are run
     modules {
-        sra2fastq = <% if(typeof source != "undefined" && source === 'sra') { %><%= true %><% } else { %>false<%} %>
+        sra2fastq = false
         faqcs = false
         hostRemoval = false
         runAssembly = false
@@ -110,8 +110,8 @@ params {
         taxKingdom = <% if(typeof taxKingdom != "undefined") { %>"<%= taxKingdom %>"<% } else { %>"bacteria"<%} %>
         //annotaters: prokka, ratt
         annotateProgram = <% if(typeof annotateProgram != "undefined") { %>"<%= annotateProgram %>"<% } else { %>"prokka"<%} %> //default
-        customProtein = <% if(typeof customProtein != "undefined" && customProtein != "") { %>"<%= customProtein %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE"<%} %> //setup for optional file pattern
-        customHMM = <% if(typeof customHMM != "undefined" && customHMM != "") { %>"<%= customHMM %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE2"<%} %>
+        customProtein = <% if(typeof customProtein != "undefined" && customProtein) { %>"<%= customProtein %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE"<%} %> //setup for optional file pattern
+        customHMM = <% if(typeof customHMM != "undefined" && customHMM) { %>"<%= customHMM %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE2"<%} %>
         sourceGBK =  <% if(typeof sourceGBK != "undefined") { %>"<%= sourceGBK %>"<% } else { %>null<%} %>
         evalue = <% if(typeof evalue != "undefined") { %><%= evalue %><% } else { %>0.000000001<%} %>
         gcode = <% if(typeof gcode != "undefined") { %><%= gcode %><% } else { %>11<%} %>

@@ -10,6 +10,7 @@ export const SRAAccessionInput = (props) => {
   const [doValidation, setDoValidation] = useState(0)
 
   const setTextInput = (inForm, name) => {
+    form.validForm = inForm.validForm
     if (inForm.validForm) {
       form[name] = inForm.textInput.split(/\s*(?:,|$)\s*/)
       form[`${name}_display`] = inForm.textInput
@@ -24,6 +25,12 @@ export const SRAAccessionInput = (props) => {
     }
     setDoValidation(doValidation + 1)
   }
+
+  useEffect(() => {
+    setState({ ...components[componentName].init })
+    setValidInputs({ ...components[componentName].validInputs })
+    setDoValidation(doValidation + 1)
+  }, [props.reset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // check input errors

@@ -3,7 +3,7 @@ params {
 
     //which modules are run
     modules {
-        sra2fastq = <% if(typeof source != "undefined" && source === 'sra') { %><%= true %><% } else { %>false<%} %>
+        sra2fastq = <% if(typeof source != "undefined" && source === 'sra') { %>true<% } else { %>false<%} %>
         faqcs = false
         hostRemoval = false
         runAssembly = true
@@ -79,15 +79,15 @@ params {
             step = <% if(typeof idba_step != "undefined") { %><%= idba_step %><% } else { %>20<%} %>
         }
         spades {
-            pacbio = <% if(typeof spades_pacbio != "undefined" && spades_pacbio != "") { %>"<%= spades_pacbio %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
-            nanopore = <% if(typeof spades_nanopore != "undefined" && spades_nanopore != "") { %>"<%= spades_nanopore %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE4"<%} %>
+            pacbio = <% if(typeof spades_pacbio != "undefined" && spades_pacbio) { %>"<%= spades_pacbio %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
+            nanopore = <% if(typeof spades_nanopore != "undefined" && spades_nanopore) { %>"<%= spades_nanopore %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE4"<%} %>
             algorithm = <% if(typeof spades_algorithm != "undefined") { %>"<%= spades_algorithm %>"<% } else { %>null<%} %>
         }
         megahit {
             preset = <% if(typeof megahit_preset != "undefined") { %>"<%= megahit_preset %>"<% } else { %>null<%} %>
         }
         unicycler {
-            longreads = <% if(typeof Unicycler_longreads != "undefined" && Unicycler_longreads != "") { %>"<%= Unicycler_longreads %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
+            longreads = <% if(typeof Unicycler_longreads != "undefined" && Unicycler_longreads) { %>"<%= Unicycler_longreads %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
             minLongReads = <% if(typeof Unicycler_minLongReads != "undefined") { %><%= Unicycler_minLongReads %><% } else { %>2000<%} %>
             bridgingMode = <% if(typeof Unicycler_bridgingMode != "undefined") { %>"<%= Unicycler_bridgingMode %>"<% } else { %>"normal"<%} %>
         }

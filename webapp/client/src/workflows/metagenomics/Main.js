@@ -17,6 +17,7 @@ import { Annotation } from './forms/Annotation'
 import { Binning } from './forms/Binning'
 import { workflowOptions, workflows } from './defaults'
 import { AntiSmash } from './forms/AntiSmash'
+import { Taxonomy } from './forms/Taxonomy'
 
 const Main = (props) => {
   const navigate = useNavigate()
@@ -125,6 +126,15 @@ const Main = (props) => {
         ...selectedWorkflows[workflow].inputs,
         // eslint-disable-next-line prettier/prettier
         ...selectedWorkflows[workflow].annotateProgramInputs[selectedWorkflows[workflow].inputs['annotateProgram'].value]
+      }
+    }
+    //add readInputs to main inputs
+    if (rawDataParams.inputs.source.value !== 'fasta' && workflow === 'taxonomy') {
+      // eslint-disable-next-line prettier/prettier
+      selectedWorkflows[workflow].inputs = {
+        ...selectedWorkflows[workflow].inputs,
+        // eslint-disable-next-line prettier/prettier
+        ...selectedWorkflows[workflow].readInputs
       }
     }
 
@@ -291,19 +301,11 @@ const Main = (props) => {
                 isValidFileInput={isValidFileInput}
                 source={workflows[workflow]['rawReadsInput'].source}
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
+                sourceOptionsOn={true}
                 sourceOptions={workflows[workflow]['rawReadsInput'].sourceOptions}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
-                enableInput={workflows[workflow]['rawReadsInput'].enableInput}
-                placeholder={workflows[workflow]['rawReadsInput'].placeholder}
-                dataSources={workflows[workflow]['rawReadsInput'].dataSources}
-                fileTypes={workflows[workflow]['rawReadsInput'].fileTypes}
-                projectTypes={workflows[workflow]['rawReadsInput'].projectTypes}
-                projectScope={workflows[workflow]['rawReadsInput'].projectScope}
-                viewFile={workflows[workflow]['rawReadsInput'].viewFile}
-                isOptional={workflows[workflow]['rawReadsInput'].isOptional}
-                cleanupInput={workflows[workflow]['rawReadsInput'].cleanupInput}
-                maxInput={workflows[workflow]['rawReadsInput'].maxInput}
+                fastqSettings={workflows[workflow]['rawReadsInput'].fastq}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
                 allExpand={allExpand}
@@ -331,19 +333,11 @@ const Main = (props) => {
                 isValidFileInput={isValidFileInput}
                 source={workflows[workflow]['rawReadsInput'].source}
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
+                sourceOptionsOn={true}
                 sourceOptions={workflows[workflow]['rawReadsInput'].sourceOptions}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
-                enableInput={workflows[workflow]['rawReadsInput'].enableInput}
-                placeholder={workflows[workflow]['rawReadsInput'].placeholder}
-                dataSources={workflows[workflow]['rawReadsInput'].dataSources}
-                fileTypes={workflows[workflow]['rawReadsInput'].fileTypes}
-                projectTypes={workflows[workflow]['rawReadsInput'].projectTypes}
-                projectScope={workflows[workflow]['rawReadsInput'].projectScope}
-                viewFile={workflows[workflow]['rawReadsInput'].viewFile}
-                isOptional={workflows[workflow]['rawReadsInput'].isOptional}
-                cleanupInput={workflows[workflow]['rawReadsInput'].cleanupInput}
-                maxInput={workflows[workflow]['rawReadsInput'].maxInput}
+                fastqSettings={workflows[workflow]['rawReadsInput'].fastq}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
                 allExpand={allExpand}
@@ -374,16 +368,7 @@ const Main = (props) => {
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
-                enableInput={workflows[workflow]['rawReadsInput'].enableInput}
-                placeholder={workflows[workflow]['rawReadsInput'].placeholder}
-                dataSources={workflows[workflow]['rawReadsInput'].dataSources}
-                fileTypes={workflows[workflow]['rawReadsInput'].fileTypes}
-                projectTypes={workflows[workflow]['rawReadsInput'].projectTypes}
-                projectScope={workflows[workflow]['rawReadsInput'].projectScope}
-                viewFile={workflows[workflow]['rawReadsInput'].viewFile}
-                isOptional={workflows[workflow]['rawReadsInput'].isOptional}
-                cleanupInput={workflows[workflow]['rawReadsInput'].cleanupInput}
-                maxInput={workflows[workflow]['rawReadsInput'].maxInput}
+                fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
                 allExpand={allExpand}
@@ -413,16 +398,7 @@ const Main = (props) => {
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
-                enableInput={workflows[workflow]['rawReadsInput'].enableInput}
-                placeholder={workflows[workflow]['rawReadsInput'].placeholder}
-                dataSources={workflows[workflow]['rawReadsInput'].dataSources}
-                fileTypes={workflows[workflow]['rawReadsInput'].fileTypes}
-                projectTypes={workflows[workflow]['rawReadsInput'].projectTypes}
-                projectScope={workflows[workflow]['rawReadsInput'].projectScope}
-                viewFile={workflows[workflow]['rawReadsInput'].viewFile}
-                isOptional={workflows[workflow]['rawReadsInput'].isOptional}
-                cleanupInput={workflows[workflow]['rawReadsInput'].cleanupInput}
-                maxInput={workflows[workflow]['rawReadsInput'].maxInput}
+                fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
                 allExpand={allExpand}
@@ -452,16 +428,7 @@ const Main = (props) => {
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
-                enableInput={workflows[workflow]['rawReadsInput'].enableInput}
-                placeholder={workflows[workflow]['rawReadsInput'].placeholder}
-                dataSources={workflows[workflow]['rawReadsInput'].dataSources}
-                fileTypes={workflows[workflow]['rawReadsInput'].fileTypes}
-                projectTypes={workflows[workflow]['rawReadsInput'].projectTypes}
-                projectScope={workflows[workflow]['rawReadsInput'].projectScope}
-                viewFile={workflows[workflow]['rawReadsInput'].viewFile}
-                isOptional={workflows[workflow]['rawReadsInput'].isOptional}
-                cleanupInput={workflows[workflow]['rawReadsInput'].cleanupInput}
-                maxInput={workflows[workflow]['rawReadsInput'].maxInput}
+                fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
                 allExpand={allExpand}
@@ -477,6 +444,39 @@ const Main = (props) => {
                 errMessage={
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].errMessage : null
                 }
+                allExpand={allExpand}
+                allClosed={allClosed}
+              />
+            </>
+          )}
+          {workflow === 'taxonomy' && (
+            <>
+              <InputRawReads
+                setParams={setRawData}
+                isValidFileInput={isValidFileInput}
+                source={workflows[workflow]['rawReadsInput'].source}
+                sourceDisplay={workflows[workflow]['rawReadsInput'].text}
+                sourceOptionsOn={true}
+                text={workflows[workflow]['rawReadsInput'].text}
+                tooltip={workflows[workflow]['rawReadsInput'].tooltip}
+                fastqSettings={workflows[workflow]['rawReadsInput'].fastq}
+                fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
+                isValid={rawDataParams ? rawDataParams.validForm : false}
+                errMessage={rawDataParams ? rawDataParams.errMessage : null}
+                allExpand={allExpand}
+                allClosed={allClosed}
+              />
+              <Taxonomy
+                name={workflow}
+                full_name={workflow}
+                setParams={setWorkflowParams}
+                isValid={
+                  selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
+                }
+                errMessage={
+                  selectedWorkflows[workflow] ? selectedWorkflows[workflow].errMessage : null
+                }
+                source={rawDataParams.inputs.source.value}
                 allExpand={allExpand}
                 allClosed={allClosed}
               />

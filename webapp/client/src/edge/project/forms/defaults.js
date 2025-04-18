@@ -32,6 +32,10 @@ export const components = {
     validForm: false,
     selectInput: null,
   },
+  multSelectInput: {
+    validForm: false,
+    selections: [],
+  },
   fileUpload: {
     file: '',
     validForm: false,

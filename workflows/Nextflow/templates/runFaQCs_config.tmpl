@@ -3,7 +3,7 @@ params {
 
     //which modules are run
     modules {
-        sra2fastq = <% if(typeof source != "undefined" && source === 'sra') { %><%= true %><% } else { %>false<%} %>
+        sra2fastq = <% if(typeof source != "undefined" && source === 'sra') { %>true<% } else { %>false<%} %>
         faqcs = true
         hostRemoval = false
         runAssembly = false

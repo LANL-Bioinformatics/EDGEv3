@@ -22,6 +22,14 @@ export const Switcher = (props) => {
   }, [props.reset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (props.disableFalse) {
+      setNewState2('isTrue', true)
+    } else if (props.disableTrue) {
+      setNewState2('isTrue', false)
+    }
+  }, [props.disableFalse, props.disableTrue]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     //force updating parent's inputParams
     props.setParams(form, props.name)
   }, [doValidation]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -47,6 +55,7 @@ export const Switcher = (props) => {
         <Col xs="12" md={props.colMd2 ? props.colMd2 : '9'}>
           <ButtonGroup className="mr-3" aria-label="First group" size="sm">
             <Button
+              disabled={props.disableTrue ? true : false}
               color="outline-primary"
               onClick={() => {
                 setNewState2('isTrue', true)
@@ -56,6 +65,7 @@ export const Switcher = (props) => {
               {props.trueText}
             </Button>
             <Button
+              disabled={props.disableFalse ? true : false}
               color="outline-primary"
               onClick={() => {
                 setNewState2('isTrue', false)

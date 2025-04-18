@@ -14,6 +14,7 @@ export const InputRawReads = (props) => {
   const [form] = useState({ ...inputRawReads })
   const [validInputs] = useState({ ...inputRawReads.validInputs })
   const [doValidation, setDoValidation] = useState(0)
+  const [reset, setReset] = useState(0)
 
   const toggleParms = () => {
     setCollapseParms(!collapseParms)
@@ -22,6 +23,7 @@ export const InputRawReads = (props) => {
   const setOption = (inForm, name) => {
     form.inputs[name].value = inForm.option
     form.inputs[name].display = inForm.display ? inForm.display : inForm.option
+    setReset(reset + 1)
     setDoValidation(doValidation + 1)
   }
 
@@ -131,7 +133,7 @@ export const InputRawReads = (props) => {
               </span>
             </>
           )}
-          {props.sourceOptions && (
+          {props.sourceOptionsOn && (
             <>
               <OptionSelector
                 id={'source'}
@@ -154,33 +156,61 @@ export const InputRawReads = (props) => {
                 name={'inputFiles'}
                 setParams={setFastqInput}
                 isValidFileInput={
-                  props.isValidFileInput ? props.isValidFileInput : isValidFileInput
+                  props.fastqSettings?.isValidFileInput
+                    ? props.fastqSettings?.isValidFileInput
+                    : isValidFileInput
                 }
-                note={props.note}
-                text={!props.sourceOptions && props.text ? props.text : null}
-                tooltip={!props.sourceOptions && props.tooltip ? props.tooltip : null}
+                note={props.fastqSettings?.note}
+                text={props.fastqSettings?.text ? props.fastqSettings?.text : null}
+                tooltip={props.fastqSettings?.tooltip ? props.fastqSettings?.tooltip : null}
                 enableInput={
-                  props.enableInput ? props.enableInput : inputRawReads.fastqInput.enableInput
+                  props.fastqSettings?.enableInput
+                    ? props.fastqSettings?.enableInput
+                    : inputRawReads.fastqInput.enableInput
                 }
                 placeholder={
-                  props.placeholder ? props.placeholder : inputRawReads.fastqInput.placeholder
+                  props.fastqSettings?.placeholder
+                    ? props.fastqSettings?.placeholder
+                    : inputRawReads.fastqInput.placeholder
                 }
                 dataSources={
-                  props.dataSources ? props.dataSources : inputRawReads.fastqInput.dataSources
+                  props.fastqSettings?.dataSources
+                    ? props.fastqSettings?.dataSources
+                    : inputRawReads.fastqInput.dataSources
                 }
-                fileTypes={props.fileTypes ? props.fileTypes : inputRawReads.fastqInput.fileTypes}
-                projectTypes={props.projectTypes ? props.projectTypes : null}
+                fileTypes={
+                  props.fastqSettings?.fileTypes
+                    ? props.fastqSettings?.fileTypes
+                    : inputRawReads.fastqInput.fileTypes
+                }
+                projectTypes={
+                  props.fastqSettings?.projectTypes ? props.fastqSettings?.projectTypes : null
+                }
                 projectScope={
-                  props.projectTypes ? props.projectTypes : inputRawReads.fastqInput.projectTypes
+                  props.fastqSettings?.projectTypes
+                    ? props.fastqSettings?.projectTypes
+                    : inputRawReads.fastqInput.projectTypes
                 }
-                viewFile={props.viewFile ? props.viewFile : inputRawReads.fastqInput.viewFile}
+                viewFile={
+                  props.fastqSettings?.viewFile
+                    ? props.fastqSettings?.viewFile
+                    : inputRawReads.fastqInput.viewFile
+                }
                 isOptional={
-                  props.isOptional ? props.isOptional : inputRawReads.fastqInput.isOptional
+                  props.fastqSettings?.isOptional
+                    ? props.fastqSettings?.isOptional
+                    : inputRawReads.fastqInput.isOptional
                 }
                 cleanupInput={
-                  props.cleanupInput ? props.cleanupInput : inputRawReads.fastqInput.cleanupInput
+                  props.fastqSettings?.cleanupInput
+                    ? props.fastqSettings?.cleanupInput
+                    : inputRawReads.fastqInput.cleanupInput
                 }
-                maxInput={props.maxInput ? props.maxInput : inputRawReads.fastqInput.maxInput}
+                maxInput={
+                  props.fastqSettings?.maxInput
+                    ? props.fastqSettings?.maxInput
+                    : inputRawReads.fastqInput.maxInput
+                }
                 seqPlatformOptions={inputRawReads.inputs['seqPlatform'].options}
                 seqPlatformText={inputRawReads.inputs['seqPlatform'].text}
                 seqPlatformTooltip={inputRawReads.inputs['seqPlatform'].tooltip}
@@ -197,39 +227,79 @@ export const InputRawReads = (props) => {
                 setParams={setFileInput}
                 name={'inputFiles'}
                 isValidFileInput={
-                  props.isValidFileInput ? props.isValidFileInput : isValidFileInput
+                  props.fastaSettings?.isValidFileInput
+                    ? props.fastaSettings?.isValidFileInput
+                    : isValidFileInput
                 }
-                note={props.note}
-                text={props.text ? props.text : inputRawReads.fastqInput.text}
-                tooltip={props.tooltip ? props.tooltip : inputRawReads.fastqInput.tooltip}
+                note={props.fastaSettings?.note}
+                text={
+                  props.fastaSettings?.text
+                    ? props.fastaSettings?.text
+                    : inputRawReads.fastaInput.text
+                }
+                tooltip={
+                  props.fastaSettings?.tooltip
+                    ? props.fastaSettings?.tooltip
+                    : inputRawReads.fastaInput.tooltip
+                }
                 enableInput={
-                  props.enableInput ? props.enableInput : inputRawReads.fastaInput.enableInput
+                  props.fastaSettings?.enableInput
+                    ? props.fastaSettings?.enableInput
+                    : inputRawReads.fastaInput.enableInput
                 }
                 placeholder={
-                  props.placeholder ? props.placeholder : inputRawReads.fastaInput.placeholder
+                  props.fastaSettings?.placeholder
+                    ? props.fastaSettings?.placeholder
+                    : inputRawReads.fastaInput.placeholder
                 }
                 dataSources={
-                  props.dataSources ? props.dataSources : inputRawReads.fastaInput.dataSources
+                  props.fastaSettings?.dataSources
+                    ? props.fastaSettings?.dataSources
+                    : inputRawReads.fastaInput.dataSources
                 }
-                fileTypes={props.fileTypes ? props.fileTypes : inputRawReads.fastaInput.fileTypes}
-                projectTypes={props.projectTypes ? props.projectTypes : null}
+                fileTypes={
+                  props.fastaSettings?.fileTypes
+                    ? props.fastaSettings?.fileTypes
+                    : inputRawReads.fastaInput.fileTypes
+                }
+                projectTypes={
+                  props.fastaSettings?.projectTypes ? props.fastaSettings?.projectTypes : null
+                }
                 projectScope={
-                  props.projectTypes ? props.projectTypes : inputRawReads.fastaInput.projectTypes
+                  props.fastaSettings?.projectTypes
+                    ? props.fastaSettings?.projectTypes
+                    : inputRawReads.fastaInput.projectTypes
                 }
-                viewFile={props.viewFile ? props.viewFile : inputRawReads.fastaInput.viewFile}
+                viewFile={
+                  props.fastaSettings?.viewFile
+                    ? props.fastaSettings?.viewFile
+                    : inputRawReads.fastaInput.viewFile
+                }
                 isOptional={
-                  props.isOptional ? props.isOptional : inputRawReads.fastaInput.isOptional
+                  props.fastaSettings?.isOptional
+                    ? props.fastaSettings?.isOptional
+                    : inputRawReads.fastaInput.isOptional
                 }
                 cleanupInput={
-                  props.cleanupInput ? props.cleanupInput : inputRawReads.fastaInput.cleanupInput
+                  props.fastaSettings?.cleanupInput
+                    ? props.fastaSettings?.cleanupInput
+                    : inputRawReads.fastaInput.cleanupInput
                 }
-                maxInput={props.maxInput ? props.maxInput : inputRawReads.fastaInput.maxInput}
+                maxInput={
+                  props.fastaSettings?.maxInput
+                    ? props.fastaSettings?.maxInput
+                    : inputRawReads.fastaInput.maxInput
+                }
               />
             </>
           )}
           {form.inputs['source'].value === 'sra' && (
             <>
-              <SRAAccessionInput name={'inputFiles'} setParams={setSRAccessionInput} />
+              <SRAAccessionInput
+                name={'inputFiles'}
+                setParams={setSRAccessionInput}
+                reset={reset}
+              />
               <HtmlText text={inputRawReads.sraInput.note} />
               <br></br>
             </>

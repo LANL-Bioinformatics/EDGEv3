@@ -6,7 +6,39 @@ export const workflowOptions = [
   { value: 'annotation', label: workflowList['annotation'].label },
   { value: 'binning', label: workflowList['binning'].label },
   { value: 'antiSmash', label: workflowList['antiSmash'].label },
+  { value: 'taxonomy', label: workflowList['taxonomy'].label },
 ]
+
+export const taxClassificationOptions = {
+  'GOTTCHA-Bacterial-Databases': [
+    { value: 'gottcha-genDB-b', label: 'GOTTCHA Genus' },
+    { value: 'gottcha-speDB-b', label: 'GOTTCHA Species' },
+    { value: 'gottcha-strDB-b', label: 'GOTTCHA Strain' },
+  ],
+  'GOTTCHA-Viral-Databases': [
+    { value: 'gottcha-genDB-v', label: 'GOTTCHA Genus' },
+    { value: 'gottcha-speDB-v', label: 'GOTTCHA Species' },
+    { value: 'gottcha-strDB-v', label: 'GOTTCHA Strain' },
+  ],
+  'GOTTCHA2-BacteriaViruses-Databases': [{ value: 'gottcha2-speDB-b', label: 'GOTTCHA2 Species' }],
+  'PanGIA-Databases': [{ value: 'pangia', label: 'PanGIA NCBI Refseq89' }],
+  'Reads-Mapping': [{ value: 'bwa', label: 'Reads Mapping (BWA against RefSeq)' }],
+  'Other-Tools': [
+    { value: 'metaphlan4', label: 'MetaPhlAn4' },
+    { value: 'kraken2', label: 'Kraken2' },
+    { value: 'centrifuge', label: 'Centrifuge' },
+    { value: 'diamond', label: 'IAMOND (Amino acid-based classification)' },
+  ],
+  'classification-tools-default': [
+    { value: 'gottcha-speDB-b', label: 'GOTTCHA Species' },
+    { value: 'gottcha-speDB-v', label: 'GOTTCHA Species' },
+    { value: 'gottcha2-speDB-b', label: 'GOTTCHA2 Species' },
+    { value: 'pangia', label: 'PanGIA NCBI Refseq89' },
+    { value: 'metaphlan4', label: 'MetaPhlAn4' },
+    { value: 'kraken2', label: 'Kraken2' },
+    { value: 'centrifuge', label: 'Centrifuge' },
+  ],
+}
 
 export const inputRawReads = {
   validForm: false,
@@ -51,9 +83,9 @@ export const inputRawReads = {
       'Either paired-end Illumina data or single-end data from various sequencing platform in FASTQ format as the input; the file can be becompressed. <br/>Acceptable file name extensions: .fastq, .fq, .fastq.gz, .fq.gz<br />Note: The file size limit for the URL input is 10GB',
     enableInput: true,
     placeholder: 'Select a file or enter a file http(s) url',
-    dataSources: ['upload', 'public', 'project'],
+    dataSources: ['upload', 'public'],
     fileTypes: ['fastq', 'fq', 'fastq.gz', 'fq.gz'],
-    projectTypes: ['sra2fastq'],
+    projectTypes: [],
     projectScope: ['self+shared'],
     viewFile: false,
     isOptional: false,
@@ -101,20 +133,22 @@ export const workflows = {
       text: 'READS/FASTQ',
       tooltip:
         'ReadsQC requires either paired-end Illumina data or single-end data from various sequencing platform in FASTQ format as the input; the file can be becompressed. <br/>Acceptable file name extensions: .fastq, .fq, .fastq.gz, .fq.gz<br />Note: The file size limit for the URL input is 10GB',
-      enableInput: true,
-      placeholder: 'Select a file or enter a file http(s) url',
       sourceOptions: [
         { text: 'READS/FASTQ', value: 'fastq' },
         { text: 'NCBI SRA', value: 'sra' },
       ],
-      dataSources: ['upload', 'public', 'project'],
-      fileTypes: ['fastq', 'fq', 'fastq.gz', 'fq.gz'],
-      projectTypes: ['sra2fastq'],
-      projectScope: ['self+shared'],
-      viewFile: false,
-      isOptional: false,
-      cleanupInput: true,
-      maxInput: 1000,
+      fastq: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public'],
+        fileTypes: ['fastq', 'fq', 'fastq.gz', 'fq.gz'],
+        projectTypes: [],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1000,
+      },
     },
     inputs: {
       trimQual: {
@@ -270,20 +304,22 @@ export const workflows = {
       text: 'READS/FASTQ',
       tooltip:
         'Assembly requires either paired-end Illumina data or single-end data from various sequencing platform in FASTQ format as the input; the file can be becompressed. <br/>Acceptable file name extensions: .fastq, .fq, .fastq.gz, .fq.gz<br />Note: The file size limit for the URL input is 10GB',
-      enableInput: true,
-      placeholder: 'Select a file or enter a file http(s) url',
       sourceOptions: [
         { text: 'READS/FASTQ', value: 'fastq' },
         { text: 'NCBI SRA', value: 'sra' },
       ],
-      dataSources: ['upload', 'public', 'project'],
-      fileTypes: ['fastq', 'fq', 'fastq.gz', 'fq.gz'],
-      projectTypes: ['sra2fastq'],
-      projectScope: ['self+shared'],
-      viewFile: false,
-      isOptional: false,
-      cleanupInput: true,
-      maxInput: 1000,
+      fastq: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fastq', 'fq', 'fastq.gz', 'fq.gz'],
+        projectTypes: ['runFaQCs'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1000,
+      },
     },
     inputs: {
       assembler: {
@@ -608,16 +644,18 @@ export const workflows = {
     rawReadsInput: {
       source: 'fasta',
       text: 'CONTIGS/FASTA',
-      enableInput: true,
-      placeholder: 'Select a file or enter a file http(s) url',
-      dataSources: ['upload', 'public', 'project'],
-      fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
-      projectTypes: ['assembly'],
-      projectScope: ['self+shared'],
-      viewFile: false,
-      isOptional: false,
-      cleanupInput: true,
-      maxInput: 1,
+      fasta: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+        projectTypes: ['assembly'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1,
+      },
     },
     inputs: {
       minContigSize: {
@@ -785,16 +823,18 @@ export const workflows = {
     rawReadsInput: {
       source: 'fasta',
       text: 'CONTIGS/FASTA',
-      enableInput: true,
-      placeholder: 'Select a file or enter a file http(s) url',
-      dataSources: ['upload', 'public', 'project'],
-      fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
-      projectTypes: ['assembly'],
-      projectScope: ['self+shared'],
-      viewFile: false,
-      isOptional: false,
-      cleanupInput: true,
-      maxInput: 1,
+      fasta: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+        projectTypes: ['assembly'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1,
+      },
     },
     inputs: {
       binningMinLength: {
@@ -875,16 +915,18 @@ export const workflows = {
     rawReadsInput: {
       source: 'fasta',
       text: 'CONTIGS/FASTA',
-      enableInput: true,
-      placeholder: 'Select a file or enter a file http(s) url',
-      dataSources: ['upload', 'public', 'project'],
-      fileTypes: ['fasta', 'fa', 'fna', 'contigs', 'gb', 'gbk', 'genbank'],
-      projectTypes: ['assembly', 'annotation'],
-      projectScope: ['self+shared'],
-      viewFile: false,
-      isOptional: false,
-      cleanupInput: true,
-      maxInput: 1,
+      fasta: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fasta', 'fa', 'fna', 'contigs', 'gb', 'gbk', 'genbank'],
+        projectTypes: ['assembly', 'annotation'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1,
+      },
     },
     inputs: {
       smaTaxon: {
@@ -1004,5 +1046,335 @@ export const workflows = {
     },
     // only for input with validation method
     validInputs: {},
+  },
+  taxonomy: {
+    validForm: true,
+    errMessage: 'input error',
+    paramsOn: true,
+    files: [],
+    rawReadsInput: {
+      source: 'fastq',
+      fastq: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fastq', 'fq', 'fastq.gz', 'fq.gz'],
+        projectTypes: ['runFaQCs'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1000,
+      },
+      fasta: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+        projectTypes: ['assembly', 'annotation'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1,
+      },
+    },
+    inputs: {
+      contigTax: {
+        text: 'Contigs Classification',
+        value: true,
+        switcher: {
+          tooltip:
+            'EDGE will map contigs to NCBI genomes using minimap2 and make a taxonomic inference for each contig.',
+          trueText: 'Yes',
+          falseText: 'No',
+          defaultValue: true,
+        },
+      },
+    },
+    readInputs: {
+      readTax: {
+        text: 'Reads Classification',
+        value: true,
+      },
+      enabledTools: {
+        text: 'Classification Tools',
+        defaultSelections: taxClassificationOptions['classification-tools-default'],
+        value: taxClassificationOptions['classification-tools-default'].map((item) => {
+          return item.value
+        }),
+        display: taxClassificationOptions['classification-tools-default']
+          .map((item) => {
+            return item.label
+          })
+          .join(', '),
+        toolGroup: [
+          {
+            label: 'GOTTCHA Bacterial Databases',
+            options: taxClassificationOptions['GOTTCHA-Bacterial-Databases'],
+          },
+          {
+            label: 'GOTTCHA Viral Databases',
+            options: taxClassificationOptions['GOTTCHA-Viral-Databases'],
+          },
+          {
+            label: 'GOTTCHA2 BacteriaViruses Databases',
+            options: taxClassificationOptions['GOTTCHA2-BacteriaViruses-Databases'],
+          },
+          {
+            label: 'PanGIA Databases',
+            options: taxClassificationOptions['PanGIA-Databases'],
+          },
+          {
+            label: 'Reads Mapping',
+            options: taxClassificationOptions['Reads-Mapping'],
+          },
+          {
+            label: 'Other Tools',
+            options: taxClassificationOptions['Other-Tools'],
+          },
+        ],
+        tooltip:
+          'EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), ' +
+          'MetaPhlAn4, Kraken and reads mapping to NCBI RefSeq using BWA. Each tool has its own database and you can find the taxonomy information ' +
+          'table <a href="https://lanl-bioinformatics.github.io/EDGE/docs/taxonomyDBtable.html" target="_blank" rel="noopener noreferrer"><span style="color:yellow;">[here]</span></a>',
+      },
+      splitTrimMinQ: {
+        text: 'Splitrim Quality Level',
+        value: 20,
+        rangeInput: {
+          tooltip: 'Splitrim is used for GOTTCHA classification',
+          defaultValue: 20,
+          min: 1,
+          max: 140,
+          step: 1,
+        },
+      },
+      custom_gottcha_genDB_b: {
+        text: 'CUSTOM GOTTCHA-genDB-b',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_gottcha_speDB_b: {
+        text: 'CUSTOM GOTTCHA-speDB-b',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_gottcha_strDB_b: {
+        text: 'CUSTOM GOTTCHA-strDB-b',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_gottcha_genDB_v: {
+        text: 'CUSTOM GOTTCHA-genDB-v',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_gottcha_speDB_v: {
+        text: 'CUSTOM GOTTCHA-speDB-v',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_gottcha_strDB_v: {
+        text: 'CUSTOM GOTTCHA-strDB-v',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_gottcha2_speDB_b: {
+        text: 'CUSTOM GOTTCHA2-speDB-b',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_bwa_db: {
+        text: 'CUSTOM BWA DB',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_metaphlan_db: {
+        text: 'CUSTOM Metaphlan DB',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_kraken_db: {
+        text: 'CUSTOM Kraken DB',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_pangia_db: {
+        text: 'CUSTOM Pangia DB',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_diamond_db: {
+        text: 'CUSTOM Diamond DB',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+      custom_centrifuge_db: {
+        text: 'CUSTOM Centrifuge DB',
+        value: null,
+        display: null,
+        fileInput: {
+          enableInput: true,
+          placeholder: '(Optional) Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+        },
+      },
+    },
+    // only for input with validation method
+    validInputs: {
+      readInputs: {
+        enabledTools: {
+          isValid: true,
+          error: 'Classification Tools error: at least 1 tool required',
+        },
+        custom_gottcha_genDB_b: {
+          isValid: true,
+          error: 'CUSTOM GOTTCHA-genDB-b error. Invalid url',
+        },
+        custom_gottcha_speDB_b: {
+          isValid: true,
+          error: 'CUSTOM GOTTCHA-speDB-b error. Invalid url',
+        },
+        custom_gottcha_strDB_b: {
+          isValid: true,
+          error: 'CUSTOM GOTTCHA-strDB-b error. Invalid url',
+        },
+        custom_gottcha_genDB_v: {
+          isValid: true,
+          error: 'CUSTOM GOTTCHA-genDB-v error. Invalid url',
+        },
+        custom_gottcha_speDB_v: {
+          isValid: true,
+          error: 'CUSTOM GOTTCHA-speDB-v error. Invalid url',
+        },
+        custom_gottcha_strDB_v: {
+          isValid: true,
+          error: 'CUSTOM GOTTCHA-strDB-v error. Invalid url',
+        },
+        custom_gottcha2_speDB_b: {
+          isValid: true,
+          error: 'CUSTOM GOTTCHA2-speDB-b error. Invalid url',
+        },
+        custom_bwa_db: { isValid: true, error: 'CUSTOM BWA DB error. Invalid url' },
+        custom_metaphlan_db: { isValid: true, error: 'CUSTOM Metaphlan DB error. Invalid url' },
+        custom_kraken_db: { isValid: true, error: 'CUSTOM Kraken DB error. Invalid url' },
+        custom_pangia_db: { isValid: true, error: 'CUSTOM Pangia DB error. Invalid url' },
+        custom_diamond_db: { isValid: true, error: 'CUSTOM Diamond DB error. Invalid url' },
+        custom_centrifuge_db: { isValid: true, error: 'CUSTOM Centrifuge DB error. Invalid url' },
+      },
+    },
   },
 }

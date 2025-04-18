@@ -33,4 +33,9 @@ export const workflowList = {
     category: 'metagenomics',
     info: 'Secondary Metabolite Analysis ',
   },
+  taxonomy: {
+    label: 'Taxonomy Classification',
+    category: 'metagenomics',
+    info: 'Taxonomy Classification workflow ',
+  },
 }
