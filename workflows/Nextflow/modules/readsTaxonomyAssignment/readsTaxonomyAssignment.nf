@@ -73,6 +73,7 @@ process readsTaxonomyConfig {
 
     input:
     val settings
+    val platform
     val avgLen
 
     output:
@@ -81,7 +82,7 @@ process readsTaxonomyConfig {
 
     script:
     def bwaScoreCut = 30
-    if (settings["fastqSource"] != null && (settings["fastqSource"].toUpperCase().contains("NANOPORE") || settings["fastqSource"].toUpperCase().contains("PACBIO"))) {
+    if (platform != null && (platform.contains("NANOPORE") || platform.contains("PACBIO"))) {
         if (settings["minLen"] > 1000) {
             bwaScoreCut = settings["minLen"]
         } 
@@ -116,7 +117,7 @@ process readsTaxonomyConfig {
     gottcha2_speDB_v = settings["custom_gottcha2_speDB_v"] != null ? "-gottcha2-v-speDB /gottcha2_speDBv_custom/${Paths.get(settings["custom_gottcha2_speDB_v"].toString()).getFileName()} " : ""
     gottcha2_speDB_b = settings["custom_gottcha2_speDB_b"] != null ? "-gottcha2-b-speDB /gottcha2_speDBb_custom/${Paths.get(settings["custom_gottcha2_speDB_b"].toString()).getFileName()} " : ""
 
-    np = (settings["fastqSource"] != null && settings["fastqSource"].toUpperCase().contains("NANOPORE")) ? "--nanopore " : ""
+    np = (platform != null && platform.contains("NANOPORE")) ? "--nanopore " : ""
 
     """
 
@@ -154,12 +155,13 @@ process readsTaxonomyConfig {
 workflow READSTAXONOMYASSIGNMENT {
     take:
     settings
+    platform
     paired
     unpaired
     avgLen
 
     main:
-    readsTaxonomyConfig(settings, avgLen)
+    readsTaxonomyConfig(settings, platform, avgLen)
     readsTaxonomy(settings, paired, unpaired, readsTaxonomyConfig.out.config, readsTaxonomyConfig.out.errorlog)
     trees = readsTaxonomy.out.trees
     heatmaps = readsTaxonomy.out.heatmaps

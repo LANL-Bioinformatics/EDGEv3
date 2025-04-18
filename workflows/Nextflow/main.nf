@@ -49,7 +49,7 @@ workflow {
     }
 
 
-
+    platform = channel.empty()
     //SRA download and processing
     if(params.modules.sra2fastq) {
         SRA2FASTQ(baseSettings.plus(params.sra2fastq))
@@ -58,7 +58,7 @@ workflow {
         counts = COUNTFASTQ.out.counts
         paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
-        baseSettings["fastqSource"] = SRA2FASTQ.out.platform
+        platform = SRA2FASTQ.out.platform
     }
     else {
         //reads processing
@@ -68,12 +68,12 @@ workflow {
         paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
     }
-
+    platform = platform.ifEmpty{params.shared.fastqSource != null ? "${params.shared.fastqSource.toUpperCase()}" : null}
     //QC
     qcStats = channel.empty()
     qcReport = channel.empty()
     if(params.modules.faqcs) {
-        FAQCS(baseSettings.plus(params.faqcs), paired, unpaired,avgLen)
+        FAQCS(baseSettings.plus(params.faqcs), platform, paired, unpaired,avgLen)
 
         paired = FAQCS.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = FAQCS.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
@@ -85,7 +85,7 @@ workflow {
     hostRemovalReport = channel.empty()
     if(params.modules.hostRemoval) {
 
-        HOSTREMOVAL(baseSettings.plus(params.hostRemoval),paired,unpaired)
+        HOSTREMOVAL(baseSettings.plus(params.hostRemoval).plus(params.faqcs),platform,paired,unpaired)
         paired = HOSTREMOVAL.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = HOSTREMOVAL.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
         hostRemovalReport = HOSTREMOVAL.out.hostRemovalReport
@@ -108,8 +108,8 @@ workflow {
             annContigs = ASSEMBLY.out.annotationContigs
         }
         //run validation alignment if reads were provided
-        if(params.shared.inputFastq.size() != 0 && params.sra2fastq.accessions.size() == 0) {
-            READSTOCONTIGS(baseSettings.plus(params.r2c), paired, unpaired, contigs)
+        if(params.shared.inputFastq.size() != 0 || params.sra2fastq.accessions.size() == 0) {
+            READSTOCONTIGS(baseSettings.plus(params.r2c), platform, paired, unpaired, contigs)
             alnStats= READSTOCONTIGS.out.alnStats
             coverageTable = READSTOCONTIGS.out.covTable
             contigStatsReport = READSTOCONTIGS.out.contigStatsReport
@@ -123,7 +123,7 @@ workflow {
     //Reads-based taxonomic classification
     rtaReports = channel.empty()
     if(params.modules.readsTaxonomyAssignment) {
-        READSTAXONOMYASSIGNMENT(baseSettings.plus(params.readsTaxonomy).plus(params.faqcs), paired, unpaired, avgLen)
+        READSTAXONOMYASSIGNMENT(baseSettings.plus(params.readsTaxonomy).plus(params.faqcs), platform, paired, unpaired, avgLen)
         rtaReports = rtaReports.concat(READSTAXONOMYASSIGNMENT.out.trees, READSTAXONOMYASSIGNMENT.out.heatmaps).collect()
 
     }
@@ -162,6 +162,7 @@ workflow {
     //report generation
     REPORT(
         baseSettings, 
+        platform,
         counts.ifEmpty{file("DNE")},
         qcStats.ifEmpty{file("DNE1")},
         qcReport.ifEmpty{file("DNE2")},

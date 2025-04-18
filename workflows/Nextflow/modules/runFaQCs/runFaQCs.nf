@@ -27,6 +27,7 @@ process qc {
 
     input:
     val settings
+    val platform
     path paired
     path unpaired
     val validAdapter
@@ -48,11 +49,11 @@ process qc {
     }
 
     def qcSoftware = "FaQCs"
-    if(settings["fastqSource"] && (settings["fastqSource"].toUpperCase().contains("PACBIO") || settings["fastqSource"].toUpperCase().contains("NANOPORE"))) {
+    if(platform != null && (platform.contains("PACBIO") || platform.contains("NANOPORE"))) {
         qcSoftware = "illumina_fastq_QC.pl"
     }
     def pairedArg = paired[0].name != "NO_FILE" ? "-1 ${paired[0]} -2 ${paired[1]}" : ""
-    if(pairedArg != "" && settings["fastqSource"] && (settings["fastqSource"].toUpperCase().contains("PACBIO") || settings["fastqSource"].toUpperCase().contains("NANOPORE"))) {
+    if(pairedArg != "" && platform != null && (platform.contains("PACBIO") || platform.contains("NANOPORE"))) {
         pairedArg = "-p $paired"
     }
     def unpairedArg = unpaired.name != "NO_FILE2" ? "-u $unpaired" : ""
@@ -66,7 +67,7 @@ process qc {
     phiX = settings["filtPhiX"] ? "--phiX" : ""
 
     def trim = ""
-    if(settings["fastqSource"] && (settings["fastqSource"].toUpperCase().contains("PACBIO") || settings["fastqSource"].toUpperCase().contains("NANOPORE"))) {
+    if(platform != null && (platform.contains("PACBIO") || platform.contains("NANOPORE"))) {
         trim = "--trim_only"
     }
 
@@ -93,10 +94,14 @@ process nanoplot {
     )
     input:
     val settings
+    val platform
     path unpaired
 
     output:
     path "*" //lots of output plots
+
+    when:
+    platform != null && platform.contains("NANOPORE")
 
     script:
     """
@@ -117,10 +122,15 @@ process porechop {
 
     input:
     val settings
+    val platform
     path trimmed
     path log
+
     output:
     path "*.porechop.fastq", emit: porechopped
+
+    when:
+    platform != null && platform.contains("NANOPORE")
     
     script:
     """
@@ -152,6 +162,7 @@ process jsonQCstats {
 workflow FAQCS {
     take:
     settings
+    platform
     paired
     unpaired
     avgLen
@@ -165,16 +176,14 @@ workflow FAQCS {
     adapterFileCheck(adapter_ch)
 
     //main QC process
-    qc(settings, paired, unpaired, adapterFileCheck.out, adapter_ch, avgLen)
+    qc(settings, platform, paired, unpaired, adapterFileCheck.out, adapter_ch, avgLen)
 
     //make JSON file from QC stats
     jsonQCstats(settings, qc.out.qcStats)
 
     //run porechop and nanoplot if fastq source is nanopore
-    if(settings["fastqSource"] && settings["fastqSource"].toUpperCase().contains("NANOPORE")) {
-        porechop(settings, qc.out.unpairedQC, qc.out.log)
-        nanoplot(settings, porechop.out.porechopped)
-    }
+    porechop(settings, platform, qc.out.unpairedQC, qc.out.log)
+    nanoplot(settings, platform, porechop.out.porechopped)
     
 
     paired = qc.out.pairedQC
