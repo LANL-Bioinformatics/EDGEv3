@@ -37,10 +37,10 @@ process hostRemoval {
     def minScore = settings["bwaMemOptions"] != null ? "${settings["bwaMemOptions"]} " : "-T 50 "
     ontFlag = ""
     if(settings["fastqSource"] != null) {
-        if(settings["fastqSource"].equalsIgnoreCase("nanopore")) {
+        if(settings["fastqSource"].toUpperCase().contains("NANOPORE")) {
             ontFlag = "-x ont2d "
         }
-        else if(settings["fastqSource"].equalsIgnoreCase("pacbio")) {
+        else if(settings["fastqSource"].toUpperCase().contains("PACBIO")) {
             ontFlag = "-x pacbio "
         }
     }

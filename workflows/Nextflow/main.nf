@@ -16,6 +16,8 @@ include {BINNING} from './modules/contigBinning/contigBinning.nf'
 include {REPORT} from './modules/report/report.nf'
 
 workflow {
+    //parameter setup
+    baseSettings= params.shared.plus(params.outputLocations).plus(params.modules)
     //input specification
 
     //reads as input
@@ -42,7 +44,7 @@ workflow {
         else if(params.shared.assembledContigs != "${projectDir}/nf_assets/NO_FILE3") {
             contigs = channel.fromPath(params.shared.assembledContigs, checkIfExists:true)
         }
-        PROCESSCONTIGS(params.shared.plus(params.assembly).plus(params.annotation).plus(params.modules).plus(params.outputLocations), contigs)
+        PROCESSCONTIGS(baseSettings.plus(params.assembly).plus(params.annotation), contigs)
         annContigs = PROCESSCONTIGS.out.annotationContigs
     }
 
@@ -50,12 +52,13 @@ workflow {
 
     //SRA download and processing
     if(params.modules.sra2fastq) {
-        SRA2FASTQ(params.sra2fastq.plus(params.shared).plus(params.outputLocations))
+        SRA2FASTQ(baseSettings.plus(params.sra2fastq))
         COUNTFASTQ(SRA2FASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), SRA2FASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"))
         avgLen = COUNTFASTQ.out.avgReadLen
         counts = COUNTFASTQ.out.counts
         paired = COUNTFASTQ.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = COUNTFASTQ.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
+        baseSettings["fastqSource"] = SRA2FASTQ.out.platform
     }
     else {
         //reads processing
@@ -70,7 +73,7 @@ workflow {
     qcStats = channel.empty()
     qcReport = channel.empty()
     if(params.modules.faqcs) {
-        FAQCS(params.faqcs.plus(params.shared).plus(params.outputLocations), paired, unpaired,avgLen)
+        FAQCS(baseSettings.plus(params.faqcs), paired, unpaired,avgLen)
 
         paired = FAQCS.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = FAQCS.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
@@ -82,7 +85,7 @@ workflow {
     hostRemovalReport = channel.empty()
     if(params.modules.hostRemoval) {
 
-        HOSTREMOVAL(params.hostRemoval.plus(params.shared).plus(params.outputLocations),paired,unpaired)
+        HOSTREMOVAL(baseSettings.plus(params.hostRemoval),paired,unpaired)
         paired = HOSTREMOVAL.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
         unpaired = HOSTREMOVAL.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
         hostRemovalReport = HOSTREMOVAL.out.hostRemovalReport
@@ -100,13 +103,13 @@ workflow {
     if(params.modules.runAssembly) {
         //assemble if not already using assembled or provided contigs
         if (params.shared.inputContigs == "${projectDir}/nf_assets/NO_FILE3" && params.shared.assembledContigs == "${projectDir}/nf_assets/NO_FILE3") {
-            ASSEMBLY(params.assembly.plus(params.shared).plus(params.annotation).plus(params.modules).plus(params.outputLocations), paired, unpaired, avgLen)
+            ASSEMBLY(baseSettings.plus(params.assembly).plus(params.annotation), paired, unpaired, avgLen)
             contigs = ASSEMBLY.out.outContigs
             annContigs = ASSEMBLY.out.annotationContigs
         }
         //run validation alignment if reads were provided
         if(params.shared.inputFastq.size() != 0 && params.sra2fastq.accessions.size() == 0) {
-            READSTOCONTIGS(params.r2c.plus(params.shared).plus(params.outputLocations), paired, unpaired, contigs)
+            READSTOCONTIGS(baseSettings.plus(params.r2c), paired, unpaired, contigs)
             alnStats= READSTOCONTIGS.out.alnStats
             coverageTable = READSTOCONTIGS.out.covTable
             contigStatsReport = READSTOCONTIGS.out.contigStatsReport
@@ -120,7 +123,7 @@ workflow {
     //Reads-based taxonomic classification
     rtaReports = channel.empty()
     if(params.modules.readsTaxonomyAssignment) {
-        READSTAXONOMYASSIGNMENT(params.readsTaxonomy.plus(params.shared).plus(params.faqcs).plus(params.outputLocations), paired, unpaired, avgLen)
+        READSTAXONOMYASSIGNMENT(baseSettings.plus(params.readsTaxonomy).plus(params.faqcs), paired, unpaired, avgLen)
         rtaReports = rtaReports.concat(READSTAXONOMYASSIGNMENT.out.trees, READSTAXONOMYASSIGNMENT.out.heatmaps).collect()
 
     }
@@ -128,7 +131,7 @@ workflow {
     //Contig-based taxonomic classification
     ctaReport = channel.empty()
     if(params.modules.contigsTaxonomyAssignment) {
-        CONTIGSTAXONOMYASSIGNMENT(params.contigsTaxonomy.plus(params.shared).plus(params.outputLocations), contigs, coverageTable.ifEmpty{"DNE"})
+        CONTIGSTAXONOMYASSIGNMENT(baseSettings.plus(params.contigsTaxonomy), contigs, coverageTable.ifEmpty{"DNE"})
         ctaReport = CONTIGSTAXONOMYASSIGNMENT.out.ctaReport
     }
 
@@ -136,11 +139,11 @@ workflow {
     antismashInput = contigs
     annStats = channel.empty()
     if(params.modules.annotation) {
-        ANNOTATION(params.annotation.plus(params.shared).plus(params.outputLocations), annContigs)
+        ANNOTATION(baseSettings.plus(params.annotation), annContigs)
         annStats = ANNOTATION.out.annStats
 
         if(params.modules.phageFinder && (params.annotation.taxKingdom == null || !(params.annotation.taxKingdom.equalsIgnoreCase("viruses")))) {
-            PHAGEFINDER(params.shared.plus(params.outputLocations), ANNOTATION.out.gff, ANNOTATION.out.faa, ANNOTATION.out.fna)
+            PHAGEFINDER(baseSettings, ANNOTATION.out.gff, ANNOTATION.out.faa, ANNOTATION.out.fna)
         }
 
         antismashInput = ANNOTATION.out.gbk
@@ -148,17 +151,17 @@ workflow {
 
     //secondary metabolite analysis
     if(params.modules.secondaryMetaboliteAnalysis) {
-        ANTISMASH(params.shared.plus(params.SMA).plus(params.outputLocations), antismashInput)
+        ANTISMASH(baseSettings.plus(params.SMA), antismashInput)
     }
 
     //binning
     if(params.modules.binning) {
-        BINNING(params.shared.plus(params.binning).plus(params.outputLocations), contigs, abundances)
+        BINNING(baseSettings.plus(params.binning), contigs, abundances)
     }
 
     //report generation
     REPORT(
-        params.shared.plus(params.modules).plus(params.outputLocations), 
+        baseSettings, 
         counts.ifEmpty{file("DNE")},
         qcStats.ifEmpty{file("DNE1")},
         qcReport.ifEmpty{file("DNE2")},

@@ -81,7 +81,7 @@ process readsTaxonomyConfig {
 
     script:
     def bwaScoreCut = 30
-    if (settings["fastqSource"] != null && (settings["fastqSource"].equalsIgnoreCase("nanopore") || settings["fastqSource"].equalsIgnoreCase("pacbio"))) {
+    if (settings["fastqSource"] != null && (settings["fastqSource"].toUpperCase().contains("NANOPORE") || settings["fastqSource"].toUpperCase().contains("PACBIO"))) {
         if (settings["minLen"] > 1000) {
             bwaScoreCut = settings["minLen"]
         } 
@@ -116,7 +116,7 @@ process readsTaxonomyConfig {
     gottcha2_speDB_v = settings["custom_gottcha2_speDB_v"] != null ? "-gottcha2-v-speDB /gottcha2_speDBv_custom/${Paths.get(settings["custom_gottcha2_speDB_v"].toString()).getFileName()} " : ""
     gottcha2_speDB_b = settings["custom_gottcha2_speDB_b"] != null ? "-gottcha2-b-speDB /gottcha2_speDBb_custom/${Paths.get(settings["custom_gottcha2_speDB_b"].toString()).getFileName()} " : ""
 
-    np = (settings["fastqSource"] != null && settings["fastqSource"].equalsIgnoreCase("nanopore")) ? "--nanopore " : ""
+    np = (settings["fastqSource"] != null && settings["fastqSource"].toUpperCase().contains("NANOPORE")) ? "--nanopore " : ""
 
     """
 

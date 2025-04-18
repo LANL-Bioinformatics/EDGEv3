@@ -46,7 +46,7 @@ process report {
     my \$time=time();
     my \$Rscript="./merge.R";
     my \$InputLogPDF="./Inputs.pdf";
-    my \$ont_flag = (${settings["fastqSource"]} =~ /nanopore/)? 1 : 0; 
+    my \$ont_flag = (${settings["fastqSource"]} =~ /nanopore/i)? 1 : 0; 
     my \$pacbio_flag = (${settings["fastqSource"]} =~ /pacbio/i)? 1 : 0; 
     my \$mergeFiles="\$InputLogPDF,";
     \$mergeFiles.="$qcReport"."," if ( -e "$qcReport");

@@ -31,8 +31,8 @@ process validationAlignment {
     def max_clip = settings["r2g_max_clip"] != null ? "-max_clip ${settings["r2g_max_clip"]} " : ""
 
 
-    def ont_flag = (settings["fastq_source"] != null && settings["fastq_source"].equalsIgnoreCase("nanopore")) ? "-x ont2d " : ""
-    def pb_flag = (settings["fastq_source"] != null && settings["fastq_source"].equalsIgnoreCase("pacbio")) ? "-x pacbio " : ""
+    def ont_flag = (settings["fastqSource"] != null && settings["fastqSource"].toUpperCase().contains("NANOPORE")) ? "-x ont2d " : ""
+    def pb_flag = (settings["fastqSource"] != null && settings["fastqSource"].toUpperCase().contains("PACBIO")) ? "-x pacbio " : ""
 
     def aligner_options = ""
     if(settings["r2c_aligner"] =~ "bowtie") {
