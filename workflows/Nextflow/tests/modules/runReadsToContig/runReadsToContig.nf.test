@@ -20,9 +20,10 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = params.r2c.plus(params.shared)
-                input[1] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
-                input[2] = file("${projectDir}/nf_assets/NO_FILE2")
-                input[3] = file("${projectDir}/test_data/contigs.fa")
+                input[1] = "ILLUMINA"
+                input[2] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
+                input[3] = file("${projectDir}/nf_assets/NO_FILE2")
+                input[4] = file("${projectDir}/test_data/contigs.fa")
                 """
             }
         }
@@ -51,9 +52,10 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = params.r2c.plus(params.shared)
-                input[1] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
-                input[2] = file("${projectDir}/nf_assets/NO_FILE2")
-                input[3] = file("${projectDir}/test_data/contigs.fa")
+                input[1] = "ILLUMINA"
+                input[2] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
+                input[3] = file("${projectDir}/nf_assets/NO_FILE2")
+                input[4] = file("${projectDir}/test_data/contigs.fa")
                 """
             }
         }
@@ -82,9 +84,10 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = params.r2c.plus(params.shared)
-                input[1] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
-                input[2] = file("${projectDir}/nf_assets/NO_FILE2")
-                input[3] = file("${projectDir}/test_data/contigs.fa")
+                input[1] = "ILLUMINA"
+                input[2] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
+                input[3] = file("${projectDir}/nf_assets/NO_FILE2")
+                input[4] = file("${projectDir}/test_data/contigs.fa")
                 """
             }
         }
