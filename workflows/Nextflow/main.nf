@@ -13,6 +13,7 @@ include {ANNOTATION} from './modules/runAnnotation/runAnnotation.nf'
 include {PHAGEFINDER} from './modules/phageFinder/phageFinder.nf'
 include {ANTISMASH} from './modules/runAntiSmash/runAntiSmash.nf'
 include {BINNING} from './modules/contigBinning/contigBinning.nf'
+include {REFERENCEBASEDANALYSIS} from './modules/referenceBasedAnalysis/refBasedAnalysis.nf'
 include {REPORT} from './modules/report/report.nf'
 
 workflow {
@@ -118,6 +119,10 @@ workflow {
                 abundances = READSTOCONTIGS.out.magnitudes
             }
         }
+    }
+
+    if(params.modules.refBasedAnalysis) {
+        REFERENCEBASEDANALYSIS(params.shared.plus(params.refBased), platform, paired, unpaired)
     }
 
     //Reads-based taxonomic classification
