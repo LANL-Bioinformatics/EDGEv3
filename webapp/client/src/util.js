@@ -11,13 +11,31 @@ export const workflowList = {
   runFaQCs: {
     label: 'Reads QC',
     category: 'metagenomics',
-    img: '/docs/images/runFaQCs.png',
-    thumbnail: '/docs/images/runFaQCs-thumbnail.png',
-    video: '/docs/videos/runFaQCs.mp4',
-    pdf: '/docs/help/runFaQCs.pdf',
-    link: 'https://github.com/microbiomedata/runFaQCs',
-    doclink:
-      'https://nmdc-workflow-documentation.readthedocs.io/en/latest/chapters/1_RQC_index.html',
-    info: 'This workflow is a replicate of the QA protocol implemented at JGI for Illumina reads and use the program “rqcfilter2” from BBTools(38:44) which implements them as a pipeline.',
+    info: 'ReadsQC workflow ...',
+  },
+  assembly: {
+    label: 'Assembly',
+    category: 'metagenomics',
+    info: 'Assembly workflow ...',
+  },
+  annotation: {
+    label: 'Annotation',
+    category: 'metagenomics',
+    info: 'Annotation workflow ...',
+  },
+  binning: {
+    label: 'Binning',
+    category: 'metagenomics',
+    info: 'The binning program in EDGE is MaxBin2. MaxBin2 is a tool designed for metagenomic binning, where it clusters assembled contigs from metagenomes into genome bins based on sequence composition and abundance information.',
+  },
+  antiSmash: {
+    label: 'AntiSmash',
+    category: 'metagenomics',
+    info: 'Secondary Metabolite Analysis ',
+  },
+  taxonomy: {
+    label: 'Taxonomy Classification',
+    category: 'metagenomics',
+    info: 'Taxonomy Classification workflow ',
   },
 }

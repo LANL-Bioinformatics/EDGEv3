@@ -22,12 +22,12 @@ const _nav = [
     to: '/user/uploads',
     icon: <CIcon icon={cilCloudUpload} customClassName="nav-icon" />,
   },
-  {
+  /* {
     component: CNavItem,
     name: 'Retrieve SRA Data',
     to: '/user/sradata',
     icon: <CIcon icon={cilCloudUpload} customClassName="nav-icon" />,
-  },
+  }, */
   {
     component: CNavTitle,
     name: 'Workflows',
@@ -43,7 +43,7 @@ const _nav = [
         to: '/workflow/metagenomics',
         badge: {
           color: 'info',
-          text: '1',
+          text: '6',
         },
       },
     ],

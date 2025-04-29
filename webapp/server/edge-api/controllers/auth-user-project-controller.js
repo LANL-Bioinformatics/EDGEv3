@@ -15,6 +15,17 @@ const addOne = async (req, res) => {
   try {
     const data = req.body;
     logger.debug(`/api/auth-user/projects add: ${JSON.stringify(data)}`);
+
+    if (typeof data.project === 'string') {
+      data.project = JSON.parse(data.project);
+    }
+    if (typeof data.workflow === 'string') {
+      data.workflow = JSON.parse(data.workflow);
+    }
+    if (typeof data.inputDisplay === 'string') {
+      data.inputDisplay = JSON.parse(data.inputDisplay);
+    }
+
     // generate project code and create project home
     let code = randomize('Aa0', 16);
     let projHome = `${config.IO.PROJECT_BASE_DIR}/${code}`;
@@ -52,9 +63,8 @@ const addOne = async (req, res) => {
 
     fs.writeFileSync(`${projHome}/conf.json`, JSON.stringify(data));
 
-    // if it's batch submission, save uploaded excel sheet to project home
-    if (projType.endsWith('/batch')) {
-      // save uploaded file
+    // save uploaded file to project home
+    if (req.files) {
       const { file } = req.files;
       const mvTo = `${projHome}/${file.name}`;
       file.mv(`${mvTo}`, err => {
@@ -308,7 +318,12 @@ const getFiles = async (req, res) => {
     if (req.body.projectStatuses) {
       projStatuses = req.body.projectStatuses;
     }
-    const query = { 'status': { $in: projStatuses }, $or: [{ 'owner': { $eq: req.user.email } }, { 'sharedTo': req.user.email }, { 'public': true }] };
+    let query = { 'status': { $in: projStatuses }, $or: [{ 'owner': req.user.email }, { 'sharedto': req.user.email }, { 'public': true }] };
+    if (req.body.projectScope === 'self') {
+      query = { 'status': { $in: projStatuses }, $or: [{ 'owner': req.user.email }] };
+    } else if (req.body.projectScope === 'self+shared') {
+      query = { 'status': { $in: projStatuses }, $or: [{ 'owner': req.user.email }, { 'sharedto': req.user.email }] };
+    }
     if (req.body.projectTypes) {
       query.type = { $in: req.body.projectTypes };
     }

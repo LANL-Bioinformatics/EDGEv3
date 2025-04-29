@@ -12,7 +12,7 @@ const selectStyles = {
   }),
   menu: (provided) => ({
     ...provided,
-    // background: 'transparent',
+    background: colors.light,
     zIndex: 999999,
   }),
 }

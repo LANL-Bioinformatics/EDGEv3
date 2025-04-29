@@ -171,7 +171,11 @@ const getAll = async (req, res) => {
       ]
     };
     if (req.body.fileTypes) {
-      query.type = { $in: req.body.fileTypes };
+      if (req.body.endsWith) {
+        query.name = { $regex: req.body.fileTypes[0] };
+      } else {
+        query.type = { $in: req.body.fileTypes };
+      }
     }
 
     const uploads = await Upload.find(query).sort([['updated', -1]]);

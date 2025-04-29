@@ -19,7 +19,7 @@ module.exports = async function nextflowJobMonitor() {
     if (proj) {
       if (proj.status === 'delete') {
         // abort job
-        abortJob(proj);
+        abortJob(proj, job);
       } else {
         await updateJobStatus(job, proj);
       }

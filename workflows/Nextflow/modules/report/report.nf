@@ -22,6 +22,7 @@ process report {
 
     input:
     val settings
+    val platform
     path fastqCount
     path qcStats
     path qcReport
@@ -41,11 +42,13 @@ process report {
     //TODO: add in taxonomy classification reports
     """
     #!/usr/bin/env perl
+    use File::Basename;
+
     my \$time=time();
     my \$Rscript="./merge.R";
     my \$InputLogPDF="./Inputs.pdf";
-    my \$ont_flag = (${settings["fastqSource"]} =~ /nanopore/)? 1 : 0; 
-    my \$pacbio_flag = (${settings["fastqSource"]} =~ /pacbio/i)? 1 : 0; 
+    my \$ont_flag = ("${platform.trim()}" =~ /NANOPORE/)? 1 : 0; 
+    my \$pacbio_flag = ("${platform.trim()}" =~ /PACBIO/)? 1 : 0; 
     my \$mergeFiles="\$InputLogPDF,";
     \$mergeFiles.="$qcReport"."," if ( -e "$qcReport");
     my \$imagesDir = "./HTML_Report/images";
@@ -53,7 +56,10 @@ process report {
 
 
     my \$taxonomyPDFfiles="";
-    \$taxonomyPDFfiles .= \$contigTaxonomyPDF."," if( -e "\$contigTaxonomyPDF");
+    \$taxonomyPDFfiles .= "$readsTaxonomyReports" if("$readsTaxonomyReports" ne "DNE4");
+    \$taxonomyPDFfiles =~ s/\\s/,/g;
+    \$taxonomyPDFfiles .= "$contigTaxonomyReport"."," if( -e "$contigTaxonomyReport");
+
 
     my \$qc_flag = (${settings['faqcs']})?"V":"";
     my \$host_removal_flag = (${settings['hostRemoval']})?"V":"";
@@ -137,6 +143,7 @@ process report {
 
     \$mergeFiles .= '$annStats'."," if ( -e '$annStats');
 
+    \$mergeFiles .= \$taxonomyPDFfiles if (\$taxonomyPDFfiles);
 
     \$mergeFiles =~ s/\\,\$//g;
     my \$command = "R --vanilla --slave --silent < \$Rscript";
@@ -172,6 +179,14 @@ process report {
     push @conversions, "convert -strip -density 120 -flatten $contigPlots[2] ./Assembly_GC_vs_CovDepth.png" if (-e "$contigPlots");
     push @conversions, "convert -strip -density 120 -flatten $annStats ./annotation_stats_plots.png" if (-e "$annStats");
 
+    foreach my \$file(split /,/, \$taxonomyPDFfiles) 
+    {
+     next if (\$file eq "$contigTaxonomyReport");
+     my (\$file_name, \$file_path, \$file_suffix)=fileparse("\$file", qr/\\.[^.]*/);
+     my \$size_opt = (\$file_name =~ /tree/)? "-resize 240":"-density 120";
+     push @conversions, "convert \$size_opt -colorspace RGB -flatten \$file ./\$file_name.png" if (-e \$file);
+    }
+
     eval {system(\$_)} foreach (@conversions);
     
     """
@@ -181,6 +196,7 @@ process report {
 workflow REPORT {
     take:
     settings
+    platform
     fastqCount
     qcStats
     qcReport
@@ -194,6 +210,7 @@ workflow REPORT {
 
     main:
     report(settings,
+        platform,
         fastqCount,
         qcStats,
         qcReport,

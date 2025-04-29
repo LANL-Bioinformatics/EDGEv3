@@ -43,7 +43,9 @@ export const Header = (props) => {
         <ButtonGroup style={{ float: 'right' }} className="mr-3" aria-label="First group" size="sm">
           <Button
             color="outline-primary"
-            onClick={() => props.setOnoff(true)}
+            onClick={() => {
+              props.setOnoff(true)
+            }}
             active={props.paramsOn}
           >
             On
@@ -52,7 +54,6 @@ export const Header = (props) => {
             color="outline-primary"
             onClick={() => {
               props.setOnoff(false)
-              props.setCollapseParms(true)
             }}
             active={!props.paramsOn}
           >

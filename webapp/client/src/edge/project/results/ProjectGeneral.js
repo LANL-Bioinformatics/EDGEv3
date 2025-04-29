@@ -58,7 +58,7 @@ const ProjectGeneral = (props) => {
                 enableClipboard={false}
                 displayDataTypes={false}
                 displayObjectSize={false}
-                collapsed={true}
+                collapsed={2}
               />
               <br></br>
             </>

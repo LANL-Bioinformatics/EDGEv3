@@ -2,7 +2,7 @@ import React from 'react'
 
 const Home = React.lazy(() => import('src/edge/Home'))
 const PublicProjects = React.lazy(() => import('src/edge/um/public/Projects'))
-const PublicProjectPage = React.lazy(() => import('src/edge/project/results/projectPage/Public'))
+const PublicProjectPage = React.lazy(() => import('src/workflows/project/projectPage/Public'))
 const UserRegister = React.lazy(() => import('src/edge/um/user/Register'))
 const UserLogin = React.lazy(() => import('src/edge/um/user/Login'))
 const OAuth = React.lazy(() => import('src/edge/um/user/OrcidLogin'))

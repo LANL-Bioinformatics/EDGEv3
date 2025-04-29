@@ -32,6 +32,15 @@ export const components = {
     validForm: false,
     selectInput: null,
   },
+  multSelectInput: {
+    validForm: false,
+    selections: [],
+  },
+  fileUpload: {
+    file: '',
+    validForm: false,
+    errMessage: 'File is required',
+  },
   fileInput: {
     validForm: false,
     fileInput: null,
@@ -49,13 +58,18 @@ export const components = {
     fileInput_display: [],
     fileInput_isValid: [],
   },
+  optionSelector: {
+    validForm: true,
+    option: '',
+    display: '',
+  },
   fastqInput: {
     params: {
-      interleaved: {
+      paired: {
         trueText: 'Yes',
         falseText: 'No',
         defaultValue: true,
-        text: 'Is interleaved?',
+        text: 'Paired-End',
       },
       fastq: {
         text: 'Fastq',
@@ -67,7 +81,9 @@ export const components = {
     init: {
       validForm: false,
       errMessage: '',
-      interleaved: true,
+      paired: true,
+      platform: 'illumina',
+      platform_display: 'Illumina',
       fileInput: [],
       fileInput_display: [],
     },
@@ -100,6 +116,28 @@ export const components = {
       errMessage: null,
       projectName: null,
       projectDesc: null,
+    },
+  },
+  sraAccessionInput: {
+    params: {
+      accessions: {
+        text: 'SRA Accession(s)',
+        tooltip: 'Input SRA accessions (comma separate for > 1 input)',
+        placeholder: 'ex: SRR1553609',
+        showError: false,
+        isOptional: false,
+        toUpperCase: true,
+        errMessage: 'Invalid SRA accession(s) input',
+      },
+    },
+    validInputs: {
+      accessions: { isValid: false, error: 'Invalid SRA accession(s) input' },
+    },
+    init: {
+      validForm: false,
+      errMessage: null,
+      accessions: [],
+      accessions_display: '',
     },
   },
 }

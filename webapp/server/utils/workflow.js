@@ -1,12 +1,16 @@
 const path = require('path');
 const fs = require('fs');
+const Papa = require('papaparse');
 const Upload = require('../edge-api/models/upload');
 const config = require('../config');
 
 const cromwellWorkflows = [];
-const nextflowWorkflows = ['runFaQCs', 'sra2fastq'];
+const nextflowWorkflows = ['sra2fastq', 'runFaQCs', 'assembly', 'annotation', 'binning', 'antiSmash', 'taxonomy'];
 const nextflowConfigs = {
-  report_config: 'report.config',
+  executor_config: {
+    slurm: 'slurm.config',
+    local: 'local.config',
+  }
 };
 
 const workflowList = {
@@ -26,16 +30,40 @@ const workflowList = {
 
   },
   runFaQCs: {
-    // workflow will create 'ReadsQC' directory in the output/.
     outdir: 'output/ReadsQC',
     nextflow_main: 'main.nf',
     config_tmpl: 'runFaQCs_config.tmpl',
+  },
+  assembly: {
+    outdir: 'output/Assembly',
+    nextflow_main: 'main.nf',
+    config_tmpl: 'assembly_config.tmpl',
+  },
+  annotation: {
+    outdir: 'output/Annotation',
+    nextflow_main: 'main.nf',
+    config_tmpl: 'annotation_config.tmpl',
+  },
+  binning: {
+    outdir: 'output/Binning',
+    nextflow_main: 'main.nf',
+    config_tmpl: 'binning_config.tmpl',
+  },
+  antiSmash: {
+    outdir: 'output/AntiSmash',
+    nextflow_main: 'main.nf',
+    config_tmpl: 'antiSmash_config.tmpl',
+  },
+  taxonomy: {
+    outdir: 'output/Taxonomy',
+    nextflow_main: 'main.nf',
+    config_tmpl: 'taxonomy_config.tmpl',
   },
 };
 
 const linkUpload = async (fq, projHome) => {
   try {
-    if (fq.startsWith(config.FILE_UPLOADS.FILEUPLOAD_FILE_DIR)) {
+    if (fq.startsWith(config.IO.UPLOADED_FILES_DIR)) {
       // create input dir and link uploaded file with realname
       const inputDir = `${projHome}/input`;
       if (!fs.existsSync(inputDir)) {
@@ -84,6 +112,24 @@ const generateWorkflowResult = (proj) => {
         fs.symlinkSync(`../../../../sra/${accession}`, `${outdir}/${accession}`);
 
       });
+    } else if (projectConf.workflow.name === 'runFaQCs') {
+      const statsJsonFile = `${outdir}/QC.stats.json`;
+      if (fs.existsSync(statsJsonFile)) {
+        result.stats = JSON.parse(fs.readFileSync(statsJsonFile));
+      }
+      const reportFile = `${outdir}/final_report.pdf`;
+      if (fs.existsSync(reportFile)) {
+        result.report = `${workflowList[projectConf.workflow.name].outdir}/final_report.pdf`;
+      }
+    } else if (projectConf.workflow.name === 'assembly') {
+      const statsFile = `${outdir}/contigs_stats.txt`;
+      if (fs.existsSync(statsFile)) {
+        result.stats = Papa.parse(fs.readFileSync(statsFile).toString(), { delimiter: '\t', header: true, skipEmptyLines: true }).data;
+      }
+      const reportFile = `${outdir}/final_report.pdf`;
+      if (fs.existsSync(reportFile)) {
+        result.report = `${workflowList[projectConf.workflow.name].outdir}/final_report.pdf`;
+      }
     }
 
     fs.writeFileSync(resultJson, JSON.stringify(result));

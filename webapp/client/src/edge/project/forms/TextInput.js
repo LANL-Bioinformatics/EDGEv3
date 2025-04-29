@@ -24,7 +24,8 @@ export const TextInput = (props) => {
       required: !props.isOptional ? props.errMessage : false,
       validate: {
         // Validation pattern
-        validInput: (value) => props.isValidTextInput(value) || props.errMessage,
+        validInput: (value) =>
+          (props.isValidTextInput ? props.isValidTextInput(value) : true) || props.errMessage,
       },
     }),
   }
@@ -94,12 +95,16 @@ export const TextInput = (props) => {
               place={props.tooltipPlace ? props.tooltipPlace : defaults.tooltipPlace}
               color={props.tooltipColor ? props.tooltipColor : defaults.tooltipColor}
               showTooltip={props.showTooltip ? props.showTooltip : defaults.showTooltip}
+              clickable={props.tooltipClickable ? props.tooltipClickable : false}
             />
           ) : (
             <>
               {props.text}
               {errors && errors.textInput && props.showErrorTooltip && (
-                <ErrorTooltip id="projectName" tooltip={errors.textInput.message} />
+                <ErrorTooltip
+                  id={`textInputErrTooltip-${props.name}`}
+                  tooltip={errors.textInput.message}
+                />
               )}
             </>
           )}

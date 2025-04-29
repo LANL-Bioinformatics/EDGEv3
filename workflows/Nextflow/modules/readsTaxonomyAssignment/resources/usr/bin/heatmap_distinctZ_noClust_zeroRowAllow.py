@@ -246,7 +246,6 @@ def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, l
 
     #im = axmatrix.matshow(D, norm=norm_f(vmin=minv if minv > 0.0 else None,vmax=maxv),aspect='auto', origin='lower', cmap=cm) 
     im = axmatrix.matshow(  D, norm = norm_f(vmin=ma.masked_values(D, 0.0).min() if scale == 'log' else minv if  minv > 0.0 else 0.000000001, vmax=maxv),aspect='auto', origin='lower', cmap=cm)
-    plt.savefig('testing.png')
     axmatrix.invert_yaxis()
     axmatrix2 = axmatrix.twinx()
     axmatrix3 = axmatrix.twiny()

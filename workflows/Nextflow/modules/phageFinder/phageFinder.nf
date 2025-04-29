@@ -3,6 +3,7 @@
 
 process phageFinderPrep {
     label 'phageFinder'
+    label 'tiny'
 
     input:
     path gff
@@ -21,6 +22,7 @@ process phageFinderPrep {
 
 process phageFinder {
     label 'phageFinder'
+    label 'small'
     publishDir(
         path: "${settings["phageFinderOutDir"]}",
         mode: 'copy',
@@ -39,13 +41,14 @@ process phageFinder {
     //must be on PATH
     script:
     """
-    phage_finder_v2.1.sh Assembly ${settings["cpus"]} 1>log.txt 2>&1
+    phage_finder_v2.1.sh Assembly ${task.cpus} 1>log.txt 2>&1
     """
 
 }
 
 process summary {
     label 'phageFinder'
+    label 'tiny'
     publishDir(
         path: "${settings["phageFinderOutDir"]}",
         mode: 'copy'

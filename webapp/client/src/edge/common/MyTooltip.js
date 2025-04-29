@@ -22,14 +22,20 @@ export const MyTooltip = (props) => {
         </span>
       </a>
       <Tooltip
-        style={{ zIndex: 99 }}
+        style={{ zIndex: 9999 }}
         id={props.id}
         type={props.type}
         place={props.place ? props.place : 'right'}
-        openOnClick={props.openOnClick ? props.openOnClick : false}
+        clickable={props.clickable ? props.clickable : false}
         offset={10}
       >
-        <HtmlText text={props.tooltip} />
+        <div
+          style={{
+            maxWidth: '600px',
+          }}
+        >
+          <HtmlText text={props.tooltip} />
+        </div>
       </Tooltip>
     </>
   )

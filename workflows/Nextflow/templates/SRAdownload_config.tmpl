@@ -1,3 +1,4 @@
+workDir = "<%= nextflowOutDir %>/work"
 params {
 
     //which modules are run
@@ -7,23 +8,23 @@ params {
         hostRemoval = false
         runAssembly = false
         annotation = false
-        readsBinning = false
+        binning = false
         phageFinder = true //true by default -- will run if non-viral reads are annotated
         readsTaxonomyAssignment = false
         contigsTaxonomyAssignment = false
         secondaryMetaboliteAnalysis = false
     }
 
-        outputLocations {
+    outputLocations {
         //everything in its separate output for the moment
-        sra2fastqOutDir = "<%= outdir %>"
+        sra2fastqOutDir = "<%= sraOutdir %>"
         processProvidedContigsOutDir = ""
         qcOutDir = ""
         hostRemovalOutDir = ""
         assemblyOutDir = ""
         contigsTaxonomyOutDir = ""
         phageFinderOutDir = ""
-        readBinningOutDir = ""
+        binningOutDir = ""
         readsTaxonomyOutDir = ""
         annotationOutDir = ""
         smaOutDir = ""
@@ -31,22 +32,20 @@ params {
 
     }
 
-
     //module parameters -- passed directly into subworkflows according to best practices
     //these are the default values
     shared {
         inputFastq = []
+        inputFastq2 = []
         pairedFile = false
         inputContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided as input to entire pipeline
         assembledContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided to bypass assembly
-        outDir = "<%= outdir %>"
         projName = "<%= project %>"
-        cpus = 8
         fastqSource = null
     }
 
     sra2fastq {
-        accessions = <%- JSON.stringify(accessions) %>
+        accessions =  <% if(typeof accessions != "undefined") { %><%- JSON.stringify(accessions) %> %><% } else { %>[]<%} %>
     }
 
     faqcs{
@@ -73,7 +72,6 @@ params {
         //assemblers: IDBA_UD, SPAdes, Unicycler, Megahit, LRASM
         assembler = "IDBA_UD"
         minContigSize = 200
-        memLimit = null
         idba{
             maxK = null
             minK = 31
@@ -99,9 +97,7 @@ params {
             ec = null
             numConsensus = null
         }
-
     }
-
     
     r2c {
         r2c_aligner = "bwa"
@@ -134,7 +130,6 @@ params {
         doCheckM = false
     }
 
-
     readsTaxonomy {
         splitTrimMinQ = 20
         //RTA tools: gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,pangia,bwa,metaphlan4,kraken2,centrifuge,diamond
@@ -155,7 +150,6 @@ params {
         custom_pangia_db= null
         custom_diamond_db= null
         custom_centrifuge_db = null
-
     }
 
     contigsTaxonomy {
@@ -178,10 +172,6 @@ params {
         tigrfam = false
         cassis = false //only with fungi
     }
-
-
-
-
 }
 
 //container settings
@@ -245,4 +235,23 @@ executor {
     submitRateLimit = '1/5sec'
 }
 
-includeConfig "<%= report_config %>"
+report {
+    enabled = true
+    file = '<%= nextflowOutDir %>/report.html'
+    overwrite = true
+}
+
+timeline {
+    enabled = true
+    file = '<%= nextflowOutDir %>/timeline.html'
+    overwrite = true
+}
+
+trace {
+    enabled = true
+    file = '<%= nextflowOutDir %>/trace.txt'
+    fields = 'name,status,start,complete,duration'
+    overwrite = true
+}
+
+includeConfig "<%= executor_config %>"

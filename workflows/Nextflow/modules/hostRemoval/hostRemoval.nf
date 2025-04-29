@@ -14,6 +14,7 @@ process hostRemoval {
 
     input:
     val settings
+    val platform
     path paired
     path unpaired
     each path(ref)
@@ -36,23 +37,22 @@ process hostRemoval {
     def similarity = settings["similarity"] != null ? "-similarity ${settings["similarity"]} " : ""
     def minScore = settings["bwaMemOptions"] != null ? "${settings["bwaMemOptions"]} " : "-T 50 "
     ontFlag = ""
-    if(settings["fastqSource"] != null) {
-        if(settings["fastqSource"].equalsIgnoreCase("nanopore")) {
+    if(platform != null) {
+        if(platform.contains("NANOPORE")) {
             ontFlag = "-x ont2d "
         }
-        else if(settings["fastqSource"].equalsIgnoreCase("pacbio")) {
+        else if(platform.contains("PACBIO")) {
             ontFlag = "-x pacbio "
         }
     }
     minScore = ontFlag != "" ? "-T ${settings["minLen"]} " : minScore
     bwaMemOptions = "-bwaMemOptions \"${ontFlag} ${minScore}\" "
-    def cpu = settings["cpus"] != null ? "-cpu ${settings["cpus"]} " : ""
     
     """
     host_reads_removal_by_mapping.pl\
     $refFile\
     $prefix\
-    $cpu\
+    -cpu ${task.cpus}\
     -host \
     $bwaMemOptions\
     $pairedFiles\
@@ -161,6 +161,7 @@ process hostRemovalStats {
 workflow HOSTREMOVAL{
     take:
     settings
+    platform
     paired
     unpaired
 
@@ -169,7 +170,7 @@ workflow HOSTREMOVAL{
     hostRemovalReport = channel.empty()
 
     //remove host reads in parallel
-    hostRemoval(settings, paired, unpaired, providedRef.collect())
+    hostRemoval(settings, platform, paired, unpaired, providedRef.collect())
 
     cleaned1_ch = hostRemoval.out.cleaned1.collect()
     cleaned2_ch = hostRemoval.out.cleaned2.collect()

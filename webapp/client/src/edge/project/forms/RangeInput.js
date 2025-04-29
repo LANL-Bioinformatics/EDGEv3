@@ -21,7 +21,7 @@ export const RangeInput = (props) => {
 
   useEffect(() => {
     form.rangeInput = props.defaultValue
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [props.defaultValue]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     //force updating parent's inputParams
@@ -40,6 +40,7 @@ export const RangeInput = (props) => {
               place={props.tooltipPlace ? props.tooltipPlace : defaults.tooltipPlace}
               color={props.tooltipColor ? props.tooltipColor : defaults.tooltipColor}
               showTooltip={props.showTooltip ? props.showTooltip : defaults.showTooltip}
+              clickable={props.tooltipClickable ? props.tooltipClickable : false}
             />
           ) : (
             <>{props.text}</>

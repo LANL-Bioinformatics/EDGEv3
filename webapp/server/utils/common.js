@@ -123,8 +123,10 @@ const fileStats = async (file) => {
     stats = await ufs(file)
       .then(size => ({ size }))
       .catch(() => ({ size: 0 }));
-  } else {
+  } else if (fs.existsSync(file)) {
     stats = fs.statSync(file);
+  } else {
+    stats = { size: 0 };
   }
   return stats;
 };
@@ -141,7 +143,6 @@ const findInputsize = async (projectConf) => {
       size += stats.size;
     }
   }));
-  // console.log('file size', size);
   return size;
 };
 

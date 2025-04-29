@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Button, Col, Row } from 'reactstrap'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import FileSelector from './FileSelector'
-import { WarningTooltip } from '../../common/MyTooltip'
+import { MyTooltip, WarningTooltip } from '../../common/MyTooltip'
 import { defaults } from '../../common/util'
 import { components } from './defaults'
 
@@ -75,14 +75,27 @@ export const FileInputArray = (props) => {
   return (
     <>
       <Row>
-        <Col md="3">
-          {props.text}
-          {!props.isOptional && fileInputFields.length === 0 && (
-            <WarningTooltip id={props.name} tooltip={'Required at least one input.'} />
-          )}
-        </Col>
-        <Col xs="12" md="9">
-          {(!props.maxInput || props.maxInput > 1) && (
+        {(!props.maxInput || props.maxInput > 1) && (
+          <Col md="3">
+            {props.tooltip ? (
+              <MyTooltip
+                id={`fileInputArrayTooltip-${props.name}`}
+                tooltip={props.tooltip}
+                text={props.text}
+                place={props.tooltipPlace ? props.tooltipPlace : defaults.tooltipPlace}
+                color={props.tooltipColor ? props.tooltipColor : defaults.tooltipColor}
+                showTooltip={props.showTooltip ? props.showTooltip : defaults.showTooltip}
+              />
+            ) : (
+              <>{props.text}</>
+            )}
+            {!props.isOptional && fileInputFields.length === 0 && (
+              <WarningTooltip id={props.name} tooltip={'Required at least one input.'} />
+            )}
+          </Col>
+        )}
+        {(!props.maxInput || props.maxInput > 1) && (
+          <Col xs="12" md="9">
             <Button
               size="sm"
               className="btn-pill"
@@ -98,17 +111,35 @@ export const FileInputArray = (props) => {
             >
               Add more {props.text} &nbsp; <i className="cui-file"></i>
             </Button>
-          )}
-        </Col>
+            <br></br>
+            <br></br>
+          </Col>
+        )}
       </Row>
-      <br></br>
       {fileInputFields.map((item, index) => (
         <div key={item.id}>
           <Row>
-            <Col md="3" className="edge-sub-field">
-              {' '}
-              {props.text} #{index + 1}
-            </Col>
+            {!props.maxInput || props.maxInput > 1 ? (
+              <Col md="3" className="edge-sub-field">
+                {' '}
+                {props.text} #{index + 1}
+              </Col>
+            ) : (
+              <Col md="3">
+                {props.tooltip ? (
+                  <MyTooltip
+                    id={`fileInputArrayTooltip-${props.name}`}
+                    tooltip={props.tooltip}
+                    text={props.text}
+                    place={props.tooltipPlace ? props.tooltipPlace : defaults.tooltipPlace}
+                    color={props.tooltipColor ? props.tooltipColor : defaults.tooltipColor}
+                    showTooltip={props.showTooltip ? props.showTooltip : defaults.showTooltip}
+                  />
+                ) : (
+                  <>{props.text}</>
+                )}
+              </Col>
+            )}
             <Col xs="12" md="9">
               <Controller
                 render={({ field: { ref, ...rest }, fieldState }) => (
@@ -122,6 +153,7 @@ export const FileInputArray = (props) => {
                     dataSources={props.dataSources}
                     fileTypes={props.fileTypes}
                     projectTypes={props.projectTypes}
+                    projectScope={props.projectScope}
                     viewFile={props.viewFile}
                     fieldname={'fileInput'}
                     index={index}

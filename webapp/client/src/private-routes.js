@@ -3,16 +3,16 @@ import React from 'react'
 const UserProfile = React.lazy(() => import('src/edge/um/user/Profile'))
 const UserProjects = React.lazy(() => import('src/edge/um/user/Projects'))
 const UserAllProjects = React.lazy(() => import('src/edge/um/user/AllProjects'))
-const UserProjectPage = React.lazy(() => import('src/edge/project/results/projectPage/User'))
+const UserProjectPage = React.lazy(() => import('src/workflows/project/projectPage/User'))
 const UserUploadFiles = React.lazy(() => import('src/edge/um/user/UploadFiles'))
 const UserUploads = React.lazy(() => import('src/edge/um/user/Uploads'))
 const UserJobQueue = React.lazy(() => import('src/edge/um/user/JobQueue'))
 const AdminUsers = React.lazy(() => import('src/edge/um/admin/Users'))
 const AdminUploads = React.lazy(() => import('src/edge/um/admin/Uploads'))
 const AdminProjects = React.lazy(() => import('src/edge/um/admin/Projects'))
-const AdminProjectPage = React.lazy(() => import('src/edge/project/results/projectPage/Admin'))
-const SRAWorkflow = React.lazy(() => import('src/edge/workflows/sra/Main'))
-const MetaGWorkflow = React.lazy(() => import('src/edge/workflows/metagenomics/Main'))
+const AdminProjectPage = React.lazy(() => import('src/workflows/project/projectPage/Admin'))
+const SRAWorkflow = React.lazy(() => import('src//workflows/sra/Main'))
+const MetaGWorkflow = React.lazy(() => import('src//workflows/metagenomics/Main'))
 
 const privateRoutes = [
   { path: '/user/profile', exact: true, name: 'Profile', element: UserProfile },

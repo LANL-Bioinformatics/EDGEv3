@@ -77,7 +77,7 @@ const SraDataTable = (props) => {
       getProjects()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props, user])
+  }, [props.tableType, props.update, user])
 
   useEffect(() => {
     if (projects && !page.submittingForm) {

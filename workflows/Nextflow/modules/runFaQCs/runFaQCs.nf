@@ -17,10 +17,9 @@ process adapterFileCheck {
 }
 
 //main QC process. puts parameters together and runs FaQCs.
-//EDGE currently uses a custom script (illumina_fastq_QC.pl) to handle QC for long reads,
-//but it was unable to create report files when I attempted using it. For now, all input reads go through FaQCs.
 process qc {
     label "qc"
+    label "small"
     publishDir(
         path: "${settings["qcOutDir"]}",
         mode: 'copy'
@@ -28,6 +27,7 @@ process qc {
 
     input:
     val settings
+    val platform
     path paired
     path unpaired
     val validAdapter
@@ -49,13 +49,13 @@ process qc {
     }
 
     def qcSoftware = "FaQCs"
-    // if(params.ontFlag || params.pacbioFlag) {
-    //     qcSoftware = "illumina_fastq_QC.pl"
-    // }
-    def pairedArg = paired.name != "NO_FILE" ? "-1 ${paired[0]} -2 ${paired[1]}" : ""
-    // if(pairedArg != "" && (params.ontFlag || params.pacbioFlag)) {
-    //     pairedArg = "-p $paired"
-    // }
+    if(platform != null && (platform.contains("PACBIO") || platform.contains("NANOPORE"))) {
+        qcSoftware = "illumina_fastq_QC.pl"
+    }
+    def pairedArg = paired[0].name != "NO_FILE" ? "-1 ${paired[0]} -2 ${paired[1]}" : ""
+    if(pairedArg != "" && platform != null && (platform.contains("PACBIO") || platform.contains("NANOPORE"))) {
+        pairedArg = "-p $paired"
+    }
     def unpairedArg = unpaired.name != "NO_FILE2" ? "-u $unpaired" : ""
 
     def adapterArg = ""
@@ -67,15 +67,15 @@ process qc {
     phiX = settings["filtPhiX"] ? "--phiX" : ""
 
     def trim = ""
-    // if(params.ontFlag || params.pacbioFlag) {
-    //     trim = "--trim_only"
-    // }
+    if(platform != null && (platform.contains("PACBIO") || platform.contains("NANOPORE"))) {
+        trim = "--trim_only"
+    }
 
     """
     $qcSoftware $pairedArg $unpairedArg \
     -q ${settings["trimQual"]} --min_L $min --avg_q ${settings["avgQual"]} \
     -n ${settings["numN"]} --lc ${settings["filtLC"]} --5end ${settings["trim5end"]} --3end ${settings["trim3end"]} \
-    --split_size 1000000  -d . -t ${settings["cpus"]} \
+    --split_size 1000000  -d . -t ${task.cpus} \
     $polyA \
     $trim \
     $adapterArg \
@@ -84,51 +84,85 @@ process qc {
     """
 }
 
-// process nanoplot {
-//     label "qc"
-//     publishDir(
-//         path: "${settings["outDir"]}/QcReads",
-//         mode: 'copy'
-//     )
-//     input:
-//     val settings
-//     path unpaired
+process nanoplot {
+    label "qc"
+    label "small"
 
-//     output:
-//     path "*" //lots of output plots
+    publishDir(
+        path: "${settings["qcOutDir"]}",
+        mode: 'copy'
+    )
+    input:
+    val settings
+    val platform
+    path unpaired
 
-//     script:
-//     """
-//     NanoPlot --fastq $unpaired --N50 --loglength -t ${settings["cpus"]} -f pdf --outdir . 2>/dev/null
-//     """
+    output:
+    path "*" //lots of output plots
 
-// }
+    when:
+    platform != null && platform.contains("NANOPORE")
 
-// //Porechop for removing adapters from ONT or PacBio reads
-// process porechop {
-//     label "qc"
-//     publishDir(
-//         path: "${settings["outDir"]}/QcReads",
-//         mode: 'copy'
-//     )
+    script:
+    """
+    NanoPlot --fastq $unpaired --N50 --loglength -t ${task.cpus} -f pdf --outdir . 2>/dev/null
+    """
+
+}
+
+//Porechop for removing adapters from ONT or PacBio reads
+process porechop {
+    label "qc"
+    label "small"
+    publishDir(
+        path: "${settings["qcOutDir"]}",
+        mode: 'copy'
+    )
 
 
-//     input:
-//     val settings
-//     path trimmed
-//     path log
-//     output:
-//     path "*.porechop.fastq", emit: porechopped
+    input:
+    val settings
+    val platform
+    path trimmed
+    path log
+
+    output:
+    path "*.porechop.fastq", emit: porechopped
+
+    when:
+    platform != null && platform.contains("NANOPORE")
     
-//     script:
-//     """
-//     porechop -i $trimmed -o ./QC.unpaired.porechop.fastq -t ${settings["cpus"]} > $log
-//     """
-// }
+    script:
+    """
+    porechop -i $trimmed -o ./QC.unpaired.porechop.fastq -t ${task.cpus} > $log
+    """
+}
+
+process jsonQCstats {
+    label "qc"
+    label "tiny"
+
+    publishDir(
+        path: "${settings["qcOutDir"]}",
+        mode: 'copy'
+    )
+
+    input:
+    val settings
+    path stats
+
+    output:
+    path "QC.stats.json"
+    script:
+    """
+    statsToJSON.py -i $stats
+    """
+}
 
 workflow FAQCS {
     take:
     settings
+    platform
     paired
     unpaired
     avgLen
@@ -142,7 +176,14 @@ workflow FAQCS {
     adapterFileCheck(adapter_ch)
 
     //main QC process
-    qc(settings, paired, unpaired, adapterFileCheck.out, adapter_ch, avgLen)
+    qc(settings, platform, paired, unpaired, adapterFileCheck.out, adapter_ch, avgLen)
+
+    //make JSON file from QC stats
+    jsonQCstats(settings, qc.out.qcStats)
+
+    //run porechop and nanoplot if fastq source is nanopore
+    porechop(settings, platform, qc.out.unpairedQC, qc.out.log)
+    nanoplot(settings, platform, porechop.out.porechopped)
     
 
     paired = qc.out.pairedQC

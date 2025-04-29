@@ -11,14 +11,12 @@ export const FileInput = (props) => {
   const [doValidation, setDoValidation] = useState(0)
 
   const handleFileSelection = (filename, type, index, key) => {
+    form.fileInput = filename
+    form.fileInput_display = key
     if ((props.isOptional && !key) || props.isValidFileInput(key, filename)) {
       form.validForm = true
-      form.fileInput = filename
-      form.fileInput_display = key
     } else {
       form.validForm = false
-      form.fileInput = null
-      form.fileInput_display = null
     }
     setDoValidation(doValidation + 1)
   }

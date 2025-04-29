@@ -54,18 +54,18 @@ module.exports = async function nextflowWorkflowMonitor() {
     proj.status = 'processing';
     proj.updated = Date.now();
     await proj.save();
-    common.write2log(`${config.IO.PROJECT_BASE_DIR}/${proj.code}/log.txt`, 'Generate params json');
-    logger.info('Generate params json');
     // process request
     // create output directory
     fs.mkdirSync(`${projHome}/${workflowList[projectConf.workflow.name].outdir}`, { recursive: true });
     // in case nextflow needs permission to write to the output directory
     fs.chmodSync(`${projHome}/${workflowList[projectConf.workflow.name].outdir}`, '777');
-    // generate params.json
+    // Generate nextflow.config
+    common.write2log(`${config.IO.PROJECT_BASE_DIR}/${proj.code}/log.txt`, 'Generate nextflow.config');
+    logger.info('Generate nextflow.config');
     await generateInputs(projHome, projectConf, proj);
     // submit workflow to nextflow
-    common.write2log(`${config.IO.PROJECT_BASE_DIR}/${proj.code}/log.txt`, 'submit workflow to nextflow');
-    logger.info('submit workflow to nextflow');
+    common.write2log(`${config.IO.PROJECT_BASE_DIR}/${proj.code}/log.txt`, 'Submit workflow to nextflow');
+    logger.info('Submit workflow to nextflow');
     submitWorkflow(proj, projectConf, inputsize);
     logger.info('Done workflow submission');
   } catch (err) {

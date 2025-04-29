@@ -1,14 +1,14 @@
-
+workDir="<%= nextflowOutDir %>/work"
 params {
 
     //which modules are run
     modules {
-        sra2fastq = false
+        sra2fastq = <% if(typeof source != "undefined" && source === 'sra') { %>true<% } else { %>false<%} %>
         faqcs = true
         hostRemoval = false
         runAssembly = false
         annotation = false
-        readsBinning = false
+        binning = false
         phageFinder = true //true by default -- will run if non-viral reads are annotated
         readsTaxonomyAssignment = false
         contigsTaxonomyAssignment = false
@@ -17,35 +17,34 @@ params {
 
     outputLocations {
         //everything in its separate output for the moment
-        sra2fastqOutDir = ""
+        sra2fastqOutDir =  "<%= sraOutdir %>"
         processProvidedContigsOutDir = ""
-        qcOutDir = "<%= outdir %>"
+        qcOutDir = "<%= projOutdir %>"
         hostRemovalOutDir = ""
         assemblyOutDir = ""
         contigsTaxonomyOutDir = ""
         phageFinderOutDir = ""
-        readBinningOutDir = ""
+        binningOutDir = ""
         readsTaxonomyOutDir = ""
         annotationOutDir = ""
         smaOutDir = ""
-        reportOutDir = "<%= outdir %>"
-
+        reportOutDir = "<%= projOutdir %>"
     }
 
     //module parameters -- passed directly into subworkflows according to best practices
     //these are the default values
     shared {
-        inputFastq = <%- JSON.stringify(inputFastq) %>
-        pairedFile = <%= pairedFile %>
-        inputContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided as input to entire pipeline
+        inputFastq = <% if(typeof inputFastq != "undefined") { %><%- JSON.stringify(inputFastq) %> %><% } else { %>[]<%} %>
+        inputFastq2 = <% if(typeof inputFastq2 != "undefined") { %><%- JSON.stringify(inputFastq2) %> %><% } else { %>[]<%} %>
+        pairedFile = <% if(typeof paired != "undefined") { %><%= paired %><% } else { %>false<%} %>
+        inputContigs = <% if(typeof inputFasta != "undefined") { %>"<%= inputFasta %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
         assembledContigs = "${projectDir}/nf_assets/NO_FILE3" //contigs provided to bypass assembly
         projName = "<%= project %>"
-        cpus = 8
-        fastqSource = null
+        fastqSource = <% if(typeof seqPlatform != "undefined") { %>"<%= seqPlatform %>"<% } else { %>null<%} %>
     }
 
     sra2fastq {
-        accessions = []
+        accessions =  <% if(typeof accessions != "undefined") { %><%- JSON.stringify(accessions) %> %><% } else { %>[]<%} %>
     }
 
     faqcs{
@@ -54,7 +53,7 @@ params {
         trim3end = <%= trim3end %>
         trimAdapter = <%= trimAdapter %>
         trimPolyA = <%= trimPolyA %>
-        artifactFile = "<%= artifactFile %>"
+        artifactFile = <% if(artifactFile) { %>"<%= artifactFile %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
         minLen = <%= minLen %>
         avgQual = <%= avgQual %>
         numN = <%= numN %>
@@ -67,11 +66,11 @@ params {
         similarity = 90
         bwaMemOptions = null
     }
+
     assembly {
         //assemblers: IDBA_UD, SPAdes, Unicycler, Megahit, LRASM
         assembler = "IDBA_UD"
         minContigSize = 200
-        memLimit = null
         idba{
             maxK = null
             minK = 31
@@ -97,9 +96,7 @@ params {
             ec = null
             numConsensus = null
         }
-
     }
-
     
     r2c {
         r2c_aligner = "bwa"
@@ -152,7 +149,6 @@ params {
         custom_pangia_db= null
         custom_diamond_db= null
         custom_centrifuge_db = null
-
     }
 
     contigsTaxonomy {
@@ -175,9 +171,6 @@ params {
         tigrfam = false
         cassis = false //only with fungi
     }
-
-
-
 }
 
 //container settings
@@ -189,7 +182,6 @@ apptainer {
 
 //discover and auto-bind subworkflow bin folders
 nextflow.enable.moduleBinaries = true
-
 
 //which containers to use for which processes
 process {
@@ -242,4 +234,23 @@ executor {
     submitRateLimit = '1/5sec'
 }
 
-includeConfig "<%= report_config %>"
+report {
+    enabled = true
+    file = '<%= nextflowOutDir %>/report.html'
+    overwrite = true
+}
+
+timeline {
+    enabled = true
+    file = '<%= nextflowOutDir %>/timeline.html'
+    overwrite = true
+}
+
+trace {
+    enabled = true
+    file = '<%= nextflowOutDir %>/trace.txt'
+    fields = 'name,status,start,complete,duration'
+    overwrite = true
+}
+
+includeConfig "<%= executor_config %>"

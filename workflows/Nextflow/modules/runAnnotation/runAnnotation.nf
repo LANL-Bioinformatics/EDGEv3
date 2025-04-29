@@ -3,6 +3,7 @@
 //sets taxonomic kingdom for analysis if none provided
 process autodetectKingdom {
     label 'annotation'
+    label 'tiny'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     input:
     path contigs
@@ -23,6 +24,7 @@ process autodetectKingdom {
 //process to invocate prokka
 process prokkaAnnotate {
     label 'annotation'
+    label 'small'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
@@ -61,7 +63,6 @@ process prokkaAnnotate {
     def gcode = settings["gcode"] == null ? "" : "--gcode ${settings["gcode"]}"
     def locustag = settings["projName"] == null ? "" : "--locustag ${settings["projName"]}"
     def prefix = settings["projName"] == null ? "" : "--prefix ${settings["projName"]}"
-    def cpu = settings["cpus"] == null ? "" : "--cpus ${settings["cpus"]}"
     def taxKingdom = kingdom.equalsIgnoreCase("metagenome") ? "--kingdom Bacteria --metagenome" : "--kingdom $kingdom"
 
     """
@@ -74,7 +75,7 @@ process prokkaAnnotate {
     $gcode \
     $locustag \
     $prefix \
-    $cpu \
+    --cpus ${task.cpus} \
     --outdir . \
     $taxKingdom \
     $contigs 2>>Annotation.log 
@@ -86,6 +87,7 @@ process prokkaAnnotate {
 //process to invocate RATT
 process rattAnnotate {
     label 'annotation'
+    label 'small'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
@@ -124,6 +126,7 @@ process rattAnnotate {
 //plots feature count, protein size distribution, etc.
 process annPlot {
     label 'annotation'
+    label 'tiny'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
@@ -150,6 +153,7 @@ process annPlot {
 //generates KEGG pathway plots
 process keggPlots {
     label 'annotation'
+    label 'tiny'
     containerOptions '--compat --bind .:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
@@ -172,6 +176,7 @@ process keggPlots {
     }
 
 
+//main workflow
 workflow ANNOTATION {
     take:
     settings

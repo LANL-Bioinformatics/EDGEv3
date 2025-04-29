@@ -60,6 +60,7 @@ export const TextInputArray = (props) => {
               place={props.tooltipPlace ? props.tooltipPlace : defaults.tooltipPlace}
               color={props.tooltipColor ? props.tooltipColor : defaults.tooltipColor}
               showTooltip={props.showTooltip ? props.showTooltip : defaults.showTooltip}
+              clickable={props.tooltipClickable ? props.tooltipClickable : false}
             />
           ) : (
             <>{props.text}</>

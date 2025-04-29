@@ -50,6 +50,7 @@ export const defaults = {
   inputStyleWarning: {
     borderRadius: '5px',
     borderLeftColor: colors.danger,
+    borderLeftWidth: '2px',
   },
 }
 
@@ -239,4 +240,38 @@ export const isValidFileInput = (filename, path) => {
 export const isValidFolder = (inputValue) => {
   const regexp = new RegExp(/^[a-zA-Z0-9\-_/ ]+$/, 'i')
   return regexp.test(inputValue.replace(/\s+/g, ' ').trim())
+}
+
+export const isValidEvalue = (inputValue) => {
+  const regexp = new RegExp(/^([1-9]\.[0-9]+|[1-9])e-[0-9]+$/, 'i')
+  return regexp.test(inputValue.replace(/\s+/g, ' ').trim())
+}
+
+export const isValidSRAAccessionInput = (accessions) => {
+  const parts = accessions.split(',')
+  for (var i = 0; i < parts.length; i++) {
+    if (!isValidSRAAccession(parts[i])) {
+      return false
+    }
+  }
+  return true
+}
+
+export const isValidSRAAccession = (accession) => {
+  //if(!/^[a-zA-Z]{3}[0-9]{6,9}$/.test(accession)) {
+  if (
+    !/^(srp|erp|drp|srx|erx|drx|srs|ers|drs|srr|err|drr|sra|era|dra)[0-9]{6,9}$/i.test(
+      accession.trim(),
+    )
+  ) {
+    return false
+  }
+  return true
+}
+
+export const capitalizeFirstLetter = (str) => {
+  if (!str) {
+    return '' // Handle empty strings
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1)
 }

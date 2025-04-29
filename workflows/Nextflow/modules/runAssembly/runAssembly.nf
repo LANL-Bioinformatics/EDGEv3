@@ -1,12 +1,10 @@
 #!/usr/bin/env nextflow
-//to run: nextflow run runAssembly.nf -params-file [JSON parameter file]
 
-//this workflow is unable to set memory limits (used in idba and spades assemblies) by itself, 
-//but a limit (in KB) can be provided as a parameter.
 
 //main process for assembly with IDBA
 process idbaUD {
     label "assembly"
+    label "small"
     publishDir (
     path:"${settings["assemblyOutDir"]}",
     mode: 'copy',
@@ -38,7 +36,7 @@ process idbaUD {
     path "{contig-*,*contigs.fa,K*/final_contigs.fasta}", emit: intContigs
 
     script:
-    def avg_len = avg_len as Integer
+    def avg_len = (avg_len as Float).trunc() as Integer
     def runFlag = ""
     if(short_paired.name != "NO_FILE" && short_single.name != "NO_FILE2") {
         runFlag = "-r $short_single --read_level_2 $short_paired "
@@ -62,18 +60,17 @@ process idbaUD {
     step = settings["idba"]["step"] != null ? "--step ${settings["idba"]["step"]} " : ""
     minLen = settings["minContigSize"] != null ? "--min_contig ${settings["minContigSize"]} " : ""
 
-    memLimit = settings["memLimit"] != null ? "ulimit -v ${settings["memLimit"]} 2>/dev/null;" : ""
-    //TODO: expose errors in case of (e.g.) segfault when given only SE reads
     """
-    ${memLimit}idba_ud --pre_correction -o . --num_threads ${settings["cpus"]}\
+    idba_ud --pre_correction -o . --num_threads ${task.cpus}\
     $runFlag\
     $longReadsFile\
     $maxK_option\
     $minK\
     $step\
-    $minLen  || true
+    $minLen  &>idba.log || true
 
     mv contig-${maxK}.fa contig-max.fa
+    cat idba.log >> log
     """
 
 }
@@ -81,6 +78,7 @@ process idbaUD {
 //prep for idba
 process idbaExtractLong {
     label "assembly"
+    label "tiny"
 
     input:
     path paired
@@ -105,6 +103,7 @@ process idbaExtractLong {
 //prep for idba
 process idbaPrepReads {
     label "assembly"
+    label "tiny"
     input:
     path paired
     path unpaired
@@ -128,6 +127,7 @@ process idbaPrepReads {
 //assemble using spades
 process spades {
     label "assembly"
+    label "small"
 
     publishDir (
     path: "${settings["assemblyOutDir"]}", 
@@ -180,19 +180,21 @@ process spades {
     def unpaired = unpaired.name != "NO_FILE2" ? "--s1 $unpaired " : ""
     def pacbio_file = pacbio.name != "NO_FILE3" ? "--pacbio $pacbio " : ""
     def nanopore_file = nanopore.name != "NO_FILE4" ? "--nanopore $nanopore " : ""
-    def meta_flag = (paired != "" && settings["spades"]["algorithm"] == "metagenome") ? "--meta " : ""
-    def sc_flag = settings["spades"]["algorithm"] == "singlecell" ? "--sc " : ""
-    def rna_flag = settings["spades"]["algorithm"] == "rna" ? "--rna " : ""
-    def plasmid_flag = settings["spades"]["algorithm"] == "plasmid" ? "--plasmid " : ""
-    def bio_flag = settings["spades"]["algorithm"] == "bio" ? "--bio " : ""
-    def corona_flag = settings["spades"]["algorithm"] == "corona" ? "--corona " : ""
-    def metaviral_flag = settings["spades"]["algorithm"] == "metaviral" ? "--metaviral " : ""
-    def metaplasmid_flag = settings["spades"]["algorithm"] == "metaplasmid" ? "--metaplasmid " : ""
-    def rnaviral_flag = settings["spades"]["algorithm"] == "rnaviral" ? "--rnaviral " : ""
-    def memLimit = settings["memLimit"] != null ? "-m ${settings["memLimit"]}" : ""
+    if(settings["spades"]["algorithm"] == null){
+        settings["spades"]["algorithm"] = ""
+    }
+    meta_flag = (paired != "" && settings["spades"]["algorithm"].startsWith("meta")) ? "--meta " : ""
+    sc_flag = settings["spades"]["algorithm"].startsWith("MDA") ? "--sc " : ""
+    rna_flag = settings["spades"]["algorithm"].startsWith("rnaSPAdes") ? "--rna " : ""
+    plasmid_flag = settings["spades"]["algorithm"].startsWith("plasmid") ? "--plasmid " : ""
+    bio_flag = settings["spades"]["algorithm"].startsWith("biosynthetic") ? "--bio " : ""
+    corona_flag = settings["spades"]["algorithm"].startsWith("corona") ? "--corona " : ""
+    metaviral_flag = settings["spades"]["algorithm"].startsWith("metaviral") ? "--metaviral " : ""
+    metaplasmid_flag = settings["spades"]["algorithm"].startsWith("metaplasmid") ? "--metaplasmid " : ""
+    rnaviral_flag = settings["spades"]["algorithm"].startsWith("rnaviral") ? "--rnaviral " : ""
 
     """
-    spades.py -o . -t ${settings["cpus"]}\
+    spades.py -o . -t ${task.cpus}\
     $paired\
     $meta_flag\
     $sc_flag\
@@ -206,14 +208,14 @@ process spades {
     $unpaired\
     $pacbio_file\
     $nanopore_file\
-    $memLimit
     """
 }
 
 //assemble using megahit
 process megahit {
-
     label "assembly"
+    label "small"
+
     publishDir(
     path: "${settings["assemblyOutDir"]}", 
     mode: 'copy',
@@ -255,7 +257,7 @@ process megahit {
     def megahit_preset = settings["megahit"]["preset"] != null ? "--presets ${settings["megahit"]["preset"]} " : ""
 
     """
-    megahit -o ./megahit -t ${settings["cpus"]}\
+    megahit -o ./megahit -t ${task.cpus}\
     $megahit_preset\
     $paired\
     $unpaired\
@@ -272,6 +274,7 @@ process megahit {
 //assembly using unicycler
 process unicycler {
     label "assembly"
+    label "small"
     publishDir (
         path: "${settings["assemblyOutDir"]}", 
         mode: 'copy',
@@ -317,7 +320,7 @@ process unicycler {
     """
     export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm';
 
-    unicycler -t ${settings["cpus"]} -o .\
+    unicycler -t ${task.cpus} -o .\
     $paired\
     $filt_lr\
     $bridge 2>&1 1>/dev/null
@@ -328,6 +331,7 @@ process unicycler {
 //filter long reads for unicycler
 process unicyclerPrep {
     label "assembly"
+    label "tiny"
 
     input:
     val settings
@@ -351,6 +355,7 @@ process unicyclerPrep {
 //assembly using lrasm
 process lrasm {
     label "assembly"
+    label "small"
 
     publishDir (
         path: "${settings["assemblyOutDir"]}", 
@@ -404,19 +409,19 @@ process lrasm {
     script:
     def consensus = settings["lrasm"]["numConsensus"] != null ? "-n ${settings["lrasm"]["numConsensus"]} ": ""
     def preset = settings["lrasm"]["preset"] != null ? "-x ${settings["lrasm"]["preset"]} " : ""
-    def errorCorrection = settings["lrasm"]["ec"] != null ? "-e " : ""
+    def errorCorrection = (settings["lrasm"]["ec"] != null && settings["lrasm"]["ec"]) ? "-e " : ""
     def algorithm = settings["lrasm"]["algorithm"] != null ? "-a ${settings["lrasm"]["algorithm"]} " : ""
     def minLenOpt = ""
     if (settings["lrasm"]["algorithm"] == "miniasm") {
-        minLenOpt = "--ao \'-s ${settings["lrasm"]["minLength"]}\' "
+        minLenOpt = "--ao \'-s 400\' "
     }
     else if (settings["lrasm"]["algorithm"] == "wtdbg2") {
-        minLenOpt = "--wo \'-L ${settings["lrasm"]["minLength"]}\' "
+        minLenOpt = "--wo \'-L 400\' "
     }
     def flyeOpt = settings["lrasm"]["algorithm"] == "metaflye" ? "--fo '--meta' ": ""
 
     """
-    lrasm -o . -t ${settings["cpus"]} \
+    lrasm -o . -t ${task.cpus} \
     $preset\
     $consensus\
     $errorCorrection\
@@ -429,6 +434,8 @@ process lrasm {
 
 process renameFilterFasta {
     label "assembly"
+    label "small"
+
     publishDir(
         path: "${settings["assemblyOutDir"]}",
         mode: 'copy'
@@ -461,6 +468,7 @@ process renameFilterFasta {
 
 process bestIncompleteAssembly {
     label "assembly"
+    label "tiny"
     input:
 
     val x
@@ -486,6 +494,7 @@ process bestIncompleteAssembly {
 
 }
 
+//main workflow logic
 workflow ASSEMBLY {
     take:
     settings
@@ -507,40 +516,53 @@ workflow ASSEMBLY {
 
     if (settings["assembler"].equalsIgnoreCase("IDBA_UD")) {
 
+        //input prep
         idbaPrepReads(paired, unpaired)
         c1 = idbaPrepReads.out.idba_prep_paired.ifEmpty({file("${projectDir}/nf_assets/NO_FILE")})
         c2 = idbaPrepReads.out.idba_prep_unpaired.ifEmpty({file("${projectDir}/nf_assets/NO_FILE2")})
         (sp,su,l) = idbaExtractLong(c1,c2)
 
+        //assembly
         idbaUD(settings, sp.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE")}),
             su.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE2")}),
             l.filter{ it.size()>0 }.ifEmpty({file("${projectDir}/nf_assets/NO_FILE3")}),
             avgLen)
         
+        //grab best assembly if full process failed
         bestIncompleteAssembly(idbaUD.out.contigs.ifEmpty('EMPTY'), idbaUD.out.intContigs)
+
+        //output formatting and setup (published and channel outputs)
         renameFilterFasta(settings, idbaUD.out.contigs.concat(bestIncompleteAssembly.out).first())
         outContigs = renameFilterFasta.out.contigs
         annotationContigs = renameFilterFasta.out.annotationContigs
 
     }
     else if (settings["assembler"].equalsIgnoreCase("SPAdes")) {
+        //assembly
         spades(settings, paired, unpaired, spades_pb, spades_np)
         
+        //grab best assembly if full process failed
         bestIncompleteAssembly(spades.out.contigs.ifEmpty('EMPTY'), spades.out.intContigs)
+
+        //output formatting and setup (published and channel outputs)
         renameFilterFasta(settings, spades.out.contigs.concat(bestIncompleteAssembly.out).first())
         outContigs = renameFilterFasta.out.contigs
         annotationContigs = renameFilterFasta.out.annotationContigs
     }
     else if (settings["assembler"].equalsIgnoreCase("MEGAHIT")) {
+        //assembly
         megahit(settings, paired, unpaired)
-        
+        //grab best assembly if full process failed
         bestIncompleteAssembly(megahit.out.contigs.ifEmpty('EMPTY'), megahit.out.intContigs)
+        //output formatting and setup (published and channel outputs)
         renameFilterFasta(settings, megahit.out.contigs.concat(bestIncompleteAssembly.out).first())
         outContigs = renameFilterFasta.out.contigs
         annotationContigs = renameFilterFasta.out.annotationContigs
     }
     else if (settings["assembler"].equalsIgnoreCase("UniCycler")) {
+        //if supplemental long reads file present
         if (settings["unicycler"]["longreads"] != "nf_assets/NO_FILE3") {
+            //assembly, including prep for long reads
             unicycler(
                 settings,
                 paired,
@@ -549,20 +571,25 @@ workflow ASSEMBLY {
                 )
             //unicycler produces no intermediate contigs, we let it error out above rather than try to rescue a failed assembly
             renameFilterFasta(settings, unicycler.out.contigs)
+            //output formatting and setup (published and channel outputs)
             outContigs = renameFilterFasta.out.contigs
             annotationContigs = renameFilterFasta.out.annotationContigs
         }
         else {
+            //assembly with optional input pattern for unprovided long reads file
             unicycler(settings, paired, unpaired, unicycler_lr)
+            //output formatting and setup (published and channel outputs)
             renameFilterFasta(settings, unicycler.out.contigs)
             outContigs = renameFilterFasta.out.contigs
             annotationContigs = renameFilterFasta.out.annotationContigs
         }
     }
     else if (settings["assembler"].equalsIgnoreCase("LRASM")) {
+        //assembly
         lrasm(settings, unpaired)
-
+        //grab best assembly if full process failed
         bestIncompleteAssembly(lrasm.out.contigs.ifEmpty('EMPTY'), lrasm.out.intContigs)
+        //output formatting and setup (published and channel outputs)
         renameFilterFasta(settings, lrasm.out.contigs.concat(bestIncompleteAssembly.out).first())
         outContigs = renameFilterFasta.out.contigs
         annotationContigs = renameFilterFasta.out.annotationContigs

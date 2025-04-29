@@ -80,11 +80,11 @@ const AppHeader = () => {
                   My Uploads
                 </CNavLink>
               </CNavItem>
-              <CNavItem>
+              {/*  <CNavItem>
                 <CNavLink to="/user/sradata" as={NavLink}>
                   My SRA Data
                 </CNavLink>
-              </CNavItem>
+              </CNavItem> */}
               <CNavItem>
                 <CNavLink to="/user/jobqueue" as={NavLink}>
                   Job Queue
