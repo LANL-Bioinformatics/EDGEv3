@@ -1,5 +1,12 @@
 #!/usr/bin/env nextflow
 
+//André Watson
+//apwat@lanl.gov
+//2025
+
+include {PHYLOSRA} from '../sra2fastq/sra2fastq.nf' 
+
+//prepares control file for phame and runs it with the specified options
 process prepareSNPphylogeny {
     label 'phyl'
     containerOptions "--bind=${settings["snpDBbase"]}:/venv/bin/database"
@@ -29,6 +36,9 @@ process prepareSNPphylogeny {
     path paired
     path unpaired
     path contigs
+    path sraPaired //these just need staging into this work directory and phame will pick them up
+    path sraUnpaired //these just need staging into this work directory and phame will pick them up
+
     output:
     path "results/trees/{*all.fasttree,RAxML_bestTree.*_all}", emit: allTree
     path "results/trees/{*cds.fasttree,RAxML_bestTree.*_cds}", emit:cdsTree
@@ -56,7 +66,7 @@ process prepareSNPphylogeny {
     -o . \
     -n ${settings["projName"]} \
     -tree ${settings["treeMaker"]} \
-    -cpu ${settings["cpus"]} \
+    -cpu ${task.cpus} \
     -kingdom ${settings["taxKingdom"]} \
     -map "/venv/bin/database/SNPdb/reference.txt" \
     -bwa_id_map "/venv/bin/database/bwa_index/id_mapping.txt"\
@@ -77,6 +87,7 @@ process prepareSNPphylogeny {
 
 }
 
+//converts .nwk-format phylogeny to XML format
 process prepareXMLphylogeny {
     label 'phyl'
     
@@ -119,7 +130,9 @@ process prepareXMLphylogeny {
 
 
 
-
+//Workflow for phylogenetic analysis
+//takes: parameters, channel of paired-end read files, channel of single-end read files, channel of a contig file 
+//Needs at least one of the reads/contig channels as input.
 workflow PHYLOGENETICANALYSIS {
 
     take:
@@ -129,7 +142,18 @@ workflow PHYLOGENETICANALYSIS {
     contigs
 
     main:
-    prepareSNPphylogeny(settings,paired,unpaired,contigs)
+    //get sra downloads
+    sraPaired = channel.empty()
+    sraSingle = channel.empty()
+    if(settings["phylAccessions"].size() != 0) {
+        PHYLOSRA(settings)
+        sraPaired = PHYLOSRA.out.paired
+        sraSingle = PHYLOSRA.out.unpaired
+    }
+    //prepare phame control file and run phame
+    prepareSNPphylogeny(settings,paired,unpaired,contigs, sraPaired.ifEmpty("${projectDir}/nf_assets/NO_FILE4"), sraSingle.ifEmpty("${projectDir}/nf_assets/NO_FILE5"))
+
+    //prepare and format output
     resultTree = prepareSNPphylogeny.out.bootstrapTree.concat(prepareSNPphylogeny.out.allTree).first()
     if(settings["snpRefGenome"] != null || (settings["snpDBname"] != null && !(settings["snpDBname"]).equalsIgnoreCase("hantavirus"))) {
         resultTree = resultTree.concat(prepareSNPphylogeny.out.cdsTree)

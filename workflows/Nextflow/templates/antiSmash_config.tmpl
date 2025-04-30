@@ -10,6 +10,7 @@ params {
         annotation = false
         binning = false
         phageFinder = true //true by default -- will run if non-viral reads are annotated
+        snpTree = false
         readsTaxonomyAssignment = false
         contigsTaxonomyAssignment = false
         secondaryMetaboliteAnalysis = true
@@ -28,6 +29,7 @@ params {
         readsTaxonomyOutDir = ""
         annotationOutDir = ""
         smaOutDir = "<%= projOutdir %>"
+        phylogenyOutDir = ""
         reportOutDir = "<%= projOutdir %>"
 
     }
@@ -171,6 +173,25 @@ params {
         tigrfam = <%= tigrfam %> 
         cassis = <%= cassis %>  //only with fungi
     }
+
+    snpTree {
+        //SNP DB path. Should contain SNPdb, bwa_index, NCBI genomes
+        snpDBbase="${projectDir}/../../../database"
+        //SNP databases: Ecoli, Yersinia, Francisella, Brucella, Bacillus
+        snpDBname="Ecoli"
+        //List of genome name from NCBI genomes see $EDGE/edge_ui/data/Ref_list.json
+        snpGenomes= []
+        //User-provided reference genomes
+        snpGenomesFiles= []
+        //A reference genome from above two options for reads/contigs mapping
+        snpRefGenome= null
+        // SRA accessions ByrRun, ByExp, BySample, ByStudy
+        phylAccessions = []
+        //FastTree or RAxML
+        treeMaker= "FastTree"
+        phameBootstrap= false
+        phameBootstrapNum=100
+    }
 }
 
 //container settings
@@ -223,6 +244,9 @@ process {
     }
     withLabel: 'binning' {
         container = 'apwat/reads_binning:0.1'
+    }
+    withLabel: 'phyl' {
+        container = 'apwat/snp_tree:0.6'
     }
     withLabel: 'report' {
         container = 'apwat/edge_report:0.5'

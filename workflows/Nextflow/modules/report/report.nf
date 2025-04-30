@@ -100,7 +100,7 @@ process report {
     text(0,nextPos-0.22,\\"Inputs:\\",adj=0,font=2)
     Rscript
 
-    if ( -e '$fastqCount'){ 
+    if ( -s '$fastqCount'){ 
     print \$Rfh <<Rscript;
     popViewport(0)
     input<-read.table(file=\\"$fastqCount\\")
