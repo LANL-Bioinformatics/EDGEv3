@@ -6,11 +6,11 @@ params {
         sra2fastq = <% if(typeof source != "undefined" && source === 'sra') { %>true<% } else { %>false<%} %>
         faqcs = false
         hostRemoval = false
-        runAssembly = true
+        runAssembly = false
         annotation = false
         binning = false
         phageFinder = true //true by default -- will run if non-viral reads are annotated
-        snpTree = false
+        snpTree = true
         readsTaxonomyAssignment = false
         contigsTaxonomyAssignment = false
         secondaryMetaboliteAnalysis = false
@@ -19,17 +19,17 @@ params {
     outputLocations {
         //everything in its separate output for the moment
         sra2fastqOutDir =  "<%= sraOutdir %>"
-        processProvidedContigsOutDir = ""
+        processProvidedContigsOutDir = "<%= projOutdir %>"
         qcOutDir = ""
         hostRemovalOutDir = ""
-        assemblyOutDir = "<%= projOutdir %>"
+        assemblyOutDir = ""
         contigsTaxonomyOutDir = ""
         phageFinderOutDir = ""
         binningOutDir = ""
         readsTaxonomyOutDir = ""
         annotationOutDir = ""
         smaOutDir = ""
-        phylogenyOutDir = ""
+        phylogenyOutDir = "<%= projOutdir %>"
         reportOutDir = "<%= projOutdir %>"
 
     }
@@ -72,40 +72,40 @@ params {
 
     assembly {
         //assemblers: IDBA_UD, SPAdes, Unicycler, Megahit, LRASM
-        assembler = "<%= assembler %>"
-        minContigSize = <%= minContigSize %>
-        
+        assembler = "IDBA_UD"
+        minContigSize = 200
         idba{
-            maxK = <% if(typeof idba_maxK != "undefined") { %><%= idba_maxK %><% } else { %>null<%} %>
-            minK = <% if(typeof idba_minK != "undefined") { %><%= idba_minK %><% } else { %>31<%} %>
-            step = <% if(typeof idba_step != "undefined") { %><%= idba_step %><% } else { %>20<%} %>
+            maxK = null
+            minK = 31
+            step = 20
         }
         spades {
-            pacbio = <% if(typeof spades_pacbio != "undefined" && spades_pacbio) { %>"<%= spades_pacbio %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
-            nanopore = <% if(typeof spades_nanopore != "undefined" && spades_nanopore) { %>"<%= spades_nanopore %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE4"<%} %>
-            algorithm = <% if(typeof spades_algorithm != "undefined") { %>"<%= spades_algorithm %>"<% } else { %>null<%} %>
+            pacbio = "${projectDir}/nf_assets/NO_FILE3"
+            nanopore = "${projectDir}/nf_assets/NO_FILE4"
+            algorithm = null
         }
         megahit {
-            preset = <% if(typeof megahit_preset != "undefined") { %>"<%= megahit_preset %>"<% } else { %>null<%} %>
+            preset = null
         }
         unicycler {
-            longreads = <% if(typeof Unicycler_longreads != "undefined" && Unicycler_longreads) { %>"<%= Unicycler_longreads %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
-            minLongReads = <% if(typeof Unicycler_minLongReads != "undefined") { %><%= Unicycler_minLongReads %><% } else { %>2000<%} %>
-            bridgingMode = <% if(typeof Unicycler_bridgingMode != "undefined") { %>"<%= Unicycler_bridgingMode %>"<% } else { %>"normal"<%} %>
+            longreads = "${projectDir}/nf_assets/NO_FILE3"
+            minLongReads = 2000
+            bridgingMode = "normal"
         }
         lrasm {
-            preset = <% if(typeof Lrasm_preset != "undefined") { %>"<%= Lrasm_preset %>"<% } else { %>null<%} %>
-            algorithm = <% if(typeof Lrasm_algorithm != "undefined") { %>"<%= Lrasm_algorithm %>"<% } else { %>null<%} %>
-            ec = <% if(typeof Lrasm_ec != "undefined") { %><%= Lrasm_ec %><% } else { %>false<%} %>
-            numConsensus = <% if(typeof Lrasm_numConsensus != "undefined") { %><%= Lrasm_numConsensus %><% } else { %>null<%} %>
+            minLength = 400
+            preset = null
+            algorithm = null
+            ec = null
+            numConsensus = null
         }
     }
     
     r2c {
-        r2c_aligner = "<%= aligner %>"
-        r2c_aligner_options = "<%= aligner_options %>"
+        r2c_aligner = "bwa"
+        r2c_aligner_options = ""
         r2g_max_clip = null
-        extractUnmapped = <%= extractUnmapped %>
+        extractUnmapped = false
         rowLimit = null
     }
     
@@ -180,19 +180,19 @@ params {
         //SNP DB path. Should contain SNPdb, bwa_index, NCBI genomes
         snpDBbase="${projectDir}/../../../database"
         //SNP databases: Ecoli, Yersinia, Francisella, Brucella, Bacillus
-        snpDBname="Ecoli"
+        snpDBname= <% if(typeof premadeSNPdb != "undefined") { %>"<%= premadeSNPdb %>"<% } else { %>null<%} %>
         //List of genome name from NCBI genomes see $EDGE/edge_ui/data/Ref_list.json
-        snpGenomes= []
+        snpGenomes= <% if(typeof snpGenomes != "undefined") { %><%- JSON.stringify(snpGenomes) %> %><% } else { %>[]<%} %>
         //User-provided reference genomes
-        snpGenomesFiles= []
+        snpGenomesFiles= <% if(typeof snpGenomesFiles != "undefined") { %><%- JSON.stringify(snpGenomesFiles) %> %><% } else { %>[]<%} %>
         //A reference genome from above two options for reads/contigs mapping
-        snpRefGenome= null
+        snpRefGenome= <% if(typeof snpRefGenome != "undefined") { %>"<%= snpRefGenome %>"<% } else { %>null<%} %>
         // SRA accessions ByrRun, ByExp, BySample, ByStudy
-        phylAccessions = []
+        phylAccessions =  <% if(typeof phylAccessions != "undefined") { %><%- JSON.stringify(phylAccessions) %> %><% } else { %>[]<%} %>
         //FastTree or RAxML
-        treeMaker= "FastTree"
-        phameBootstrap= false
-        phameBootstrapNum=100
+        treeMaker= "<%= treeMaker %>"
+        phameBootstrap= <%= doPhameBootstrap %> 
+        phameBootstrapNum= <% if(typeof phameBootstrapNum != "undefined") { %><%= phameBootstrapNum %><% } else { %>100<%} %>
     }
 }
 
