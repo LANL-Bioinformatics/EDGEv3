@@ -21,8 +21,12 @@ const generateInputs = async (projHome, projectConf, proj) => {
     inputFastq2: [],
     projOutdir: `${projHome}/${workflowSettings.outdir}`,
     project: proj.name,
-    executor_config: `${config.NEXTFLOW.CONFIG_DIR}/${executorConfig}`,
+    executorConfig: `${config.NEXTFLOW.CONFIG_DIR}/${executorConfig}`,
     nextflowOutDir: `${projHome}/nextflow`,
+    workflow: projectConf.workflow.name,
+    moduleParams: `${config.NEXTFLOW.TEMPLATE_DIR}/${nextflowConfigs.module_params}`,
+    containerConfig: `${config.NEXTFLOW.CONFIG_DIR}/${nextflowConfigs.container_config}`,
+    nfReports: `${config.NEXTFLOW.TEMPLATE_DIR}/${nextflowConfigs.nf_reports}`,
   };
 
   if (projectConf.rawReads) {
