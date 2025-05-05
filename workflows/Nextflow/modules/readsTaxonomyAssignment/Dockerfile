@@ -79,6 +79,7 @@ COPY --from=build /GOTTCHA-1.0c/src/*.pl /venv/bin
 #add environment, pangia base and vis-scripts to PATH
 ENV PATH=/venv/bin:/venv/opt/pangia:/venv/opt/pangia/pangia-vis/scripts:/venv/opt/krona:$PATH
 ENV PERL5LIB=/venv/lib/perl5/core_perl/
+RUN apt-get update && apt-get install procps -y && apt-get clean
 
 
 SHELL ["/bin/bash", "-c"]
