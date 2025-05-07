@@ -492,7 +492,7 @@ $pm->wait_all_children;
 
 print $pdf_fh "\ntmp<-dev.off()\nquit()\n";
 close $pdf_fh;
-system ("R --vanilla --slave --silent < $Rscript 2>/dev/null") if (!$no_plot);
+system ("R --vanilla --slave --silent < $Rscript") if (!$no_plot);
 unlink "Rplots.pdf" if ( -e "Rplots.pdf");
 
 #clean up
@@ -584,10 +584,9 @@ par(def.par)#- reset to default
 ";
 
 if ($histogram_png){
-   
   print $png_fh "$print_string\ntmp<-dev.off()\nquit()\n";
   close $png_fh;
-  system ("R --vanilla --slave --silent < $png_Rscript 2>/dev/null") if (!$no_plot);
+  system ("R --vanilla --slave --silent < $png_Rscript") if (!$no_plot);
   unlink $png_Rscript;
 }
 #if ($no_snp == 0)

@@ -3,6 +3,10 @@
 process checkAndAlignToReference {
     label "r2g"
     label "medium"
+    publishDir(
+        path: "${settings["refBasedOutDir"]}",
+        mode: 'copy'
+    )
 
     input:
     val settings
@@ -12,6 +16,9 @@ process checkAndAlignToReference {
     path unpaired
 
     output:
+    path "*"
+    path "readsToRef.gaps", emit: gaps
+    path "readsToRef.vcf", optional:true, emit: vcf
 
     script:
     def taxKingdom = settings["taxKingdom"] != null ? "-kingdom ${settings["taxKingdom"]}" : ""
@@ -45,7 +52,7 @@ process checkAndAlignToReference {
     def consensusCompOpt = settings["r2gConsensusCompOpt"] != false ? "-c-compopt 1" : ""
 
     """
-    checkReferenceGenome.pl -ref $reference \
+    ref_pipeline.pl -ref $reference \
     $pairedFiles \
     $unpairedFiles \
     -t ${task.cpus} \
@@ -79,6 +86,30 @@ process checkAndAlignToReference {
     
 }
 
+process retrieveUnmappedReads {
+    label "r2g"
+    label "small"
+
+    input:
+    val settings
+    path reference
+    path paired
+
+    output:
+    
+
+    script:
+    def pairedFiles =  paired.name != "NO_FILE" ? "-paired" : ""
+
+    """
+    mkdir UnmappedReads
+    mkdir readsMappingToRef
+    retrieve_unmapped.pl -ref $reference \
+    $pairedFiles
+    """
+
+}
+
 
 workflow REFERENCEBASEDANALYSIS {
 
@@ -92,7 +123,9 @@ workflow REFERENCEBASEDANALYSIS {
 
     reference = channel.fromPath(settings["referenceGenome"], checkIfExists: true)
     checkAndAlignToReference(settings, reference, platform, paired, unpaired)
-    //readsMappingToReference(settings, paired, unpaired, reference, checkReferenceGenome.out.headers)
+    if((settings["rg2MapUnmapped"]) || (settings["r2gExtractUnmapped"])) {
+        retrieveUnmappedReads(settings, reference, paired)
+    }
 
     //emit:
 

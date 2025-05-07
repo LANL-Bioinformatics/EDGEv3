@@ -400,7 +400,6 @@ sub runReadsToGenome
     }
     &executeCommand("echo -n \"Total Unmapped:\" >>$log");
     &executeCommand("count_unmapped.pl $outputDir/*bam >>$log");
-    &touchFile("$outputDir/runReadsToGenome.finished");
 
     if ($doConsensus){
         my $consensus_log = "$outputDir/consensus.log";

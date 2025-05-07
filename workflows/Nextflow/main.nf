@@ -122,7 +122,7 @@ workflow {
     }
 
     if(params.modules.refBasedAnalysis) {
-        REFERENCEBASEDANALYSIS(params.shared.plus(params.refBased), platform, paired, unpaired)
+        REFERENCEBASEDANALYSIS(baseSettings.plus(params.refBased), platform, paired, unpaired)
     }
 
     //Reads-based taxonomic classification
