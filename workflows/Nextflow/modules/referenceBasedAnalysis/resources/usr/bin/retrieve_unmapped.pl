@@ -36,7 +36,7 @@ if ($paired)
 my %filter;
 foreach my $file (@referenceGenome){
     my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
-    my $bamFile = "$refmapping_outdir/$file_name.sort.bam";
+    my $bamFile = "$file_name.sort.bam";
     &executeCommand("samtools view -f 4 $bamFile | sort -T $outputDir -k 1,1 > $outputDir/unmapped.sam");
     open (my $fh, "$outputDir/unmapped.sam") or die "cannot open $outputDir/unmapped.sam\n";
     while (<$fh>)
@@ -76,11 +76,11 @@ close $se_fh;
 &lprint ("    Paired End: $NumOfunmappedPaired\n");
 &lprint ("    Single End: $NumOfunmappedSingle\n");
 $total_unmapped_reads = $NumOfunmappedPaired + $NumOfunmappedSingle;
-`echo "Total Unmapped:$total_unmapped_reads" > $log`;
+&lprint("Total Unmapped:$total_unmapped_reads\n");
 unlink "$outputDir/unmapped.sam";
 &printRunTime($time);
 
-print("$total_unmapped_reads"); #put total unmapped reads in stdout, handle created files above this scope
+#put total unmapped reads in stdout, handle created files outside this scope
 
 # if ($QCpairFile)
 # {

@@ -110,7 +110,7 @@ workflow {
         }
         //run validation alignment if reads were provided
         if(params.shared.inputFastq.size() != 0 || params.sra2fastq.accessions.size() == 0) {
-            READSTOCONTIGS(baseSettings.plus(params.r2c), platform, paired, unpaired, contigs)
+            READSTOCONTIGS(baseSettings.plus(params.r2c).plus(params.refBased), platform, paired, unpaired, contigs)
             alnStats= READSTOCONTIGS.out.alnStats
             coverageTable = READSTOCONTIGS.out.covTable
             contigStatsReport = READSTOCONTIGS.out.contigStatsReport

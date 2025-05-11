@@ -19,6 +19,7 @@ process checkAndAlignToReference {
     path "*"
     path "readsToRef.gaps", emit: gaps
     path "readsToRef.vcf", optional:true, emit: vcf
+    path "*.sort.bam", emit: bam
 
     script:
     def taxKingdom = settings["taxKingdom"] != null ? "-kingdom ${settings["taxKingdom"]}" : ""
@@ -94,8 +95,12 @@ process retrieveUnmappedReads {
     val settings
     path reference
     path paired
+    path bams //staged into workdir for retrieve_unmapped.pl
 
     output:
+    stdout emit: count
+    path "singleEnd.fastq", emit: singleUnmapped, optional: true
+    path "pairedEnd.*.fastq", emit: pairedUnmapped, optional: true
     
 
     script:
@@ -103,11 +108,46 @@ process retrieveUnmappedReads {
 
     """
     mkdir UnmappedReads
-    mkdir readsMappingToRef
-    retrieve_unmapped.pl -ref $reference \
+    retrieve_unmapped.pl \
+    -ref $reference \
     $pairedFiles
     """
 
+}
+
+process mapUnmapped {
+    label "r2g"
+    label "medium"
+    input:
+    val settings
+    path unmappedPaired
+    path unmappedUnpaired
+    val count
+    val platform
+
+    when:
+    !count.contains("Total Unmapped:0")
+
+    output:
+    
+    script:
+    def ontFlag = (platform != null && platform.contains("NANOPORE")) ?  "-x ont2d -T ${settings["minLen"] != null ? settings["minLen"] : 50} " : ""
+    def pbFlag =  (platform != null && platform.contains("PACBIO")) ? "-x pacbio -T ${settings["minLen"] != null ? settings["minLen"] : 50} " : ""
+    def pairedFiles = unmappedPaired.name != "NO_FILE" ? "-p \"$unmappedPaired\"" : ""
+    def unpairedFiles = unmappedUnpaired.name != "NO_FILE2" ? "-u $unmappedUnpaired" : ""
+    def maxClip = settings["r2gMaxClip"] != null ? "-max_clip ${settings["r2gMaxClip"]}" : ""
+
+    """
+    runReadsToContig.pl \
+    -c 0 \
+    -cpu ${task.cpus} \
+    $pairedFiles \
+    $unpairedFiles \
+    $maxClip \
+    -bwa_options \'$ontFlag $pbFlag\' \
+    -d . -pre UnmappedReads -ref ${settings["refSeqDB"]} \
+    &>mapping.log
+    """
 }
 
 
@@ -123,8 +163,15 @@ workflow REFERENCEBASEDANALYSIS {
 
     reference = channel.fromPath(settings["referenceGenome"], checkIfExists: true)
     checkAndAlignToReference(settings, reference, platform, paired, unpaired)
-    if((settings["rg2MapUnmapped"]) || (settings["r2gExtractUnmapped"])) {
-        retrieveUnmappedReads(settings, reference, paired)
+    if((settings["r2gMapUnmapped"].toBoolean())|| (settings["r2gExtractUnmapped"].toBoolean())) {
+        retrieveUnmappedReads(settings, reference, paired, checkAndAlignToReference.out.bam)
+        if(settings["r2gMapUnmapped"]) {
+            mapUnmapped(settings, 
+                retrieveUnmappedReads.out.pairedUnmapped.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]),  
+                retrieveUnmappedReads.out.singleUnmapped.ifEmpty("${projectDir}/nf_assets/NO_FILE2"), 
+                retrieveUnmappedReads.out.count,
+                platform)
+        }
     }
 
     //emit:
