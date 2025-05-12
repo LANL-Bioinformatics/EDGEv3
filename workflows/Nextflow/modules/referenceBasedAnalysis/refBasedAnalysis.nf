@@ -118,6 +118,8 @@ process retrieveUnmappedReads {
 process mapUnmapped {
     label "r2g"
     label "medium"
+
+    containerOptions "--bind=${settings["refDB"].take(settings["refDB"].lastIndexOf('/'))}:/venv/database "
     input:
     val settings
     path unmappedPaired
@@ -144,9 +146,34 @@ process mapUnmapped {
     $pairedFiles \
     $unpairedFiles \
     $maxClip \
-    -bwa_options \'$ontFlag $pbFlag\' \
-    -d . -pre UnmappedReads -ref ${settings["refSeqDB"]} \
+    -bwa_options \'${ontFlag}${pbFlag}\' \
+    -d . -pre UnmappedReads -ref /venv/database/${settings["refDB"].drop(settings["refDB"].lastIndexOf('/'))} \
     &>mapping.log
+
+    id_mapping_w_gi.pl UnmappedReads_coverage.table reads > UnmappedReads_coverage.txt
+    """
+}
+
+process contigToGenome {
+    label "r2g"
+    label "medium"
+
+    input:
+    val settings
+    path reference
+    path contigs
+
+    when:
+    !contigs.name.endsWith("NO_FILE3")
+
+    output:
+    script:
+    """
+    nucmer_genome_coverage.pl -d -e 1 \
+    -i ${settings["identity"]} \
+    -p contigsToRef \
+    $reference \
+    $contigs
     """
 }
 
@@ -158,6 +185,7 @@ workflow REFERENCEBASEDANALYSIS {
     platform
     paired
     unpaired
+    contigs
 
     main:
 
@@ -173,6 +201,8 @@ workflow REFERENCEBASEDANALYSIS {
                 platform)
         }
     }
+    contigToGenome(settings, reference, contigs)
+
 
     //emit:
 

@@ -122,7 +122,7 @@ workflow {
     }
 
     if(params.modules.refBasedAnalysis) {
-        REFERENCEBASEDANALYSIS(baseSettings.plus(params.refBased), platform, paired, unpaired)
+        REFERENCEBASEDANALYSIS(baseSettings.plus(params.refBased).plus(params.contigsToRef), platform, paired, unpaired, contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
     }
 
     //Reads-based taxonomic classification
