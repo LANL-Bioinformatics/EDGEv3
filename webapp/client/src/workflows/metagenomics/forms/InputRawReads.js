@@ -58,8 +58,8 @@ export const InputRawReads = (props) => {
       validInputs[name].isValid = inForm.validForm
     }
     setDoValidation(doValidation + 1)
-    setDoValidation(doValidation + 1)
   }
+
   useEffect(() => {
     if (props.source) {
       form.inputs['source'].value = props.source
@@ -116,7 +116,7 @@ export const InputRawReads = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Input Raw Reads'}
+        title={props.title}
         collapseParms={collapseParms}
         id={'inputRawReads'}
         isValid={props.isValid}

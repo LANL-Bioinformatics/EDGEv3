@@ -53,7 +53,8 @@ export const Assembly = (props) => {
   }
 
   const setSelect = (inForm, name) => {
-    form.assemblerInputs[form.inputs['assembler'].value][name].value = inForm.selectInput
+    form.assemblerInputs[form.inputs['assembler'].value][name].value = inForm.selection.value
+    form.assemblerInputs[form.inputs['assembler'].value][name].display = inForm.selection.label
     setDoValidation(doValidation + 1)
   }
 
@@ -202,7 +203,7 @@ export const Assembly = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Assembly Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}
@@ -396,7 +397,11 @@ export const Assembly = (props) => {
                     'spades_algorithm'
                   ].options
                 }
-                setDefault={true}
+                defaultValue={
+                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
+                    'spades_algorithm'
+                  ].options[0]
+                }
                 isClearable={false}
                 setParams={setSelect}
               />
@@ -524,7 +529,11 @@ export const Assembly = (props) => {
                     'megahit_preset'
                   ].options
                 }
-                setDefault={true}
+                defaultValue={
+                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
+                    'megahit_preset'
+                  ].options[0]
+                }
                 isClearable={false}
                 setParams={setSelect}
               />

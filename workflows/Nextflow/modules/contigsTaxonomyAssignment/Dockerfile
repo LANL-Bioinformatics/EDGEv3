@@ -35,6 +35,7 @@ COPY --from=build /miccr /miccr
 
 #add environment and miccr to PATH
 ENV PATH=/venv/bin:/miccr:/miccr/utils:$PATH
+RUN apt-get update && apt-get install procps -y && apt-get clean
 
 SHELL ["/bin/bash", "-c"]
 CMD /bin/bash

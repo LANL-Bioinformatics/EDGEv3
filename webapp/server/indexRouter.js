@@ -9,6 +9,7 @@ const authUserDataRoutes = require('./edge-api/routes/auth-user-data');
 const adminUserRoutes = require('./edge-api/routes/admin-user');
 const adminProjectRoutes = require('./edge-api/routes/admin-project');
 const adminUploadRoutes = require('./edge-api/routes/admin-upload');
+const metagRoutes = require('./workflow_api/routes/metag');
 
 /* GET home page. */
 router.get('/', (req, res) => {
@@ -24,5 +25,6 @@ router.use('/auth-user', passport.authenticate('user', { session: false }), auth
 router.use('/admin', passport.authenticate('admin', { session: false }), adminUserRoutes);
 router.use('/admin', passport.authenticate('admin', { session: false }), adminProjectRoutes);
 router.use('/admin', passport.authenticate('admin', { session: false }), adminUploadRoutes);
+router.use('/workflow/metag', metagRoutes);
 
 module.exports = router;

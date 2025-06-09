@@ -24,7 +24,7 @@ export const FileInputArray = (props) => {
   })
 
   const handleFileSelection = (path, type, index, key) => {
-    if ((props.isOptional && !key) || props.isValidFileInput(key, path)) {
+    if (props.isValidFileInput(key, path)) {
       form.fileInput[index] = path
       form.fileInput_display[index] = key
       form.fileInput_isValid[index] = true
@@ -53,7 +53,9 @@ export const FileInputArray = (props) => {
 
   //default 1 dataset
   useEffect(() => {
-    fileInputAppend({ name: 'fileInput' })
+    if (!props.isOptional) {
+      fileInputAppend({ name: 'fileInput' })
+    }
     setState({
       ...form,
       fileInput: [],
@@ -61,7 +63,7 @@ export const FileInputArray = (props) => {
       fileInput_isValid: [],
     })
     setDoValidation(doValidation + 1)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [props.reset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   //trigger validation method when input changes
   useEffect(() => {
@@ -87,7 +89,7 @@ export const FileInputArray = (props) => {
                 showTooltip={props.showTooltip ? props.showTooltip : defaults.showTooltip}
               />
             ) : (
-              <>{props.text}</>
+              <>{props.mainText ? props.mainText : props.text}</>
             )}
             {!props.isOptional && fileInputFields.length === 0 && (
               <WarningTooltip id={props.name} tooltip={'Required at least one input.'} />

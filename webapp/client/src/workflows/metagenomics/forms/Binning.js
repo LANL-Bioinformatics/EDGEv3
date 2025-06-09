@@ -111,7 +111,7 @@ export const Binning = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Binning Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}

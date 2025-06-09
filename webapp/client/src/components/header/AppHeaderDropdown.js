@@ -22,7 +22,7 @@ import {
   cilPeople,
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import Avatar from 'react-avatar'
+import { FaUserCircle } from 'react-icons/fa'
 import { colors } from 'src/edge/common/util'
 
 const AppHeaderDropdown = (props) => {
@@ -37,7 +37,12 @@ const AppHeaderDropdown = (props) => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
-        <Avatar name={userName} color={colors.app} size="40" round={true} />
+        <span className="edge-header-orcid">
+          <FaUserCircle color={colors.app} size={30} className="edge-header-orcid-icon" />
+          <span className="edge-header-no-min">
+            &nbsp;&nbsp;{props.user.profile.firstName} {props.user.profile.lastName}
+          </span>
+        </span>
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Projects</CDropdownHeader>

@@ -30,9 +30,13 @@ export const components = {
   },
   selectInput: {
     validForm: false,
-    selectInput: null,
+    selection: null,
   },
   multSelectInput: {
+    validForm: false,
+    selections: [],
+  },
+  treeSelectInput: {
     validForm: false,
     selections: [],
   },

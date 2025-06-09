@@ -51,6 +51,7 @@ const appServerDir = process.env.APP_SERVER_DIR ? process.env.APP_SERVER_DIR : _
 const CLIENT_BASE_DIR = path.join(appServerDir, '../client');
 const NEXTFLOW_BASE_DIR = path.join(appServerDir, '../../workflows/Nextflow');
 const CROMWELL_BASE_DIR = path.join(appServerDir, '../../workflows/Cromwell');
+const WORKFLOW_DATA_BASE_DIR = path.join(appServerDir, '../../workflows/data');
 const IO_BASE_DIR = process.env.IO_BASE_DIR || path.join(appServerDir, '../../io');
 
 const config = {
@@ -210,6 +211,9 @@ const config = {
     LOG_FILE_MAX_SIZE: process.env.LOG_FILE_MAX_SIZE || '20m',
     LOG_FILE_MAX_QUANTITY: process.env.LOG_FILE_MAX_QUANTITY || '14d',
   },
+  WORKFLOW: {
+    REF_LIST: process.env.WORKFLOW_REF_LIST || path.join(WORKFLOW_DATA_BASE_DIR, 'Ref_list.json'),
+  }
 };
 
 module.exports = config;

@@ -21,8 +21,12 @@ const generateInputs = async (projHome, projectConf, proj) => {
     inputFastq2: [],
     projOutdir: `${projHome}/${workflowSettings.outdir}`,
     project: proj.name,
-    executor_config: `${config.NEXTFLOW.CONFIG_DIR}/${executorConfig}`,
+    executorConfig: `${config.NEXTFLOW.CONFIG_DIR}/${executorConfig}`,
     nextflowOutDir: `${projHome}/nextflow`,
+    workflow: projectConf.workflow.name,
+    moduleParams: `${config.NEXTFLOW.TEMPLATE_DIR}/${nextflowConfigs.module_params}`,
+    containerConfig: `${config.NEXTFLOW.CONFIG_DIR}/${nextflowConfigs.container_config}`,
+    nfReports: `${config.NEXTFLOW.TEMPLATE_DIR}/${nextflowConfigs.nf_reports}`,
   };
 
   if (projectConf.rawReads) {
@@ -51,21 +55,29 @@ const generateInputs = async (projHome, projectConf, proj) => {
 };
 
 const getJobStatus = (statusStr) => {
-  // parse output from 'nextflow log <run name> -f status
-  const statuses = statusStr.split(/\n/);
-  let completeCnt = 0;
+  // parse output from 'nextflow log <run name> -f name,status
+  const lines = statusStr.split(/\n/);
   let i = 0;
-  for (i = 0; i < statuses.length; i += 1) {
-    const status = statuses[i].trim();
-    if (status === '' || status === 'COMPLETED') {
-      // empty line === COMPLETED
+  let statuses ={};
+  //Use lastest status for retries
+  for (i = 0; i < lines.length; i += 1) {
+    const [name, status]= lines[i].trim().split('\t');
+    // skip empty line
+    if(name) {
+      statuses[name] = status;
+    }
+  }
+  let completeCnt = 0;
+  for (const key in statuses) {
+    const status = statuses[key];
+    if (status === 'COMPLETED') {
       completeCnt += 1;
     }
     if (status === 'ABORTED') {
       return 'Aborted';
     }
   }
-  if (completeCnt === statuses.length) {
+  if (completeCnt === Object.keys(statuses).length) {
     return 'Succeeded';
   }
   return 'Failed';
@@ -173,7 +185,7 @@ const updateJobStatus = async (job, proj) => {
   }
 
   // Task status. Possible values are: COMPLETED, FAILED, and ABORTED.
-  cmd = `${config.NEXTFLOW.SLURM_SSH} NXF_CACHE_DIR=${slurmProjHome}/nextflow/work nextflow log ${job.id} -f status`;
+  cmd = `${config.NEXTFLOW.SLURM_SSH} NXF_CACHE_DIR=${slurmProjHome}/nextflow/work nextflow log ${job.id} -f name,status`;
   ret = await execCmd(cmd);
   if (!ret || ret.code !== 0) {
     // command failed

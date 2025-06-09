@@ -7,18 +7,19 @@ export const workflowOptions = [
   { value: 'binning', label: workflowList['binning'].label },
   { value: 'antiSmash', label: workflowList['antiSmash'].label },
   { value: 'taxonomy', label: workflowList['taxonomy'].label },
+  { value: 'phylogeny', label: workflowList['phylogeny'].label },
 ]
 
 export const taxClassificationOptions = {
   'GOTTCHA-Bacterial-Databases': [
-    { value: 'gottcha-genDB-b', label: 'GOTTCHA Genus' },
-    { value: 'gottcha-speDB-b', label: 'GOTTCHA Species' },
-    { value: 'gottcha-strDB-b', label: 'GOTTCHA Strain' },
+    { value: 'gottcha-genDB-b', label: 'GOTTCHA Genus (Bacterial DB)' },
+    { value: 'gottcha-speDB-b', label: 'GOTTCHA Species (Bacterial DB)' },
+    { value: 'gottcha-strDB-b', label: 'GOTTCHA Strain (Bacterial DB)' },
   ],
   'GOTTCHA-Viral-Databases': [
-    { value: 'gottcha-genDB-v', label: 'GOTTCHA Genus' },
-    { value: 'gottcha-speDB-v', label: 'GOTTCHA Species' },
-    { value: 'gottcha-strDB-v', label: 'GOTTCHA Strain' },
+    { value: 'gottcha-genDB-v', label: 'GOTTCHA Genus (Viral DB)' },
+    { value: 'gottcha-speDB-v', label: 'GOTTCHA Species (Viral DB)' },
+    { value: 'gottcha-strDB-v', label: 'GOTTCHA Strain (Viral DB)' },
   ],
   'GOTTCHA2-BacteriaViruses-Databases': [{ value: 'gottcha2-speDB-b', label: 'GOTTCHA2 Species' }],
   'PanGIA-Databases': [{ value: 'pangia', label: 'PanGIA NCBI Refseq89' }],
@@ -30,8 +31,8 @@ export const taxClassificationOptions = {
     { value: 'diamond', label: 'IAMOND (Amino acid-based classification)' },
   ],
   'classification-tools-default': [
-    { value: 'gottcha-speDB-b', label: 'GOTTCHA Species' },
-    { value: 'gottcha-speDB-v', label: 'GOTTCHA Species' },
+    { value: 'gottcha-speDB-b', label: 'GOTTCHA Species (Bacterial DB)' },
+    { value: 'gottcha-speDB-v', label: 'GOTTCHA Species (Viral DB)' },
     { value: 'gottcha2-speDB-b', label: 'GOTTCHA2 Species' },
     { value: 'pangia', label: 'PanGIA NCBI Refseq89' },
     { value: 'metaphlan4', label: 'MetaPhlAn4' },
@@ -1385,6 +1386,150 @@ export const workflows = {
         custom_pangia_db: { isValid: true, error: 'CUSTOM Pangia DB error. Invalid url' },
         custom_diamond_db: { isValid: true, error: 'CUSTOM Diamond DB error. Invalid url' },
         custom_centrifuge_db: { isValid: true, error: 'CUSTOM Centrifuge DB error. Invalid url' },
+      },
+    },
+  },
+  phylogeny: {
+    validForm: true,
+    errMessage: 'input error',
+    paramsOn: true,
+    files: [],
+    rawReadsInput: {
+      source: 'fastq',
+      fastq: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fastq', 'fq', 'fastq.gz', 'fq.gz'],
+        projectTypes: ['runFaQCs'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1000,
+      },
+      fasta: {
+        enableInput: true,
+        placeholder: 'Select a file or enter a file http(s) url',
+        dataSources: ['upload', 'public', 'project'],
+        fileTypes: ['fasta', 'fa', 'fna', 'contigs'],
+        projectTypes: ['assembly', 'annotation'],
+        projectScope: ['self+shared'],
+        viewFile: false,
+        isOptional: false,
+        cleanupInput: true,
+        maxInput: 1,
+      },
+    },
+    inputs: {
+      treeMaker: {
+        text: 'Tree Build Method',
+        tooltip: 'FastTree is faster and RAxML is slower but more accurate.',
+        value: 'FastTree',
+        display: 'FastTree',
+        options: [
+          { text: 'FastTree', value: 'FastTree' },
+          { text: 'RAxML', value: 'RAxML' },
+        ],
+      },
+      snpDBname: {
+        text: 'Pre-built SNP DB',
+        tooltip:
+          'EDGE supports 5 pre-computed databases for SNP phylogeny analysis. The genomes list can be found at https://edge.readthedocs.io/en/develop/database.html#snp-db.',
+        value: null,
+        display: null,
+        options: [
+          { value: 'Ecoli', label: 'Ecoli' },
+          { value: 'Yersinia', label: 'Yersinia' },
+          { value: 'Francisella', label: 'Francisella' },
+          { value: 'Brucella', label: 'Brucella' },
+          { value: 'Bacillus', label: 'Bacillus' },
+        ],
+      },
+      phameBootstrap: {
+        text: 'Bootstrap',
+        value: false,
+        switcher: {
+          trueText: 'Yes',
+          falseText: 'No',
+          defaultValue: false,
+        },
+      },
+      phameBootstrapNum: {
+        text: 'Bootstrap Number',
+        value: 100,
+        integerInput: {
+          defaultValue: 100,
+          min: 1,
+          max: 1000,
+        },
+      },
+    },
+    genomeInputs: {
+      snpGenomes: {
+        text: 'Select Genome(s)',
+        tooltip:
+          'This workflow is a whole genome SNP based analysis that requires at minimum one reference genome and at least three dataset for building the phylogenetic tree. Because this analysis is based on read alignments and/or contig alignments to the reference genome(s), we strongly recommend only selecting genomes that can be adequately aligned at the nucleotide level (i.e. ~90% identity or better).',
+        value: [],
+        display: [],
+        treeSelectInput: {
+          placeholder:
+            'Search genomes... ex: Escherichia. Select at least 3 but no more than 20 genomes',
+          mode: 'multiSelect',
+          min: 3,
+          max: 20,
+        },
+      },
+      snpRefGenome: {
+        text: 'Select A Reference Genome from Selected Genomes',
+        value: 'Random',
+        display: 'Random',
+      },
+      snpGenomesFiles: {
+        text: 'Add Genome(s)',
+        value: [],
+        display: [],
+        fileInputArray: {
+          text: 'Genome',
+          enableInput: true,
+          placeholder: 'Select a file or enter a file http(s) url',
+          dataSources: ['upload', 'public'],
+          fileTypes: ['fasta', 'fa', 'fna'],
+          projectTypes: [],
+          projectScope: ['self+shared'],
+          viewFile: false,
+          isOptional: true,
+          cleanupInput: true,
+          maxInput: 100,
+        },
+      },
+      phylAccessions: {
+        text: 'SRA Accession(s)',
+        tooltip:
+          '(Internet requried) Input SRA accessions (comma separate for > 1 input) support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*).',
+        value: [],
+        display: null,
+        sraInput: { isOptional: true },
+      },
+    },
+    // only for input with validation method
+    validInputs: {
+      snpDBname: {
+        isValid: false,
+        error: 'Pre-built SNP DB error. Please select from precomputed SNP DB or from Genomes list',
+      },
+      snpGenomes: {
+        isValid: true,
+        error: 'Select Genome(s) error. Select at least 3 but no more than 20 genomes',
+      },
+      snpGenomesFiles: { isValid: false, error: 'Add Genome(s) error. Invalid input' },
+      phylAccessions: {
+        isValid: true,
+        error: 'SRA Accessions error. Invalid input',
+      },
+      phameBootstrapNum: {
+        isValid: true,
+        error: 'Bootstrap Number error. Invalid integer input. Range: 1 - 1000',
       },
     },
   },

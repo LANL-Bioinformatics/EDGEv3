@@ -20,7 +20,6 @@ export const IntegerInput = (props) => {
 
   const integerInputReg = register('integerInput', {
     required: 'required, an integer',
-    setValueAs: (v) => parseInt(v),
     min: { value: props.min, message: 'Value is less than ' + props.min },
     max: { value: props.max, message: 'Value is greater than ' + props.max },
     validate: (value) => {

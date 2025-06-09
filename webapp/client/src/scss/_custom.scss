@@ -12,7 +12,6 @@ $app: #6a9e5d;
 .app-color {
   color: $app;
 }
-
 .sidebar-brand-full {
   padding-top: 0px;
   padding-right: 0px;
@@ -172,7 +171,7 @@ button:hover {
   display: flex;
 }
 .edge-table-icon:hover {
-  color:#321fdb;
+  color: $primary;
 }
 
 .edge-sub-field {
@@ -329,4 +328,127 @@ button:hover {
 //remove under line from react-keyed-file-browser file name
 .rendered-file-browser .file a {
   text-decoration: none;
+}
+//buttons, have to set this for tree select
+.mr-3 {
+  z-index: 0;
+}
+// react-dropdown-tree-select
+.dropdown-content .infinite-scroll-component {
+  overflow-y: inherit;
+}
+.dropdown-content {
+  overflow-y: auto !important;
+  max-height: 300px;
+  z-index: 999;
+}
+.edge-tree-select .tag-item .search {
+  width: 30vw;
+}
+.hideCheckbox {
+  color: $primary;
+}
+.hideCheckbox .checkbox-item { display: none; }
+
+// orcid login
+.edge-header-orcid {
+  display: flex;
+  align-items: center;
+  padding-right: 30px;
+  padding-left: 16px;
+  color: $secondary;
+  font-size: 12px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    -webkit-background-size: 100% 1px;
+    background-size: 100% 1px;
+    color: $primary;
+    text-shadow: 0 0 1px $primary;
+    font-weight: 400;
+    text-decoration: none;
+
+    .edge-header-orcid-img {
+      filter: opacity(100%);
+    }
+    .edge-header-orcid-icon {
+      filter: opacity(100%);
+    }
+  }
+
+  a {
+    color: $secondary;
+    font-size: 12px;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+}
+
+.edge-header-orcid-img {
+  height: 28px;
+  filter: opacity(65%);
+}
+.edge-header-orcid-icon {
+  filter: opacity(65%);
+}
+.edge-header-orcid-login-help {
+  position: absolute;
+  top: 56px;
+  right: 10px;
+  z-index: 1;
+  display: none; // none by default, but block on "open" of the menu
+  width: 500px;
+  height: 100%;
+  text-align: left; // Ensures proper alignment if parent has it changed (e.g., modal footer)
+  text-transform: none;
+  background-color: white;
+
+  .edge-header-orcid-login-help-title {
+    font-size: 20px;
+    color: black;
+  }
+  .edge-header-orcid-login-help-text {
+    font-size: 14px;
+    color: $dark;
+    font-weight: 200;
+  }
+  .edge-header-orcid-login-help-text a {
+    font-size: 14px;
+    color: $secondary;
+    font-weight: 200;
+    text-transform: none;
+    text-decoration: underline;
+    text-underline-offset: 1px;
+  }
+}
+
+.edge-header-orcid-login:hover .edge-header-orcid-login-help {
+  -webkit-background-size: 100% 1px;
+  background-size: 100% 1px;
+  display: block;
+}
+
+//hide menu on topbar
+@media screen and (max-width: 450px) {
+  .edge-header-nav-link {
+      display: none !important;
+  }
+  .edge-header-no-min {
+    display: none !important;
+  }
+}
+@media screen and (max-width: 992px) {
+  .edge-header-nav-link-no-min {
+      display: none !important;
+  }
+  .edge-header-no-min {
+    display: none !important;
+  }
+}
+@media screen and (max-width: 1030px) {
+  .edge-header-no-min {
+    display: none !important;
+  }
 }

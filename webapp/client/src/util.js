@@ -38,4 +38,9 @@ export const workflowList = {
     category: 'metagenomics',
     info: 'Taxonomy Classification workflow ',
   },
+  phylogeny: {
+    label: 'Phylogeny Analysis',
+    category: 'metagenomics',
+    info: 'Phylogeny Analysis workflow ',
+  },
 }

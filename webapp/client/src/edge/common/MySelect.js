@@ -12,7 +12,7 @@ const selectStyles = {
   }),
   menu: (provided) => ({
     ...provided,
-    background: colors.light,
+    background: 'white',
     zIndex: 999999,
   }),
 }
@@ -40,6 +40,7 @@ export const MyCreatableSelect = (props) => {
       closeMenuOnSelect={props.closeMenuOnSelect}
       hideSelectedOptions={props.hideSelectedOptions}
       isClearable={props.isClearable}
+      isDisabled={props.isDisabled}
       onChange={(newValue) => onChange(newValue)}
       isValidNewOption={isValidNewOption}
       theme={(theme) => ({

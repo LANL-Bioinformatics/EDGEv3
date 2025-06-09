@@ -1,49 +1,45 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { setSidebar } from '../redux/reducers/coreuiSlice'
 import {
   CContainer,
-  CDropdown,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
   CHeader,
   CHeaderNav,
   CHeaderToggler,
   CNavLink,
   CNavItem,
-  useColorModes,
   CHeaderBrand,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import {
-  cilBell,
-  cilContrast,
-  cilEnvelopeOpen,
-  cilList,
-  cilMenu,
-  cilMoon,
-  cilSun,
-} from '@coreui/icons'
+import { cilMenu } from '@coreui/icons'
+import { MdLogout } from 'react-icons/md'
 
 import { AppHeaderDropdown } from './header/index'
 import logo from 'src/assets/brand/logo.png'
 import { logout } from 'src/redux/reducers/edge/userSlice'
+import OrcidLoginHelp from './OrcidLoginHelp'
 
 const AppHeader = () => {
   const headerRef = useRef()
-  const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.coreui.sidebarShow)
   const navigate = useNavigate()
   const user = useSelector((state) => state.user)
+  const [orcidid, setOrcidid] = useState()
 
   const signOut = (e) => {
     dispatch(logout())
     navigate('/login')
   }
+
+  useEffect(() => {
+    //get user's orcid id
+    if (user.isAuthenticated) {
+      setOrcidid(user.profile.email.split('@')[0])
+    }
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -94,68 +90,39 @@ const AppHeader = () => {
             <CHeaderNav className="ms-3">
               <AppHeaderDropdown user={user} logout={(e) => signOut(e)} />
             </CHeaderNav>
+            <CHeaderNav className="edge-header-orcid" style={{ paddingRight: '0px' }}>
+              <a href={'https://orcid.org/' + orcidid} target="_blank" rel="noreferrer">
+                <img
+                  alt="OrcId logo"
+                  style={{ paddingLeft: '12px' }}
+                  src="https://orcid.org/assets/vectors/orcid.logo.icon.svg"
+                  className="edge-header-orcid-img mr-2"
+                />
+              </a>
+            </CHeaderNav>
+            <CHeaderNav className="edge-header-orcid" onClick={signOut}>
+              <MdLogout size={24} className="edge-header-orcid-icon" />
+            </CHeaderNav>
           </>
         ) : (
           <>
-            <CHeaderNav className="d-none d-md-flex"></CHeaderNav>
-            <CHeaderNav className="ms-auto">
-              <CNavLink to="/login" as={NavLink}>
-                Login
-              </CNavLink>
-              <CNavLink to="/register" as={NavLink}>
-                Sign up
-              </CNavLink>
+            <CHeaderNav className="edge-header-orcid-login">
+              <span className="edge-header-orcid">
+                <a href="/oauth">
+                  <img
+                    alt="OrcId login"
+                    src="https://orcid.org/assets/vectors/orcid.logo.icon.svg"
+                    className="edge-header-orcid-img mr-2"
+                  />
+                  &nbsp;&nbsp;OrcID Login
+                </a>
+              </span>
+              <div className="edge-header-orcid-login-help">
+                <OrcidLoginHelp />
+              </div>
             </CHeaderNav>
           </>
         )}
-        {/* <CHeaderNav>
-          <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
-          <CDropdown variant="nav-item" placement="bottom-end">
-            <CDropdownToggle caret={false}>
-              {colorMode === 'dark' ? (
-                <CIcon icon={cilMoon} size="lg" />
-              ) : colorMode === 'auto' ? (
-                <CIcon icon={cilContrast} size="lg" />
-              ) : (
-                <CIcon icon={cilSun} size="lg" />
-              )}
-            </CDropdownToggle>
-            <CDropdownMenu>
-              <CDropdownItem
-                active={colorMode === 'light'}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode('light')}
-              >
-                <CIcon className="me-2" icon={cilSun} size="lg" /> Light
-              </CDropdownItem>
-              <CDropdownItem
-                active={colorMode === 'dark'}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode('dark')}
-              >
-                <CIcon className="me-2" icon={cilMoon} size="lg" /> Dark
-              </CDropdownItem>
-              <CDropdownItem
-                active={colorMode === 'auto'}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode('auto')}
-              >
-                <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
-              </CDropdownItem>
-            </CDropdownMenu>
-          </CDropdown>
-          <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
-        </CHeaderNav> */}
       </CContainer>
     </CHeader>
   )

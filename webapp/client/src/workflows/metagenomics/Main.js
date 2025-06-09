@@ -18,6 +18,7 @@ import { Binning } from './forms/Binning'
 import { workflowOptions, workflows } from './defaults'
 import { AntiSmash } from './forms/AntiSmash'
 import { Taxonomy } from './forms/Taxonomy'
+import { Phylogeny } from './forms/Phylogeny'
 
 const Main = (props) => {
   const navigate = useNavigate()
@@ -26,6 +27,7 @@ const Main = (props) => {
   const [projectParams, setProjectParams] = useState()
   const [rawDataParams, setRawDataParams] = useState()
   const [selectedWorkflows, setSelectedWorkflows] = useState({})
+  const [refGenomeOptions, setRefGenomeOptions] = useState(null)
   const [doValidation, setDoValidation] = useState(0)
   const [workflow, setWorkflow] = useState(workflowOptions[0].value)
   const [openDialog, setOpenDialog] = useState(false)
@@ -137,6 +139,15 @@ const Main = (props) => {
         ...selectedWorkflows[workflow].readInputs
       }
     }
+    //add genome inputs to main inputs
+    if (workflow === 'phylogeny' && !selectedWorkflows[workflow].inputs['snpDBname'].value) {
+      // eslint-disable-next-line prettier/prettier
+      selectedWorkflows[workflow].inputs = {
+        ...selectedWorkflows[workflow].inputs,
+        // eslint-disable-next-line prettier/prettier
+        ...selectedWorkflows[workflow].genomeInputs
+      }
+    }
 
     Object.keys(selectedWorkflows[workflow].inputs).forEach((key) => {
       myWorkflow.input[key] = selectedWorkflows[workflow].inputs[key].value
@@ -193,6 +204,22 @@ const Main = (props) => {
   }, [doValidation]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    function loadRefList() {
+      getData('/api/workflow/metag/reflist')
+        .then((data) => {
+          return data.reflist
+        })
+        .then((options) => {
+          setRefGenomeOptions(options)
+        })
+        .catch((error) => {
+          alert(error)
+        })
+    }
+
+    if (!refGenomeOptions && workflow === 'phylogeny') {
+      loadRefList()
+    }
     setDoValidation(doValidation + 1)
   }, [workflow]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -305,6 +332,7 @@ const Main = (props) => {
                 sourceOptions={workflows[workflow]['rawReadsInput'].sourceOptions}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
+                title={'Input Raw Reads'}
                 fastqSettings={workflows[workflow]['rawReadsInput'].fastq}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
@@ -314,6 +342,7 @@ const Main = (props) => {
               <RunFaQCs
                 name={workflow}
                 full_name={workflow}
+                title={workflowList[workflow].label}
                 setParams={setWorkflowParams}
                 isValid={
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
@@ -337,6 +366,7 @@ const Main = (props) => {
                 sourceOptions={workflows[workflow]['rawReadsInput'].sourceOptions}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
+                title={'Input Raw Reads'}
                 fastqSettings={workflows[workflow]['rawReadsInput'].fastq}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
@@ -346,6 +376,7 @@ const Main = (props) => {
               <Assembly
                 name={workflow}
                 full_name={workflow}
+                title={workflowList[workflow].label}
                 setParams={setWorkflowParams}
                 isValid={
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
@@ -368,6 +399,7 @@ const Main = (props) => {
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
+                title={'Input Raw Reads'}
                 fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
@@ -377,6 +409,7 @@ const Main = (props) => {
               <Annotation
                 name={workflow}
                 full_name={workflow}
+                title={workflowList[workflow].label}
                 setParams={setWorkflowParams}
                 isValid={
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
@@ -398,6 +431,7 @@ const Main = (props) => {
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
                 text={workflows[workflow]['rawReadsInput'].text}
                 note={workflows[workflow]['rawReadsInput'].note}
+                title={'Input Raw Reads'}
                 fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
@@ -407,6 +441,7 @@ const Main = (props) => {
               <Binning
                 name={workflow}
                 full_name={workflow}
+                title={workflowList[workflow].label}
                 setParams={setWorkflowParams}
                 isValid={
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
@@ -428,6 +463,7 @@ const Main = (props) => {
                 sourceDisplay={workflows[workflow]['rawReadsInput'].text}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
+                title={'Input Raw Reads'}
                 fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
                 errMessage={rawDataParams ? rawDataParams.errMessage : null}
@@ -437,6 +473,7 @@ const Main = (props) => {
               <AntiSmash
                 name={workflow}
                 full_name={workflow}
+                title={workflowList[workflow].label}
                 setParams={setWorkflowParams}
                 isValid={
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
@@ -459,6 +496,7 @@ const Main = (props) => {
                 sourceOptionsOn={true}
                 text={workflows[workflow]['rawReadsInput'].text}
                 tooltip={workflows[workflow]['rawReadsInput'].tooltip}
+                title={'Input Raw Reads'}
                 fastqSettings={workflows[workflow]['rawReadsInput'].fastq}
                 fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
                 isValid={rawDataParams ? rawDataParams.validForm : false}
@@ -469,6 +507,7 @@ const Main = (props) => {
               <Taxonomy
                 name={workflow}
                 full_name={workflow}
+                title={workflowList[workflow].label}
                 setParams={setWorkflowParams}
                 isValid={
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
@@ -477,6 +516,43 @@ const Main = (props) => {
                   selectedWorkflows[workflow] ? selectedWorkflows[workflow].errMessage : null
                 }
                 source={rawDataParams.inputs.source.value}
+                allExpand={allExpand}
+                allClosed={allClosed}
+              />
+            </>
+          )}
+          <br></br>
+          {workflow === 'phylogeny' && (
+            <>
+              <InputRawReads
+                setParams={setRawData}
+                isValidFileInput={isValidFileInput}
+                source={workflows[workflow]['rawReadsInput'].source}
+                sourceDisplay={workflows[workflow]['rawReadsInput'].text}
+                sourceOptionsOn={true}
+                text={workflows[workflow]['rawReadsInput'].text}
+                tooltip={workflows[workflow]['rawReadsInput'].tooltip}
+                title={'Input Raw Reads'}
+                fastqSettings={workflows[workflow]['rawReadsInput'].fastq}
+                fastaSettings={workflows[workflow]['rawReadsInput'].fasta}
+                isValid={rawDataParams ? rawDataParams.validForm : false}
+                errMessage={rawDataParams ? rawDataParams.errMessage : null}
+                allExpand={allExpand}
+                allClosed={allClosed}
+              />
+              <Phylogeny
+                name={workflow}
+                full_name={workflow}
+                title={workflowList[workflow].label}
+                setParams={setWorkflowParams}
+                isValid={
+                  selectedWorkflows[workflow] ? selectedWorkflows[workflow].validForm : false
+                }
+                errMessage={
+                  selectedWorkflows[workflow] ? selectedWorkflows[workflow].errMessage : null
+                }
+                source={rawDataParams.inputs.source.value}
+                refGenomeOptions={refGenomeOptions}
                 allExpand={allExpand}
                 allClosed={allClosed}
               />

@@ -33,11 +33,9 @@ export const Taxonomy = (props) => {
     form.readInputs[name].value = inForm.selections.map((item) => {
       return item.value
     })
-    form.readInputs[name].display = inForm.selections
-      .map((item) => {
-        return item.label
-      })
-      .join(', ')
+    form.readInputs[name].display = inForm.selections.map((item) => {
+      return item.label
+    })
     if (validInputs.readInputs[name]) {
       validInputs.readInputs[name].isValid = inForm.validForm
     }
@@ -148,7 +146,7 @@ export const Taxonomy = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Taxonomy Classification Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}

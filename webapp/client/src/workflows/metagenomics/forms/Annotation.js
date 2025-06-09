@@ -163,7 +163,7 @@ export const Annotation = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Annotation Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}

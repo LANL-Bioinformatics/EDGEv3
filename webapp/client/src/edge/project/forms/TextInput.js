@@ -25,7 +25,9 @@ export const TextInput = (props) => {
       validate: {
         // Validation pattern
         validInput: (value) =>
-          (props.isValidTextInput ? props.isValidTextInput(value) : true) || props.errMessage,
+          (props.isOptional && !value?.trim() ? true : false) ||
+          (props.isValidTextInput ? props.isValidTextInput(value) : true) ||
+          props.errMessage,
       },
     }),
   }

@@ -5,12 +5,15 @@ const Upload = require('../edge-api/models/upload');
 const config = require('../config');
 
 const cromwellWorkflows = [];
-const nextflowWorkflows = ['sra2fastq', 'runFaQCs', 'assembly', 'annotation', 'binning', 'antiSmash', 'taxonomy'];
+const nextflowWorkflows = ['sra2fastq', 'runFaQCs', 'assembly', 'annotation', 'binning', 'antiSmash', 'taxonomy', 'phylogeny'];
 const nextflowConfigs = {
   executor_config: {
     slurm: 'slurm.config',
     local: 'local.config',
-  }
+  },
+  module_params: 'module_params.tmpl',
+  container_config: 'container.config',
+  nf_reports: 'nf_reports.tmpl',
 };
 
 const workflowList = {
@@ -26,38 +29,43 @@ const workflowList = {
     outdir: 'output/sra2fastq',
     // nextflow
     nextflow_main: 'main.nf',
-    config_tmpl: 'SRAdownload_config.tmpl',
+    config_tmpl: 'workflow_config.tmpl',
 
   },
   runFaQCs: {
     outdir: 'output/ReadsQC',
     nextflow_main: 'main.nf',
-    config_tmpl: 'runFaQCs_config.tmpl',
+    config_tmpl: 'workflow_config.tmpl',
   },
   assembly: {
     outdir: 'output/Assembly',
     nextflow_main: 'main.nf',
-    config_tmpl: 'assembly_config.tmpl',
+    config_tmpl: 'workflow_config.tmpl',
   },
   annotation: {
     outdir: 'output/Annotation',
     nextflow_main: 'main.nf',
-    config_tmpl: 'annotation_config.tmpl',
+    config_tmpl: 'workflow_config.tmpl',
   },
   binning: {
     outdir: 'output/Binning',
     nextflow_main: 'main.nf',
-    config_tmpl: 'binning_config.tmpl',
+    config_tmpl: 'workflow_config.tmpl',
   },
   antiSmash: {
     outdir: 'output/AntiSmash',
     nextflow_main: 'main.nf',
-    config_tmpl: 'antiSmash_config.tmpl',
+    config_tmpl: 'workflow_config.tmpl',
   },
   taxonomy: {
     outdir: 'output/Taxonomy',
     nextflow_main: 'main.nf',
-    config_tmpl: 'taxonomy_config.tmpl',
+    config_tmpl: 'workflow_config.tmpl',
+  },
+  phylogeny: {
+    outdir: 'output/Phylogeny',
+    nextflow_main: 'main.nf',
+    config_tmpl: 'workflow_config.tmpl',
   },
 };
 

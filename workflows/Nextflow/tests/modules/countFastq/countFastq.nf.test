@@ -15,7 +15,7 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = file("${projectDir}/nf_assets/NO_FILE")
-                input[1] = file("${projectDir}/test_data/Ecoli_10x.1.fastq")
+                input[1] = file("${projectDir}/test_data/Illumina/Ecoli_10x.1.fastq")
                 """
             }
         }
@@ -41,7 +41,7 @@ nextflow_workflow {
             }
             workflow {
                 """
-                input[0] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
+                input[0] = [file("${projectDir}/test_data/Illumina/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Illumina/Ecoli_10x.2.fastq")]
                 input[1] = file("${projectDir}/nf_assets/NO_FILE2")
                 """
             }
