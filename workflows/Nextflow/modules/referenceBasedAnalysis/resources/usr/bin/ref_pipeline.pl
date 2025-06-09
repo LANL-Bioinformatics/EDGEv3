@@ -4,6 +4,8 @@
 use strict;
 use warnings;
 use File::Basename;
+use File::Path qw(make_path remove_tree);
+use File::Copy;
 use Getopt::Long;
 
 
@@ -420,7 +422,7 @@ sub runReadsToGenome
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
             &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
-            $command = "consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
+            $command = "consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=./consensus_tmp ";
 	    $command .= " --comp " if ($con_comp_opt);
 	    $command .= " --filterHomopolymer " if ($con_homopolymer_filter);
             $command .= " --filterStrandBias " if ($con_strandbias_filter);
@@ -455,6 +457,12 @@ sub touchFile{
     my $file=shift;
     open (my $fh,">",$file) or die "$!";
     close $fh;
+}
+
+sub make_dir{
+	my $dir=shift;
+	make_path($dir,{chmod => 0755,});
+	return 0;
 }
 
 # sub is_bed6_plus{

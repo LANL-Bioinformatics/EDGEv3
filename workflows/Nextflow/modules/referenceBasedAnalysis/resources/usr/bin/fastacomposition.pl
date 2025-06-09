@@ -1,4 +1,4 @@
-#! /usr/bin/env perl
+#!/usr/bin/env perl
 
 if (!@ARGV) {print "perl $0 <fasta>\n";exit;}
 my %chr;

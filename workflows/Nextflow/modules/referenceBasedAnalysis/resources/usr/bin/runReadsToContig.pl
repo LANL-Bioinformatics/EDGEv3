@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /usr/bin/env perl
 # required: 1. R
 #           2. samtools > 1.1
 #           3. bwa

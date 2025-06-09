@@ -1,6 +1,10 @@
 #!/usr/bin/env nextflow
 
-process checkAndAlignToReference {
+//André Watson
+//2025
+
+//checks reference genome format, aligns input to reference, and generates consensus sequence if desired
+process referenceBasedPipeline {
     label "r2g"
     label "medium"
     publishDir(
@@ -20,6 +24,9 @@ process checkAndAlignToReference {
     path "readsToRef.gaps", emit: gaps
     path "readsToRef.vcf", optional:true, emit: vcf
     path "*.sort.bam", emit: bam
+    path "reference.gff", optional:true, emit:gff
+    path "*consensus.changelog", optional:true, emit:consensusLogs
+    path "*consensus.gaps", optional:true, emit:consensusGaps
 
     script:
     def taxKingdom = settings["taxKingdom"] != null ? "-kingdom ${settings["taxKingdom"]}" : ""
@@ -74,6 +81,7 @@ process checkAndAlignToReference {
     $consensusMinCov \
     $consensusMaxCov \
     $consensusAltProp \
+    $consensusMinBaseQual \
     $consensusAltIndelProp \
     $consensusMinBaseQual \
     $consensusDisableBAQ \
@@ -81,12 +89,13 @@ process checkAndAlignToReference {
     $consensusHomopolymerFilt \
     $consensusStrandBiasFilt \
     $consensusVarlogOpt \
-    $consensusCompOpt
+    $consensusCompOpt 
     """
 
     
 }
 
+//extracts reads that were unmapped to reference
 process retrieveUnmappedReads {
     label "r2g"
     label "small"
@@ -115,6 +124,7 @@ process retrieveUnmappedReads {
 
 }
 
+//attempts to map unmapped reads to RefSeq
 process mapUnmapped {
     label "r2g"
     label "medium"
@@ -154,6 +164,7 @@ process mapUnmapped {
     """
 }
 
+//if contigs were provided or assembled, align them to the reference
 process contigToGenome {
     label "r2g"
     label "medium"
@@ -166,7 +177,10 @@ process contigToGenome {
     when:
     !contigs.name.endsWith("NO_FILE3")
 
-    output:
+    output:    
+    path "*_query_novel_region_30bpUP.fasta", emit: unusedContig
+    path "*.snps", emit: contigSNPindel
+    path "*_ref_zero_cov_coord.txt", emit: contigGaps
     script:
     """
     nucmer_genome_coverage.pl -d -e 1 \
@@ -177,6 +191,60 @@ process contigToGenome {
     """
 }
 
+//attempt taxonomic classification of contigs not mapping to the reference
+process mapContigs {
+    label "cta"
+    label "medium"
+
+    containerOptions "--bind=${settings["contigRefDB"]}:/venv/database "
+    input:
+    val settings
+    path contigs
+
+    output:
+    script:
+    """
+    miccr.py -x asm10 -d /venv/database/NCBI-Bacteria-Virus.fna.mmi -t ${task.cpus} -p UnmappedContigs -i $contigs &>log.txt
+    get_unclassified_fasta.pl -in $contigs -classified UnmappedContigs.lca_ctg.tsv -output "" -log log.txt
+    """
+}
+
+
+//variant calling process
+process variantCalling {
+    label "r2g"
+    
+    input:
+    val settings
+    path contigSNPindel
+    path contigGaps
+    path readsVCF
+    path readsGaps
+    path readsGFF
+    path consensusLogs
+    path consensusGaps
+    path reference
+
+    output:
+    path "*" //all non-hidden outputs
+
+    script:
+    def consensusLogArg = consensusLogs.name != "DNE6" ? "-cons_logs $consensusLogs" : ""
+    def consensusGapArg = consensusGaps.name != "DNE7" ? "-cons_gaps $consensusGaps" : ""
+
+    """
+    variant_call.pl \
+    -ref $reference \
+    -c_gap $contigGaps \
+    -c_indel $contigSNPindel \
+    -r_gap $readsGaps \
+    -r_vcf $readsVCF \
+    -gff $readsGFF \
+    -proj_name ${settings["projName"]} \
+    $consensusLogArg \
+    $consensusGapArg
+    """
+}
 
 workflow REFERENCEBASEDANALYSIS {
 
@@ -190,10 +258,13 @@ workflow REFERENCEBASEDANALYSIS {
     main:
 
     reference = channel.fromPath(settings["referenceGenome"], checkIfExists: true)
-    checkAndAlignToReference(settings, reference, platform, paired, unpaired)
+    referenceBasedPipeline(settings, reference, platform, paired, unpaired)
+
+    //retrieve unmapped READS if mapping or just extracting
     if((settings["r2gMapUnmapped"].toBoolean())|| (settings["r2gExtractUnmapped"].toBoolean())) {
-        retrieveUnmappedReads(settings, reference, paired, checkAndAlignToReference.out.bam)
+        retrieveUnmappedReads(settings, reference, paired, referenceBasedPipeline.out.bam)
         if(settings["r2gMapUnmapped"]) {
+            //map unmapped reads to RefSeq 
             mapUnmapped(settings, 
                 retrieveUnmappedReads.out.pairedUnmapped.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]),  
                 retrieveUnmappedReads.out.singleUnmapped.ifEmpty("${projectDir}/nf_assets/NO_FILE2"), 
@@ -202,8 +273,20 @@ workflow REFERENCEBASEDANALYSIS {
         }
     }
     contigToGenome(settings, reference, contigs)
-
-
-    //emit:
+    if(settings["mapUnmappedContigs"].toBoolean()) {
+        //map unmapped CONTIGS to RefSeq using miccr if the option is set
+        mapContigs(settings, contigToGenome.out.unusedContig)
+    }
+    if(settings["r2gVariantCall"].toBoolean()) {
+        variantCalling(settings, 
+            contigToGenome.out.contigSNPindel.ifEmpty(file("DNE")),
+            contigToGenome.out.contigGaps.ifEmpty(file("DNE2")),
+            referenceBasedPipeline.out.vcf.ifEmpty(file("DNE3")),
+            referenceBasedPipeline.out.gaps.ifEmpty(file("DNE4")),
+            referenceBasedPipeline.out.gff.ifEmpty(file("DNE5")),
+            referenceBasedPipeline.out.consensusLogs.ifEmpty(file("DNE6")),
+            referenceBasedPipeline.out.consensusGaps.ifEmpty(file("DNE7")),
+            reference)
+    }
 
 }

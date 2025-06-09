@@ -121,6 +121,7 @@ workflow {
         }
     }
 
+    //Reference-based analysis
     if(params.modules.refBasedAnalysis) {
         REFERENCEBASEDANALYSIS(baseSettings.plus(params.refBased).plus(params.contigsToRef), platform, paired, unpaired, contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
     }
@@ -136,7 +137,7 @@ workflow {
     //Contig-based taxonomic classification
     ctaReport = channel.empty()
     if(params.modules.contigsTaxonomyAssignment) {
-        CONTIGSTAXONOMYASSIGNMENT(baseSettings.plus(params.contigsTaxonomy), contigs, coverageTable.ifEmpty{"DNE"})
+        CONTIGSTAXONOMYASSIGNMENT(baseSettings.plus(params.contigsTaxonomy), contigs, coverageTable.ifEmpty{file("DNE")})
         ctaReport = CONTIGSTAXONOMYASSIGNMENT.out.ctaReport
     }
 
