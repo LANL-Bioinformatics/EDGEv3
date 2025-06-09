@@ -12,6 +12,7 @@ params {
         readsTaxonomyAssignment = <% if(typeof readTax !== 'undefined') { %><%= readTax %><% } else { %>false<%} %>
         contigsTaxonomyAssignment = <% if(typeof contigTax !== 'undefined') { %><%= contigTax %><% } else { %>false<%} %>
         secondaryMetaboliteAnalysis =  <% if(workflow === 'antiSmash') { %>true<% } else { %>false<%} %>
+        refBasedAnalysis = <% if(workflow === 'referenceBased') { %>true<% } else { %>false<%} %>
         snpTree = <% if(workflow === 'phylogeny') { %>true<% } else { %>false<%} %>
     }
 
@@ -28,6 +29,7 @@ params {
         readsTaxonomyOutDir = <% if(typeof readTax !== 'undefined') { %>"<%= projOutdir %>"<% } else { %>""<%} %>
         annotationOutDir = <% if(workflow === 'annotation') { %>"<%= projOutdir %>"<% } else { %>""<%} %>
         smaOutDir = <% if(workflow === 'antiSmash') { %>"<%= projOutdir %>"<% } else { %>""<%} %>
+        refBasedOutDir = <% if(workflow === 'referenceBased') { %>"<%= projOutdir %>"<% } else { %>""<%} %>
         phylogenyOutDir = <% if(workflow === 'phylogeny') { %>"<%= projOutdir %>"<% } else { %>""<%} %>
         reportOutDir = "<%= projOutdir %>"
     }

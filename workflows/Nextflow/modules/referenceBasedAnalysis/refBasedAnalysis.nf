@@ -68,7 +68,7 @@ process referenceBasedPipeline {
     -out \$PWD \
     $taxKingdom \
     $platformArg \
-    -aln ${settings["r2gAligner"]} \
+    -aln ${settings["r2gAligner"].toLowerCase()} \
     $alnOptions \
     $minMapQual \
     $maxClip \

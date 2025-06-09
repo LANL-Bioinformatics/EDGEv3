@@ -139,6 +139,46 @@
         cassis = <% if(typeof cassis !== 'undefined') { %><%= cassis %><% } else { %>false<%} %> //only with fungi
     }
 
+        refBased {
+        referenceGenome = <% if(typeof referenceGenome !== 'undefined') { %><%- JSON.stringify(referenceGenome) %><% } else { %>[]<%} %>
+        //expects id_mapping.txt in the same directory as refDB
+        refDB = "${projectDir}/../../../database/bwa_index/NCBI-Bacteria-Virus.fna"
+        r2gAligner = <% if(typeof r2gAligner !== 'undefined') { %>"<%= r2gAligner %>"<% } else { %>"bwa"<%} %> //bowtie2, bwa, minimap2
+        r2gAlignerOptions = <% if(typeof r2gAlignerOptions !== 'undefined') { %>"<%= r2gAlignerOptions %>"<% } else { %>""<%} %>
+        r2gMinMapQual = <% if(typeof r2gMinMapQual !== 'undefined') { %><%= r2gMinMapQual %><% } else { %>60<%} %>
+        r2gMaxClip = <% if(typeof r2gMaxClip !== 'undefined') { %><%= r2gMaxClip %><% } else { %>50<%} %>
+        r2gVariantCall = <% if(typeof r2gVariantCall !== 'undefined') { %><%= r2gVariantCall %><% } else { %>false<%} %> //needs genbank file
+        r2gVariantCallMinQual = <% if(typeof r2gVariantCallMinQual !== 'undefined') { %><%= r2gVariantCallMinQual %><% } else { %>60<%} %>
+        r2gVariantCallPloidy = <% if(typeof r2gVariantCallPloidy !== 'undefined') { %>"<%= r2gVariantCallPloidy %>"<% } else { %>"diploid"<%} %> 
+
+        //read extraction
+        r2gMapUnmapped = <% if(typeof r2gMapUnmapped !== 'undefined') { %><%= r2gMapUnmapped %><% } else { %>false<%} %>
+        r2gExtractMapped = <% if(typeof r2gExtractMapped !== 'undefined') { %><%= r2gExtractMapped %><% } else { %>false<%} %>
+        r2gExtractUnmapped = <% if(typeof r2gExtractUnmapped !== 'undefined') { %><%= r2gExtractUnmapped %><% } else { %>false<%} %>
+
+        //consensus options
+        r2gGetConsensus = <% if(typeof r2gGetConsensus !== 'undefined') { %><%= r2gGetConsensus %><% } else { %>false<%} %>
+        r2gConsensusMinMapQual = <% if(typeof r2gConsensusMinMapQual !== 'undefined') { %><%= r2gConsensusMinMapQual %><% } else { %>60<%} %>
+        r2gConsensusMinCov = <% if(typeof r2gConsensusMinCov !== 'undefined') { %><%= r2gConsensusMinCov %><% } else { %>5<%} %>
+        r2gConsensusMaxCov = <% if(typeof r2gConsensusMaxCov !== 'undefined') { %><%= r2gConsensusMaxCov %><% } else { %>8000<%} %>
+        r2gConsensusMinBaseQual = <% if(typeof r2gConsensusMinBaseQual !== 'undefined') { %><%= r2gConsensusMinBaseQual %><% } else { %>20<%} %>
+        r2gConsensusAltProp = <% if(typeof r2gConsensusAltProp !== 'undefined') { %><%= r2gConsensusAltProp %><% } else { %>0.5<%} %>
+        r2gConsensusAltIndelProp = <% if(typeof r2gConsensusAltIndelProp !== 'undefined') { %><%= r2gConsensusAltIndelProp %><% } else { %>0.5<%} %>
+        r2gConsensusDisableBAQ = <% if(typeof r2gConsensusDisableBAQ !== 'undefined') { %><%= r2gConsensusDisableBAQ %><% } else { %>true<%} %>
+        r2gConsensusPCRdedup = <% if(typeof r2gConsensusPCRdedup !== 'undefined') { %><%= r2gConsensusPCRdedup %><% } else { %>true<%} %>
+        r2gConsensusHomopolymerFilt = <% if(typeof r2gConsensusHomopolymerFilt !== 'undefined') { %><%= r2gConsensusHomopolymerFilt %><% } else { %>false<%} %>
+        r2gConsensusStrandBiasFilt = <% if(typeof r2gConsensusStrandBiasFilt !== 'undefined') { %><%= r2gConsensusStrandBiasFilt %><% } else { %>false<%} %>
+        r2gConsensusVarlogOpt = <% if(typeof r2gConsensusVarlogOpt !== 'undefined') { %><%= r2gConsensusVarlogOpt %><% } else { %>false<%} %>
+        r2gConsensusCompOpt = <% if(typeof r2gConsensusCompOpt !== 'undefined') { %><%= r2gConsensusCompOpt %><% } else { %>false<%} %>
+    } 
+
+    contigsToRef {
+        identity = 85
+        contigRefDB = "${projectDir}/../../../database/miccrDB"
+        mapUnmappedContigs =  <% if(typeof mapUnmappedContigs !== 'undefined') { %><%= mapUnmappedContigs %><% } else { %>false<%} %>
+    }
+
+
     snpTree {
         //SNP DB path. Should contain SNPdb, bwa_index, NCBI genomes
         snpDBbase = "/project/refdata/nextflow/database"
