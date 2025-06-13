@@ -139,10 +139,12 @@
         cassis = <% if(typeof cassis !== 'undefined') { %><%= cassis %><% } else { %>false<%} %> //only with fungi
     }
 
-        refBased {
-        referenceGenome = <% if(typeof referenceGenome !== 'undefined') { %><%- JSON.stringify(referenceGenome) %><% } else { %>[]<%} %>
+    refBased {
+        selectGenomes = <% if(typeof selectGenomes !== 'undefined') { %><%- JSON.stringify(selectGenomes) %><% } else { %>[]<%} %>
+        referenceGenomes = <% if(typeof referenceGenome !== 'undefined') { %><%- JSON.stringify(referenceGenome) %><% } else { %>[]<%} %>
         //expects id_mapping.txt in the same directory as refDB
-        refDB = "${projectDir}/../../../database/bwa_index/NCBI-Bacteria-Virus.fna"
+        refDB = "/project/refdata/nextflow/database/bwa_index/NCBI-Bacteria-Virus.fna"
+        genomeLocation = "/project/refdata/nextflow/database/NCBI_genomes"
         r2gAligner = <% if(typeof r2gAligner !== 'undefined') { %>"<%= r2gAligner %>"<% } else { %>"bwa"<%} %> //bowtie2, bwa, minimap2
         r2gAlignerOptions = <% if(typeof r2gAlignerOptions !== 'undefined') { %>"<%= r2gAlignerOptions %>"<% } else { %>""<%} %>
         r2gMinMapQual = <% if(typeof r2gMinMapQual !== 'undefined') { %><%= r2gMinMapQual %><% } else { %>60<%} %>
@@ -174,7 +176,7 @@
 
     contigsToRef {
         identity = 85
-        contigRefDB = "${projectDir}/../../../database/miccrDB"
+        contigRefDB = "/project/refdata/nextflow/database/miccrDB"
         mapUnmappedContigs =  <% if(typeof mapUnmappedContigs !== 'undefined') { %><%= mapUnmappedContigs %><% } else { %>false<%} %>
     }
 

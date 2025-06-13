@@ -213,6 +213,7 @@ process mapContigs {
 //variant calling process
 process variantCalling {
     label "r2g"
+    label "medium"
     
     input:
     val settings
@@ -246,6 +247,27 @@ process variantCalling {
     """
 }
 
+//retrieve reference genomes selected from EDGE UI rather than uploaded
+process retrieveNCBIgenomes {
+    label 'tiny'
+    label 'r2g'
+    containerOptions "--bind=${settings["genomeLocation"]}:/venv/database "
+
+    input:
+    val settings
+    val reference
+
+    output:
+    path "*.{gbff,gbk}", emit: foundGenomes
+    
+    script:
+    """
+    for f in `find /venv/database/${reference} -name "*.gbff" -o -name "*.gbk"`; do
+        cp \$f \$PWD/`basename \$f`
+    done
+    """
+}
+
 workflow REFERENCEBASEDANALYSIS {
 
     take:
@@ -256,9 +278,17 @@ workflow REFERENCEBASEDANALYSIS {
     contigs
 
     main:
+    reference = channel.empty()
+    if(settings["selectGenomes"].size() > 0 ) {
+        retrieveNCBIgenomes(settings, channel.from(settings["selectGenomes"]))
+        reference = reference.concat(retrieveNCBIgenomes.out.foundGenomes)
+    }
 
-    reference = channel.fromPath(settings["referenceGenome"], checkIfExists: true)
-    referenceBasedPipeline(settings, reference, platform, paired, unpaired)
+    if(settings["referenceGenomes"].size() > 0) {
+        reference = reference.concat(channel.fromPath(settings["referenceGenomes"], checkIfExists: true))
+    }
+
+    referenceBasedPipeline(settings, reference.collect(), platform, paired, unpaired)
 
     //retrieve unmapped READS if mapping or just extracting
     if((settings["r2gMapUnmapped"].toBoolean())|| (settings["r2gExtractUnmapped"].toBoolean())) {

@@ -12,6 +12,7 @@ params {
         readsTaxonomyAssignment = <% if(typeof readTax !== 'undefined') { %><%= readTax %><% } else { %>false<%} %>
         contigsTaxonomyAssignment = <% if(typeof contigTax !== 'undefined') { %><%= contigTax %><% } else { %>false<%} %>
         secondaryMetaboliteAnalysis =  <%= antiSmash %>
+        refBasedAnalysis = <%= refBasedAnalysis %>
         snpTree = <%= phylogeny %>
     }
 
