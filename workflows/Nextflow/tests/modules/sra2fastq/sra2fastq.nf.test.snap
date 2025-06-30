@@ -11,13 +11,13 @@
                     ]
                 ],
                 "2": [
-                    "ILLUMINA\n"
+                    "ILLUMINA"
                 ],
                 "paired": [
                     
                 ],
                 "platform": [
-                    "ILLUMINA\n"
+                    "ILLUMINA"
                 ],
                 "unpaired": [
                     [
@@ -30,7 +30,7 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.4"
         },
-        "timestamp": "2025-04-21T14:46:07.837047"
+        "timestamp": "2025-06-30T19:48:46.485591"
     },
     "Basic workflow": {
         "content": [
@@ -44,13 +44,13 @@
                     ]
                 ],
                 "2": [
-                    "ILLUMINA\n"
+                    "ILLUMINA"
                 ],
                 "paired": [
                     
                 ],
                 "platform": [
-                    "ILLUMINA\n"
+                    "ILLUMINA"
                 ],
                 "unpaired": [
                     [
@@ -63,6 +63,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.4"
         },
-        "timestamp": "2025-04-21T14:45:25.003391"
+        "timestamp": "2025-06-30T19:48:06.775801"
     }
 }
