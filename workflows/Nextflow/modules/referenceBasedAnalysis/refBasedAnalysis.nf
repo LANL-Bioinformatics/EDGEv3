@@ -100,6 +100,11 @@ process retrieveUnmappedReads {
     label "r2g"
     label "small"
 
+    publishDir(
+        path: "${settings["refBasedOutDir"]}",
+        mode: 'copy'
+    )
+
     input:
     val settings
     path reference
@@ -128,6 +133,11 @@ process retrieveUnmappedReads {
 process mapUnmapped {
     label "r2g"
     label "medium"
+    
+    publishDir(
+        path: "${settings["refBasedOutDir"]}",
+        mode: 'copy'
+    )
 
     containerOptions "--bind=${settings["refDB"].take(settings["refDB"].lastIndexOf('/'))}:/venv/database "
     input:
@@ -169,6 +179,11 @@ process contigToGenome {
     label "r2g"
     label "medium"
 
+    publishDir(
+        path: "${settings["refBasedOutDir"]}",
+        mode: 'copy'
+    )
+
     input:
     val settings
     path reference
@@ -195,6 +210,10 @@ process contigToGenome {
 process mapContigs {
     label "cta"
     label "medium"
+    publishDir(
+        path: "${settings["refBasedOutDir"]}",
+        mode: 'copy'
+    )
 
     containerOptions "--bind=${settings["contigRefDB"]}:/venv/database "
     input:
@@ -214,6 +233,11 @@ process mapContigs {
 process variantCalling {
     label "r2g"
     label "medium"
+
+    publishDir(
+        path: "${settings["refBasedOutDir"]}",
+        mode: 'copy'
+    )
     
     input:
     val settings

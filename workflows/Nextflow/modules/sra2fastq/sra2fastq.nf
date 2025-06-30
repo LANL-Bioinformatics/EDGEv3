@@ -71,7 +71,7 @@ process checkDistinctPlatforms {
         error "Please only specify SRA accessions that use the same sequencing platform.\nPlatforms detected: ${platforms}"
     } 
     """
-    echo ${platforms[0]}
+    echo -n ${platforms[0]}
     """
 }
 
