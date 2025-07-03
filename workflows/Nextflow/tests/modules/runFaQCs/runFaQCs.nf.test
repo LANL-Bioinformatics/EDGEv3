@@ -54,7 +54,7 @@ nextflow_workflow {
                     pairedFile = false
                 }
                 faqcs {
-                    //all defaults
+                    htmlreport = false
                 }
             }
             workflow {
@@ -94,6 +94,7 @@ nextflow_workflow {
                 }
                 faqcs {
                     artifactFile = "${projectDir}/test_data/FaQCs/adapters.fasta"
+                    htmlreport = false
                 }
             }
             workflow {
@@ -133,6 +134,7 @@ nextflow_workflow {
                 }
                 faqcs {
                     artifactFile = "${projectDir}/test_data/FaQCs/adapters.fasta"
+                    htmlreport = false
                 }
             }
             workflow {
@@ -172,6 +174,7 @@ nextflow_workflow {
                 }
                 faqcs {
                     polyA = true
+                    htmlreport = false
                 }
             }
             workflow {
