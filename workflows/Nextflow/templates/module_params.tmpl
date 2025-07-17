@@ -28,11 +28,6 @@
         filtPhiX = <% if(typeof filtPhiX !== 'undefined') { %><%= filtPhiX %><% } else { %>false<%} %>
     }
 
-    hostRemoval {
-        host = ["${projectDir}/nf_assets/NO_FILE3"]
-        similarity = 90
-        bwaMemOptions = null
-    }
     
     assembly {
         //assemblers: IDBA_UD, SPAdes, Unicycler, Megahit, LRASM

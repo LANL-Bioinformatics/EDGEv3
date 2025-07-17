@@ -26,7 +26,6 @@ process report {
     path fastqCount
     path qcStats
     path qcReport
-    path hostRemovalReport
     path readsTaxonomyReports
     path contigTaxonomyReport
     path contigStatsReport
@@ -62,7 +61,6 @@ process report {
 
 
     my \$qc_flag = (${settings['faqcs']})?"V":"";
-    my \$host_removal_flag = (${settings['hostRemoval']})?"V":"";
     my \$assembly_flag = (${settings["runAssembly"]})?"V":"";
     my \$annotation_flag = (${settings["annotation"]})?"V":"";
     my \$taxonomy_flag = (${settings["readsTaxonomyAssignment"]})?"V":"";
@@ -116,10 +114,6 @@ process report {
     }
 
 
-    if (-e "$hostRemovalReport"){
-        \$mergeFiles .= '$hostRemovalReport'.",";
-    }
-
     if (-e "$contigStatsReport"){
         \$mergeFiles .= '$contigStatsReport'.",";
     }
@@ -171,7 +165,6 @@ process report {
         push @conversions, "convert -strip -density 120 -flatten $qcReport[\$qc_boxplot_page] ./QC_quality_boxplot.png";
     }
 
-    push @conversions, "convert -strip -density 120 -flatten $hostRemovalReport ./HostRemovalStats.png" if (-e "$hostRemovalReport");
     push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[0] ./Assembly_length.png" if (-e "$contigStatsReport");
     push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[1] ./Assembly_GC_content.png" if (-e "$contigStatsReport");
     push @conversions, "convert -strip -density 120 -flatten $contigPlots[0] ./Assembly_CovDepth_vs_Len.png" if (-e "$contigPlots");
@@ -200,7 +193,6 @@ workflow REPORT {
     fastqCount
     qcStats
     qcReport
-    hostRemovalReport
     readsTaxonomyReports
     contigTaxonomyReport
     contigStatsReport
@@ -214,7 +206,6 @@ workflow REPORT {
         fastqCount,
         qcStats,
         qcReport,
-        hostRemovalReport,
         readsTaxonomyReports,
         contigTaxonomyReport,
         contigStatsReport,

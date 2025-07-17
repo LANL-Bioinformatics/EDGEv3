@@ -4,7 +4,6 @@ params {
     modules {
         sra2fastq = <% if(typeof source !== 'undefined' && source === 'sra') { %>true<% } else { %>false<%} %>
         faqcs = <%= runFaQCs %>
-        hostRemoval = false
         runAssembly = <%= assembly %>
         annotation = <%= annotation %>
         readsBinning = <%= binning %>
@@ -21,7 +20,6 @@ params {
         sra2fastqOutDir =  "<%= sraOutdir %>"
         processProvidedContigsOutDir = "<%= projOutdir %>"
         qcOutDir = "<%= projOutdir %>/ReadsQC"
-        hostRemovalOutDir = ""
         assemblyOutDir = "<%= projOutdir %>/Assembly"
         contigsTaxonomyOutDir = "<%= projOutdir %>/Taxonomy"
         phageFinderOutDir = ""

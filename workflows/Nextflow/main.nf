@@ -83,15 +83,6 @@ workflow {
         qcReport = FAQCS.out.qcReport
     }
 
-    //Host reads removal
-    hostRemovalReport = channel.empty()
-    if(params.modules.hostRemoval) {
-
-        HOSTREMOVAL(baseSettings.plus(params.hostRemoval).plus(params.faqcs),platform,paired,unpaired)
-        paired = HOSTREMOVAL.out.paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"])
-        unpaired = HOSTREMOVAL.out.unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2")
-        hostRemovalReport = HOSTREMOVAL.out.hostRemovalReport
-    }
 
     //Assembly and validation alignment
     coverageTable = channel.empty()
@@ -178,7 +169,6 @@ workflow {
         counts.ifEmpty{file("DNE")},
         qcStats.ifEmpty{file("DNE1")},
         qcReport.ifEmpty{file("DNE2")},
-        hostRemovalReport.ifEmpty{file("DNE3")},
         rtaReports.ifEmpty{file("DNE4")}, 
         ctaReport.ifEmpty{file("DNE5")},
         contigStatsReport.ifEmpty{file("DNE6")},
