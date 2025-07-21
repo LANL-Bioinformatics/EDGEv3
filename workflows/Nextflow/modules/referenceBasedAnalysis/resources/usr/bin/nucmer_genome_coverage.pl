@@ -58,7 +58,8 @@ if ($delta_file)
 }
 else
 {
-   system ("nucmer --maxmatch -c $mincluster --prefix=$prefix $referenceFile $queryFile 2>/dev/null");
+   print("nucmer --maxmatch -c $mincluster --prefix=$prefix $referenceFile $queryFile");
+   system ("nucmer --maxmatch -c $mincluster --prefix=$prefix $referenceFile $queryFile");
    system ("show-coords -clTr $prefix.delta > $prefix.coords");
    system ("delta-filter -1 -i $identity_cutoff $prefix.delta > $prefix.filterforSNP");
    system ("show-snps -CT $prefix.filterforSNP > $prefix.snps");

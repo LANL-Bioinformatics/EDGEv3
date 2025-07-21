@@ -32,6 +32,7 @@ process report {
     path contigPlots
     path annStats
     path alnstats
+    path readsToRefReports
 
     output:
     path "*"
@@ -49,15 +50,17 @@ process report {
     my \$ont_flag = ("${platform != null ? platform.trim(): ""}" =~ /NANOPORE/)? 1 : 0; 
     my \$pacbio_flag = ("${platform != null ? platform.trim(): ""}" =~ /PACBIO/)? 1 : 0; 
     my \$mergeFiles="\$InputLogPDF,";
-    \$mergeFiles.="$qcReport"."," if ( -e "$qcReport");
+    \$mergeFiles.="$qcReport"."," if ( -s "$qcReport");
     my \$imagesDir = "./HTML_Report/images";
     my \$final_pdf= "./final_report.pdf";
 
 
+
+
     my \$taxonomyPDFfiles="";
-    \$taxonomyPDFfiles .= "$readsTaxonomyReports" if("$readsTaxonomyReports" ne "DNE4");
+    \$taxonomyPDFfiles .= "$readsTaxonomyReports" if("$readsTaxonomyReports" ne "NO_FILE4");
     \$taxonomyPDFfiles =~ s/\\s/,/g;
-    \$taxonomyPDFfiles .= "$contigTaxonomyReport"."," if( -e "$contigTaxonomyReport");
+    \$taxonomyPDFfiles .= "$contigTaxonomyReport"."," if( -s "$contigTaxonomyReport");
 
 
     my \$qc_flag = (${settings['faqcs']})?"V":"";
@@ -65,10 +68,9 @@ process report {
     my \$annotation_flag = (${settings["annotation"]})?"V":"";
     my \$taxonomy_flag = (${settings["readsTaxonomyAssignment"]})?"V":"";
 
-    my \$features_parameters = "qc<-c(\\"\$qc_flag\\",\\"QC\\")\\nhost<-c(\\"\$host_removal_flag\\",\\"Host Removal\\")\\n
+    my \$features_parameters = "qc<-c(\\"\$qc_flag\\",\\"QC\\")\\n
     assembly<-c(\\"\$assembly_flag\\",\\"Assembly\\")\\nannotation<-c(\\"\$assembly_flag\\",\\"Annotation\\")\\n
-    taxonomy<-c(\\"\$taxonomy_flag\\",\\"Taxonomy Classification\\")\\n
-    primer<-c(\\"\$primer_flag\\",\\"Primer Design\\")\\n";
+    taxonomy<-c(\\"\$taxonomy_flag\\",\\"Taxonomy Classification\\")\\n";
 
     open (my \$Rfh, ">\$Rscript") or die "\$Rscript \$!";
     print \$Rfh <<Rscript;
@@ -85,10 +87,22 @@ process report {
     input_pos<-nextPos-0.28
     Rscript
 
+
+    if(${settings['refBasedAnalysis']}){
+    print \$Rfh <<Rscript;
+    
+    text(0,nextPos,paste("Reference:",\"${settings["selectGenomes"].plus(settings["referenceGenomes"]).join(", ")}\"),adj=0,font=2)
+    nextPos<-nextPos-0.08
+    parameters_pos<-nextPos-0.12
+    input_pos<-nextPos-0.26
+    Rscript
+    }
+
+
     print \$Rfh <<Rscript;
     text(0,nextPos,"Features:",adj=0,font=2)
     \$features_parameters
-    parameters<-rbind(qc,host,assembly,annotation,taxonomy,primer)
+    parameters<-rbind(qc,assembly,annotation,taxonomy)
     rownames(parameters)<-parameters[,2]
     parameters<-t(parameters)
     parameters[2,]<-\\"\\"
@@ -113,11 +127,41 @@ process report {
     Rscript
     }
 
+    if ((\$ont_flag or \$pacbio_flag)&& -s "$qcStats" ){
+    print \$Rfh <<Rscript;
+    def.par <- par(no.readonly = TRUE) 
+    pdf(file = \"$qcReport\",width=10,height=8)
+    par(family="mono")
+    SummaryStats<-readLines("$qcStats")
+    plot(0:1,0:1,type=\'n\',xlab=\"\",ylab=\"\",xaxt=\'n\',yaxt=\'n\',bty=\'n\')
+    adjust<-11
+    abline(h=0.85,lty=2)
+    for (i in 1:length(SummaryStats)){
+    if (i>5 && i<adjust){
+        text(0.45,1-0.035*(i-6),SummaryStats[i],adj=0,font=2,cex=0.9)
+    }else if(i >=adjust){
+        text(0.05,1-0.035*(i-6),SummaryStats[i],adj=0,font=2,cex=0.9)
+    }else{
+        text(0.05,1-0.035*(i-1),SummaryStats[i],adj=0,font=2,cex=0.9)
+        }
+    }
 
-    if (-e "$contigStatsReport"){
+    title("QC stats")
+    par(def.par)#- reset to default
+    tmp<-dev.off()
+    Rscript
+
+    #TODO: nanoplot plots
+    
+
+    }
+
+
+
+    if (-s "$contigStatsReport"){
         \$mergeFiles .= '$contigStatsReport'.",";
     }
-    if ( -e "$alnstats"){
+    if ( -s "$alnstats"){
         \$mergeFiles .= "alnstats.pdf".",".'$contigPlots'.",";
     print \$Rfh <<Rscript;
     pdf(file = "alnstats.pdf",width = 10, height = 8)
@@ -135,7 +179,26 @@ process report {
 
     }
 
-    \$mergeFiles .= '$annStats'."," if ( -e '$annStats');
+    \$mergeFiles .= '$annStats'."," if ( -s '$annStats');
+
+    if (${settings['refBasedAnalysis']}) {
+        if ( -s "${readsToRefReports[0]}"){
+            \$mergeFiles .= "${readsToRefReports[1]}".","."${readsToRefReports[0]}".",";
+    print \$Rfh <<Rscript;
+    pdf(file = "${readsToRefReports[1]}",width = 10, height = 8)
+        
+    readsMappingToRefStats<-readLines("${readsToRefReports[0]}",n=11)
+    readsMappingToRefStats<-gsub("-?nan","0",readsMappingToRefStats,ignore.case = TRUE)
+    plot(0:1,0:1,type='n',xlab="",ylab="",xaxt='n',yaxt='n')
+    for (i in 1:length(readsMappingToRefStats)){
+        text(0,1-0.07*i,readsMappingToRefStats[i],adj=0,font=2)
+    }
+    title("Mapping Reads to Reference")
+    tmp<-dev.off()
+    Rscript
+        }
+    }
+
 
     \$mergeFiles .= \$taxonomyPDFfiles if (\$taxonomyPDFfiles);
 
@@ -152,7 +215,7 @@ process report {
 
 
     my @conversions;
-    if ( -e "$qcReport")
+    if ( -s "$qcReport")
     {
         my \$page_count = `pdfPageCount.pl "$qcReport"`;
         chomp \$page_count;
@@ -165,19 +228,19 @@ process report {
         push @conversions, "convert -strip -density 120 -flatten $qcReport[\$qc_boxplot_page] ./QC_quality_boxplot.png";
     }
 
-    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[0] ./Assembly_length.png" if (-e "$contigStatsReport");
-    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[1] ./Assembly_GC_content.png" if (-e "$contigStatsReport");
-    push @conversions, "convert -strip -density 120 -flatten $contigPlots[0] ./Assembly_CovDepth_vs_Len.png" if (-e "$contigPlots");
-    push @conversions, "convert -strip -density 120 -flatten $contigPlots[1] ./Assembly_Cov_vs_Len.png" if (-e "$contigPlots");
-    push @conversions, "convert -strip -density 120 -flatten $contigPlots[2] ./Assembly_GC_vs_CovDepth.png" if (-e "$contigPlots");
-    push @conversions, "convert -strip -density 120 -flatten $annStats ./annotation_stats_plots.png" if (-e "$annStats");
+    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[0] ./Assembly_length.png" if (-s "$contigStatsReport");
+    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[1] ./Assembly_GC_content.png" if (-s "$contigStatsReport");
+    push @conversions, "convert -strip -density 120 -flatten $contigPlots[0] ./Assembly_CovDepth_vs_Len.png" if (-s "$contigPlots");
+    push @conversions, "convert -strip -density 120 -flatten $contigPlots[1] ./Assembly_Cov_vs_Len.png" if (-s "$contigPlots");
+    push @conversions, "convert -strip -density 120 -flatten $contigPlots[2] ./Assembly_GC_vs_CovDepth.png" if (-s "$contigPlots");
+    push @conversions, "convert -strip -density 120 -flatten $annStats ./annotation_stats_plots.png" if (-s "$annStats");
 
     foreach my \$file(split /,/, \$taxonomyPDFfiles) 
     {
      next if (\$file eq "$contigTaxonomyReport");
      my (\$file_name, \$file_path, \$file_suffix)=fileparse("\$file", qr/\\.[^.]*/);
      my \$size_opt = (\$file_name =~ /tree/)? "-resize 240":"-density 120";
-     push @conversions, "convert \$size_opt -colorspace RGB -flatten \$file ./\$file_name.png" if (-e \$file);
+     push @conversions, "convert \$size_opt -colorspace RGB -flatten \$file ./\$file_name.png" if (-s \$file);
     }
 
     eval {system(\$_)} foreach (@conversions);
@@ -199,6 +262,7 @@ workflow REPORT {
     contigPlots
     annStats
     alnStats
+    readsToRefReports
 
     main:
     report(settings,
@@ -211,6 +275,7 @@ workflow REPORT {
         contigStatsReport,
         contigPlots,
         annStats,
-        alnStats)
+        alnStats,
+        readsToRefReports)
 
 }

@@ -19,8 +19,10 @@ process referenceBasedPipeline {
     path paired
     path unpaired
 
+
     output:
     path "*"
+    path "readsToRef{_plots.pdf,.alnstats.txt}", emit: readsToRefReports
     path "readsToRef.gaps", emit: gaps
     path "readsToRef.vcf", optional:true, emit: vcf
     path "*.sort.bam", emit: bam
@@ -312,11 +314,18 @@ workflow REFERENCEBASEDANALYSIS {
         reference = reference.concat(channel.fromPath(settings["referenceGenomes"], checkIfExists: true))
     }
 
-    referenceBasedPipeline(settings, reference.collect(), platform, paired, unpaired)
+    alignmentBam = channel.empty()
+    readsToRefReports = channel.empty()
+    //run reads-based pipeline if any non-placeholder inputs were given for reads
+    if(settings["inputFastq"].size() > 0 || settings["sra2fastq"].toBoolean()) {
+        referenceBasedPipeline(settings, reference.collect(), platform, paired, unpaired)
+        alignmentBam = referenceBasedPipeline.out.bam
+        readsToRefReports = referenceBasedPipeline.out.readsToRefReports
+    }
 
     //retrieve unmapped READS if mapping or just extracting
     if((settings["r2gMapUnmapped"].toBoolean())|| (settings["r2gExtractUnmapped"].toBoolean())) {
-        retrieveUnmappedReads(settings, reference, paired, referenceBasedPipeline.out.bam)
+        retrieveUnmappedReads(settings, reference, paired, alignmentBam)
         if(settings["r2gMapUnmapped"]) {
             //map unmapped reads to RefSeq 
             mapUnmapped(settings, 
@@ -343,4 +352,10 @@ workflow REFERENCEBASEDANALYSIS {
             reference)
     }
 
+
+    
+    emit:
+    readsToRefReports
+    //contigsToRefReports
+    
 }

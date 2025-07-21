@@ -114,8 +114,11 @@ workflow {
     }
 
     //Reference-based analysis
+    readsToRefReports = channel.empty()
+    contigsToRefReports = channel.empty()
     if(params.modules.refBasedAnalysis) {
         REFERENCEBASEDANALYSIS(baseSettings.plus(params.refBased).plus(params.contigsToRef), platform, paired, unpaired, contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
+        readsToRefReports = REFERENCEBASEDANALYSIS.out.readsToRefReports
     }
 
     //Reads-based taxonomic classification
@@ -164,16 +167,17 @@ workflow {
 
     //report generation
     REPORT(
-        baseSettings, 
+        baseSettings.plus(params.refBased), 
         platform,
-        counts.ifEmpty{file("DNE")},
-        qcStats.ifEmpty{file("DNE1")},
-        qcReport.ifEmpty{file("DNE2")},
-        rtaReports.ifEmpty{file("DNE4")}, 
-        ctaReport.ifEmpty{file("DNE5")},
-        contigStatsReport.ifEmpty{file("DNE6")},
-        contigPlots.ifEmpty{file("DNE7")},
-        annStats.ifEmpty{file("DNE8")},
-        alnStats.ifEmpty{file("DNE9")}
+        counts.ifEmpty{file("${projectDir}/nf_assets/NO_FILE")},
+        qcStats.ifEmpty{file("${projectDir}/nf_assets/NO_FILE2")},
+        qcReport.ifEmpty{file("${projectDir}/nf_assets/NO_FILE3")},
+        rtaReports.ifEmpty{file("${projectDir}/nf_assets/NO_FILE4")}, 
+        ctaReport.ifEmpty{file("${projectDir}/nf_assets/NO_FILE5")},
+        contigStatsReport.ifEmpty{file("${projectDir}/nf_assets/NO_FILE6")},
+        contigPlots.ifEmpty{file("${projectDir}/nf_assets/NO_FILE7")},
+        annStats.ifEmpty{file("${projectDir}/nf_assets/NO_FILE8")},
+        alnStats.ifEmpty{file("${projectDir}/nf_assets/NO_FILE9")},
+        readsToRefReports.ifEmpty{file("${projectDir}/nf_assets/NO_FILEa")}
     )
 }
