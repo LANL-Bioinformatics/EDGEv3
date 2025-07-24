@@ -8,6 +8,7 @@ include {PHYLOSRA} from '../sra2fastq/sra2fastq.nf'
 
 //prepares control file for phame and runs it with the specified options
 process prepareSNPphylogeny {
+    debug true
     label 'phyl'
     containerOptions "--bind=${settings["snpDBbase"]}:/venv/bin/database"
 
@@ -55,7 +56,12 @@ process prepareSNPphylogeny {
     def db = settings["snpDBname"] != null ? "-db ${settings["snpDBname"]}" : ""
     def genomeNames = settings["snpGenomes"].size() != 0 ? "-genomesList ${settings["snpGenomes"].join(",")}" : ""
     def genomeFiles = settings["snpGenomesFiles"].size() != 0 ? "-genomesFiles ${settings["snpGenomesFiles"].join(",")}" : ""
-    def reference = settings["snpRefGenome"] != null ? "-reference ${settings["snpRefGenome"]}" : ""
+    reference = settings["snpRefGenome"] != null ? "-reference ${settings["snpRefGenome"]}" : ""
+    if(settings["snpRefGenome"].equalsIgnoreCase("random")) {
+        randomOrderGenomes = settings["snpGenomesFiles"].plus(settings["snpGenomes"])
+        randomOrderGenomes.shuffle()
+        reference = "-reference ${randomOrderGenomes[0]}"
+    }
     def pair = paired.name != "NO_FILE" ? "-p $paired" : ""
     def single = unpaired.name != "NO_FILE2" ? "-s $unpaired" : ""
     def contig = contigs.name != "NO_FILE3" ? "-c $contigs" : ""
@@ -133,7 +139,16 @@ process visualizePhylogenyHTML {
 
     publishDir(
         path: "${settings["phylogenyOutDir"]}",
-        mode: 'copy'
+        mode: 'copy',
+        saveAs: {
+            filename ->
+            if(filename.endsWith("_cds.fasttree.html") || filename.endsWith("cds.html")) {
+                "SNPphyloTree.cds.html"
+            }
+            else if(filename.endsWith("fasttree.html")|| filename.endsWith("all.html")) {
+                "SNPphyloTree.all.html"
+            }
+        }
     )
 
     input:
