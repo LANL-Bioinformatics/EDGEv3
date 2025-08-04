@@ -31,35 +31,35 @@ process referenceBasedPipeline {
     path "*consensus.gaps", optional:true, emit:consensusGaps
 
     script:
-    def taxKingdom = settings["taxKingdom"] != null ? "-kingdom ${settings["taxKingdom"]}" : ""
+    def taxKingdom = settings["taxKingdom"] != null ? "--kingdom ${settings["taxKingdom"]}" : ""
     def pairedFiles = paired.name != "NO_FILE" ? "-p \"$paired\"" : ""
     def unpairedFiles = unpaired.name != "NO_FILE2" ? "-u $unpaired" : ""
-    def platformArg = platform != null ? "-plat $platform" : ""
-    def alnOptions = settings["r2gAlignerOptions"] != "" ? "-alnOpt ${settings["r2gAlignerOptions"]}" : ""
-    def minMapQual = settings["r2gMinMapQual"] != null ? "-minmap ${settings["r2gMinMapQual"]}" : ""
-    def maxClip = settings["r2gMaxClip"] != null ? "-maxclip ${settings["r2gMaxClip"]}" : ""
-    def extractMapped = settings["r2gExtractMapped"] != false ? "-x-mapped ${settings["r2gExtractMapped"]}" : "" 
+    def platformArg = platform != null ? "--plat $platform" : ""
+    def alnOptions = settings["r2gAlignerOptions"] != "" ? "--alnOpt ${settings["r2gAlignerOptions"]}" : ""
+    def minMapQual = settings["r2gMinMapQual"] != null ? "--minmap ${settings["r2gMinMapQual"]}" : ""
+    def maxClip = settings["r2gMaxClip"] != null ? "--maxclip ${settings["r2gMaxClip"]}" : ""
+    def extractMapped = settings["r2gExtractMapped"] != false ? "--x-mapped ${settings["r2gExtractMapped"]}" : "" 
     
     //variant call configurations
-    def variantCall = settings["r2gVariantCall"] != false ? "-vc 1" : ""
-    def vcQual = settings["r2gVariantCallMinQual"] != null ? "-vc-qual ${settings["r2gVariantCallMinQual"]}" : ""
-    def vcPloidy = settings["r2gVariantCallPloidy"] != null ? "-vc-ploidy ${settings["r2gVariantCallPloidy"]}" : ""
+    def variantCall = settings["r2gVariantCall"] != false ? "--vc 1" : ""
+    def vcQual = settings["r2gVariantCallMinQual"] != null ? "--vc-qual ${settings["r2gVariantCallMinQual"]}" : ""
+    def vcPloidy = settings["r2gVariantCallPloidy"] != null ? "--vc-ploidy ${settings["r2gVariantCallPloidy"]}" : ""
     
 
     //consensus sequence configurations
-    def doConsensus = settings["r2gGetConsensus"] != false ? "-consensus 1" : ""
-    def consensusMapQual = settings["r2gConsensusMinMapQual"] != null ? "-c-mapq ${settings["r2gConsensusMinMapQual"]}" : ""
-    def consensusMinCov = settings["r2gConsensusMinCov"] != null ? "-c-mincov ${settings["r2gConsensusMinCov"]}" : ""
-    def consensusMaxCov = settings["r2gConsensusMaxCov"] != null ? "-c-maxcov ${settings["r2gConsensusMaxCov"]}" : ""
-    def consensusAltProp = settings["r2gConsensusAltProp"] != null ? "-c-altprop ${settings["r2gConsensusAltProp"]}" : ""
-    def consensusAltIndelProp = settings["r2gConsensusAltIndelProp"] != null ? "-c-indelprop ${settings["r2gConsensusAltProp"]}" : ""
-    def consensusMinBaseQual = settings["r2gConsensusMinBaseQ"] != null ? "-c-baseq ${settings["r2gConsensusMinBaseQ"]}" : ""
-    def consensusDisableBAQ = settings["r2gConsensusDisableBAQ"] != false ? "-c-baq 0" : ""
-    def consensusPCRdedup = settings["r2gConsensusPCRdedup"] != false ? "-c-dedup 1" : "" 
-    def consensusHomopolymerFilt = settings["r2gConsensusHomopolymerFilt"] != false ? "-c-polymer 1" : ""
-    def consensusStrandBiasFilt = settings["r2gConsensusStrandBiasFilt"] != false ? "-c-sb 1" : ""
-    def consensusVarlogOpt = settings["r2gConsensusVarlogOpt"] != false ? "-c-varlog 1" : ""
-    def consensusCompOpt = settings["r2gConsensusCompOpt"] != false ? "-c-compopt 1" : ""
+    def doConsensus = settings["r2gGetConsensus"] != false ? "--consensus 1" : ""
+    def consensusMapQual = settings["r2gConsensusMinMapQual"] != null ? "--c-mapq ${settings["r2gConsensusMinMapQual"]}" : ""
+    def consensusMinCov = settings["r2gConsensusMinCov"] != null ? "--c-mincov ${settings["r2gConsensusMinCov"]}" : ""
+    def consensusMaxCov = settings["r2gConsensusMaxCov"] != null ? "--c-maxcov ${settings["r2gConsensusMaxCov"]}" : ""
+    def consensusAltProp = settings["r2gConsensusAltProp"] != null ? "--c-altprop ${settings["r2gConsensusAltProp"]}" : ""
+    def consensusAltIndelProp = settings["r2gConsensusAltIndelProp"] != null ? "--c-indelprop ${settings["r2gConsensusAltProp"]}" : ""
+    def consensusMinBaseQual = settings["r2gConsensusMinBaseQ"] != null ? "--c-baseq ${settings["r2gConsensusMinBaseQ"]}" : ""
+    def consensusDisableBAQ = settings["r2gConsensusDisableBAQ"] != false ? "--c-baq 0" : ""
+    def consensusPCRdedup = settings["r2gConsensusPCRdedup"] != false ? "--c-dedup 1" : "" 
+    def consensusHomopolymerFilt = settings["r2gConsensusHomopolymerFilt"] != false ? "--c-polymer 1" : ""
+    def consensusStrandBiasFilt = settings["r2gConsensusStrandBiasFilt"] != false ? "--c-sb 1" : ""
+    def consensusVarlogOpt = settings["r2gConsensusVarlogOpt"] != false ? "--c-varlog 1" : ""
+    def consensusCompOpt = settings["r2gConsensusCompOpt"] != false ? "--c-compopt 1" : ""
 
     """
     ref_pipeline.pl -ref $reference \
@@ -95,6 +95,38 @@ process referenceBasedPipeline {
     """
 
     
+}
+
+//Check and convert reference if necessary when using contigs
+process checkContigReference {
+    label "r2g"
+    label "small"
+
+    publishDir(
+        path: "${settings["refBasedOutDir"]}",
+        mode: 'copy'
+    )
+
+
+    input:
+    val settings
+    path reference
+    path contigs
+
+    output:
+    path "*"
+    path "reference.fasta", emit:fasta
+
+    script:
+    def taxKingdom = settings["taxKingdom"] != null ? "--kingdom ${settings["taxKingdom"]}" : ""
+
+    """
+    ref_pipeline.pl -ref $reference \
+    -proj ${settings["projName"]} \
+    -out \$PWD \
+    $taxKingdom \
+    --checkonly
+    """
 }
 
 //extracts reads that were unmapped to reference
@@ -198,6 +230,7 @@ process contigToGenome {
     path "*_query_novel_region_30bpUP.fasta", emit: unusedContig
     path "*.snps", emit: contigSNPindel
     path "*_ref_zero_cov_coord.txt", emit: contigGaps
+    path "contigsToRef{_plot.pdf,.log}", emit: contigsToRefReports
     script:
     """
     nucmer_genome_coverage.pl -d -e 1 \
@@ -335,7 +368,13 @@ workflow REFERENCEBASEDANALYSIS {
                 platform)
         }
     }
-    contigToGenome(settings, reference, contigs)
+
+    //contig-based
+    contigsToRefReports = channel.empty()
+    checkContigReference(settings, reference, contigs)
+    contigToGenome(settings, checkContigReference.out.fasta, contigs)
+    contigsToRefReports = contigToGenome.out.contigsToRefReports
+    
     if(settings["mapUnmappedContigs"].toBoolean()) {
         //map unmapped CONTIGS to RefSeq using miccr if the option is set
         mapContigs(settings, contigToGenome.out.unusedContig)
@@ -356,6 +395,6 @@ workflow REFERENCEBASEDANALYSIS {
     
     emit:
     readsToRefReports
-    //contigsToRefReports
+    contigsToRefReports
     
 }

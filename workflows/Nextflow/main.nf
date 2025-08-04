@@ -119,6 +119,7 @@ workflow {
     if(params.modules.refBasedAnalysis) {
         REFERENCEBASEDANALYSIS(baseSettings.plus(params.refBased).plus(params.contigsToRef), platform, paired, unpaired, contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
         readsToRefReports = REFERENCEBASEDANALYSIS.out.readsToRefReports
+        contigsToRefReports = REFERENCEBASEDANALYSIS.out.contigsToRefReports
     }
 
     //Reads-based taxonomic classification
@@ -164,7 +165,6 @@ workflow {
     if(params.modules.snpTree) {
         PHYLOGENETICANALYSIS(baseSettings.plus(params.snpTree).plus(params.annotation), paired.ifEmpty(["${projectDir}/nf_assets/NO_FILE"]), unpaired.ifEmpty("${projectDir}/nf_assets/NO_FILE2"), contigs.ifEmpty("${projectDir}/nf_assets/NO_FILE3"))
     }
-
     //report generation
     REPORT(
         baseSettings.plus(params.refBased), 
@@ -178,6 +178,7 @@ workflow {
         contigPlots.ifEmpty{file("${projectDir}/nf_assets/NO_FILE7")},
         annStats.ifEmpty{file("${projectDir}/nf_assets/NO_FILE8")},
         alnStats.ifEmpty{file("${projectDir}/nf_assets/NO_FILE9")},
-        readsToRefReports.ifEmpty{file("${projectDir}/nf_assets/NO_FILEa")}
+        readsToRefReports.ifEmpty{file("${projectDir}/nf_assets/NO_FILEa")},
+        contigsToRefReports.ifEmpty{file("${projectDir}/nf_assets/NO_FILEb")}
     )
 }

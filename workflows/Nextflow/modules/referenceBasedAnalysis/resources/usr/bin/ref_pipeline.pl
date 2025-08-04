@@ -40,13 +40,14 @@ my $c_polymer_filt;
 my $c_strand_filt;
 my $c_varlog;
 my $c_compopt;
+my $check_only;
 
 
 
 GetOptions(
     'ref=s{,}' => \@referenceGenome,
-    't=s' => \$numCPU,
-    'proj=s' => \$project_name,
+    't:s' => \$numCPU,
+    'proj:s' => \$project_name,
     'out=s' => \$outputDir,
     'kingdom:s' => \$tax_kingdom,
     'plat:s' => \$platform,
@@ -72,7 +73,8 @@ GetOptions(
     'c-polymer:s' => \$c_polymer_filt,
     'c-sb:s' => \$c_strand_filt,
     'c-varlog:s' => \$c_varlog,
-    'c-compopt:s' => \$c_compopt
+    'c-compopt:s' => \$c_compopt,
+    'checkonly' => \$check_only
 );
 
 
@@ -83,7 +85,7 @@ my $ref_headers;#array ref
 
 ($referenceGenome,$genbankFile,$gff3File, $ref_headers)=&check_reference_genome(\@referenceGenome) if (@referenceGenome);
 
-if ($referenceGenome)
+if ($referenceGenome && !$check_only)
 {
     my ($r2gVCF,$r2gGap);
     my ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads);

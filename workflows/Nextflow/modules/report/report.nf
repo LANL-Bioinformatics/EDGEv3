@@ -33,12 +33,14 @@ process report {
     path annStats
     path alnstats
     path readsToRefReports
+    path contigsToRefReports
 
     output:
     path "*"
 
     script:
     //TODO: will need reference-based analysis updates as those workflows develop
+    //.filter { it.name.endsWith(".nwk") }
     //TODO: add in taxonomy classification reports
     """
     #!/usr/bin/env perl
@@ -182,6 +184,21 @@ process report {
     \$mergeFiles .= '$annStats'."," if ( -s '$annStats');
 
     if (${settings['refBasedAnalysis']}) {
+        if (-s ${contigsToRefReports[1]})
+        {
+            \$mergeFiles .= "contigsToRef.stats.pdf".",".${contigsToRefReports[1]}.",";
+    print \$Rfh <<Rscript;
+    pdf(file = "contigsToRef.stats.pdf",width = 10, height = 8)
+
+    contigsToRefLog<-readLines("${contigsToRefReports[0]}")
+    plot(0:1,0:1,type='n',xlab="",ylab="",xaxt='n',yaxt='n')
+    for (i in 1:length(contigsToRefLog)){
+    text(0,1-0.08*i,contigsToRefLog[i],adj=0,font=2)
+    }
+    title("Mapping Contigs to Reference")
+    tmp<-dev.off()
+    Rscript
+        }
         if ( -s "${readsToRefReports[0]}"){
             \$mergeFiles .= "${readsToRefReports[1]}".","."${readsToRefReports[0]}".",";
     print \$Rfh <<Rscript;
@@ -263,6 +280,7 @@ workflow REPORT {
     annStats
     alnStats
     readsToRefReports
+    contigsToRefReports
 
     main:
     report(settings,
@@ -276,6 +294,7 @@ workflow REPORT {
         contigPlots,
         annStats,
         alnStats,
-        readsToRefReports)
+        readsToRefReports,
+        contigsToRefReports)
 
 }
