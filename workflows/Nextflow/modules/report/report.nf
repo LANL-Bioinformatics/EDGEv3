@@ -39,9 +39,7 @@ process report {
     path "*"
 
     script:
-    //TODO: will need reference-based analysis updates as those workflows develop
-    //.filter { it.name.endsWith(".nwk") }
-    //TODO: add in taxonomy classification reports
+    //TODO: nanoplot/long read QC reports
     """
     #!/usr/bin/env perl
     use File::Basename;
