@@ -108,12 +108,14 @@ process processRGIcontigResults {
 process virulenceFactorReads {
     label 'vf'
     label 'medium'
+    containerOptions "--bind=\$PWD:/tmp"
 
     publishDir(
         path: "${settings["geneFamilyOutDir"]}/MetaVF_Toolkit",
         mode: 'copy',
         saveAs: {
-            f -> "${settings["projName"]}${f.drop(40)}"
+            f -> if(f.endsWith("VF_info.summary")) {"${settings["projName"]}.VF_info.summary"}
+            else if(f.endsWith(".summary")) {"${settings["projName"]}.summary"}
         }
     )
 
@@ -122,7 +124,7 @@ process virulenceFactorReads {
     path paired
 
     output:
-    path "Project_result/Project/copy_all/*.summary"
+    path "${settings["projName"]}_result/${settings["projName"]}/copy_all/*.summary"
     script:
     """
     eval "\$(conda shell.bash hook)"
@@ -140,14 +142,17 @@ process virulenceFactorReads {
 process virulenceFactorContigs {
     label 'vf'
     label 'medium'
+    containerOptions "--bind=\$PWD:/tmp"
 
     publishDir(
         path: "${settings["geneFamilyOutDir"]}/VF_MetaVF_Toolkit",
         mode: 'copy',
         saveAs: {
-            f -> "${settings["projName"]}${f.drop(48)}"
+            f -> if(f.endsWith("VF_info.summary")) {"${settings["projName"]}.VF_info.summary"}
+            else if(f.endsWith(".summary")) {"${settings["projName"]}.summary"}
         }
     )
+
 
 
     input:
@@ -155,7 +160,7 @@ process virulenceFactorContigs {
     path contigs
 
     output:
-    path "Project_result/Project/copy_contigs/copy_contigs*"
+    path "${settings["projName"]}_result/${settings["projName"]}/copy_contigs/copy_contigs*"
 
 
     script:
