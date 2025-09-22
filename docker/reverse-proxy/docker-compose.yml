@@ -22,33 +22,9 @@ services:
       - "443:443"
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     networks:
-      - edge_ncov
       - edge
-      - assay_val
-      - covid19
-      - survey_data
-      - notebook_viewer
-      - maintenance
 
 networks:
-  edge_ncov:
-    external:
-      name: edge_ncov_default
   edge:
     external:
       name: edge_default
-  assay_val:
-    external:
-      name: assay_val_default
-  covid19:
-    external:
-      name: covid19_default
-  survey_data:
-    external:
-      name: survey_data_default
-  notebook_viewer:
-    external:
-      name: notebook_viewer_default
-  maintenance:
-    external:
-      name: maintenance_default
