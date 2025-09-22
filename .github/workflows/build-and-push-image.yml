@@ -3,7 +3,7 @@ name: Build and push container image to GHCR
 # Run this workflow whenever a Release is published.
 on:
     release:
-        types: [published]
+        types: [published, push]
 
 jobs:
     build-and-push-image:
