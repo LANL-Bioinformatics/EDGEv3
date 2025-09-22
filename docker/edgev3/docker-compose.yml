@@ -40,9 +40,9 @@ version: "3"
 # These are the services that constitute this Docker Compose "stack".
 services:
   app:
-    container_name: app
+    container_name: edgev3_app
     # Reference: https://github.com/microbiomedata/nmdc-edge/pkgs/container/nmdc-edge-web-app
-    image: ${APP_IMAGE:-ghcr.io/microbiomedata/nmdc-edge-web-app:commit-ff4a1fe2-node20-amd64}
+    image: ${APP_IMAGE}
     # Alternatively, to build an image from a Dockerfile (which will allow you to specify args at build time):
     #build:
     #  context: /path/to/repository/root/directory
@@ -60,20 +60,16 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ${IO_BASE_DIR_ON_HOST:-/media/volume/nmdc-edge-web-app-io-data}:/project/io
+      - ${IO_BASE_DIR_ON_HOST:- /mnt/EDGEv3-cluster/EDGEv3/io}:/project/io
     environment:
       # Note: The `${ENV_VAR_NAME:-default_value}` syntax tells Docker to use the value of the specified environment
       #       variable if that environment variable exists; otherwise, use the value that follows the `:-` delimiter.
       DATABASE_HOST: mongo
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      CROMWELL_API_BASE_URL: ${CROMWELL_API_BASE_URL}
-      APP_EXTERNAL_BASE_URL: https://${APP_EXTERNAL_HOSTNAME:-edge-dev.microbiomedata.org}
+      APP_EXTERNAL_BASE_URL: https://${APP_EXTERNAL_HOSTNAME:-edge-dev.edgebioinformatics.org}
       # Set `IO_BASE_DIR` to the path at which the persistent volume is mounted (see `volumes` above).
-      IO_BASE_DIR: /project/io
-      OPAVER_WEB_DIR: /project/io/opaver_web/data
-      WORKFLOWS_TEMPLATE_DIR: ${WORKFLOWS_TEMPLATE_DIR:-/project/io/nmdc-edge/data/workflow/templates}
-      WORKFLOWS_WDL_DIR: ${WORKFLOWS_WDL_DIR:-/project/io/nmdc-edge/data/workflow/WDL}
+      IO_BASE_DIR: /project/EDGEv3-cluster/EDGEv3/io
       # These lines tell Docker to populate these _container_ environment variables (on left)
       # with the values of the corresponding _host_ environment variables (on right).
       JWT_SECRET: ${JWT_SECRET}
@@ -84,6 +80,7 @@ services:
       - nginx
 
   mongo:
+    container_name: edgev3_mongo
     image: mongo:6.0.4
     restart: unless-stopped
     environment:
@@ -93,23 +90,4 @@ services:
       - "27017:27017"
     # Map a persistent volume to `/data/db` within the container.
     volumes:
-      - ${MONGO_DATA_DIR_ON_HOST:-/media/volume/nmdc-edge-web-app-mongo-data}:/data/db
-
-  nginx:
-    image: nginx  # docs: https://hub.docker.com/_/nginx
-    restart: unless-stopped
-    environment:
-      ##SERVER_NAME: ${APP_EXTERNAL_HOSTNAME:-edge-dev.microbiomedata.org}  # TODO: Use Jetstream-provided hostname or IP instead?
-      SERVER_NAME: nmdc-edge-web-app-20240909.mcb180107.projects.jetstream-cloud.org
-      PROXY_TARGET_HOSTNAME: app
-      PROXY_TARGET_PORT: ${APP_SERVER_PORT:-5000}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      # Put a shell script into the folder the container will check for upon startup.
-      # Reference: https://github.com/nginxinc/docker-nginx/blob/f0fc31f0f73d59cc46e16fae973065a6aea63c15/entrypoint/docker-entrypoint.sh#L16
-      - ./create_ssl_cert.sh:/docker-entrypoint.d/create_ssl_cert.sh
-      # Note: The container will replace the environment variable references within the template, with their values
-      #       defined in the `environment` section above, and store the result at `/etc/nginx/conf.d/default.conf`.
-      - ./nginx-default.conf.template:/etc/nginx/templates/default.conf.template
+      - ${MONGO_DATA_DIR_ON_HOST:-/media/volume/sdb/mongodb}:/data/db
