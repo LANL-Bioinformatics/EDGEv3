@@ -67,7 +67,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       APP_EXTERNAL_BASE_URL: https://${APP_EXTERNAL_HOSTNAME:-edge-dev.edgebioinformatics.org}
       # Set `IO_BASE_DIR` to the path at which the persistent volume is mounted (see `volumes` above).
-      IO_BASE_DIR: /project/EDGEv3-cluster/EDGEv3/io
+      IO_BASE_DIR: ${IO_BASE_DIR_ON_HOST}
       # These lines tell Docker to populate these _container_ environment variables (on left)
       # with the values of the corresponding _host_ environment variables (on right).
       JWT_SECRET: ${JWT_SECRET}
