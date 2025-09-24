@@ -75,7 +75,6 @@ services:
       EMAIL_SHARED_SECRET: ${EMAIL_SHARED_SECRET}
     depends_on:
       - mongo
-      - nginx
 
   mongo:
     container_name: edgev3_mongo
