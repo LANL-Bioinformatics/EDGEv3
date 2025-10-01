@@ -50,6 +50,7 @@ services:
     #    - GROUP_ID: ${GROUP_ID:-60005}
     #    - USER_NAME: ${USER_NAME:-webuser}
     #    - GROUP_NAME: ${GROUP_NAME:-webuser}
+    user: "${UID}:${GID}"
     restart: unless-stopped
     ports:
       - "8000:${APP_SERVER_PORT:-5000}"
