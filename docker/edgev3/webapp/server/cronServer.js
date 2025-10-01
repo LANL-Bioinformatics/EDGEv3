@@ -67,7 +67,16 @@ const runApp = async () => {
     mongoose.set('strictQuery', false);
     mongoose
       .connect(
-        db
+        db,
+        {
+      authSource: "admin",
+      user: config.DATABASE.USERNAME,
+      pass: config.DATABASE.PASSWORD,
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
       );
     logger.info(`Successfully connected to database ${db}`);
     // start server
