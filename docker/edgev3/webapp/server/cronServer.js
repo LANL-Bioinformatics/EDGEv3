@@ -69,15 +69,17 @@ const runApp = async () => {
       .connect(
         db,
         {
-      authSource: "admin",
-      user: config.DATABASE.USERNAME,
-      pass: config.DATABASE.PASSWORD,
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
-      );
+          authSource: "admin",
+          user: config.DATABASE.USERNAME,
+          pass: config.DATABASE.PASSWORD,
+          useCreateIndex: true,
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        }
+      )
+  .then(() => logger.info("MongoDB successfully connected"))
+  .catch(err => logger.error("Failed to connect to MongoDB server:", err));
+      
     logger.info(`Successfully connected to database ${db}`);
     // start server
     app.listen(config.CRON.SERVER_PORT, () => logger.info(`HTTP CRON server up and running on port ${config.CRON.SERVER_PORT} !`));
