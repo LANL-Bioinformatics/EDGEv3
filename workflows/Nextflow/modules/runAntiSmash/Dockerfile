@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-FROM antismash/standalone-lite:8.0.4
-ENV version=0.15.1
+FROM antismash/standalone-lite-nonfree:7.1.0
+ENV version=0.15.2
 
 RUN apt-get update && apt-get install procps -y && apt-get clean
 
