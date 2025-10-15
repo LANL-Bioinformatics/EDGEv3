@@ -4,7 +4,7 @@
 process autodetectKingdom {
     label 'annotation'
     label 'tiny'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     input:
     path contigs
 
@@ -25,7 +25,7 @@ process autodetectKingdom {
 process prokkaAnnotate {
     label 'annotation'
     label 'small'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
@@ -88,7 +88,7 @@ process prokkaAnnotate {
 process rattAnnotate {
     label 'annotation'
     label 'small'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
@@ -127,7 +127,7 @@ process rattAnnotate {
 process annPlot {
     label 'annotation'
     label 'tiny'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
@@ -154,7 +154,7 @@ process annPlot {
 process keggPlots {
     label 'annotation'
     label 'tiny'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
