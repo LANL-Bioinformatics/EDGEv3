@@ -161,7 +161,7 @@ process keggPlots {
     )
     publishDir(
         path: "${settings["keggViewerDir"]}"
-        mode: 'symlink'
+        mode: 'copy'
         pattern: "kegg_map/*"
     )
 
