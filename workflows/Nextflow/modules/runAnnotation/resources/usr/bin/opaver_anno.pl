@@ -43,9 +43,9 @@ my ($ecinfo,$pwyinfo,$map,$pathway,$gene_exp);
 
 #init directory
 `mkdir -p $outdir`;
-`mkdir -p $Bin/ec_info`;
+`mkdir -p ./ec_info`;
 die "[ERROR] Can't create output directory $outdir: $!\n" unless -d $outdir;
-die "[ERROR] Can't create ec_info directory $Bin/ec_info: $!\n" unless -d "$Bin/ec_info";
+die "[ERROR] Can't create ec_info directory ./ec_info: $!\n" unless -d "./ec_info";
 
 #init KEGG info
 $ecinfo = &retrieveKoInfoJson( $kojson ) if -s $kojson;
@@ -74,9 +74,9 @@ foreach my $ec ( keys %$anno ){
 print STDERR "[INFO] Retrieve pathway image and KGML...";
 foreach my $mapid ( keys %$map ){
     print STDERR "[INFO] download map$mapid...";
-    if( -e "$Bin/ec_info/ec$mapid.png" && -e "$Bin/ec_info/ec$mapid.xml" ){
-    `cp $Bin/ec_info/ec$mapid.png $outdir/ec$mapid.png`;
-    `cp $Bin/ec_info/ec$mapid.xml $outdir/ec$mapid.xml`;
+    if( -e "./ec_info/ec$mapid.png" && -e "./ec_info/ec$mapid.xml" ){
+    `cp ./ec_info/ec$mapid.png $outdir/ec$mapid.png`;
+    `cp ./ec_info/ec$mapid.xml $outdir/ec$mapid.xml`;
     }
 
     if( !-e "$outdir/ec$mapid.png" || !-e "$outdir/ec$mapid.xml" ){
@@ -86,8 +86,8 @@ foreach my $mapid ( keys %$map ){
             print STDERR "[WARNING] Failed to download map$mapid image/KGML from KEGG.\n";
         }
         else{
-        `cp $outdir/ec$mapid.png  $Bin/ec_info/ec$mapid.png`;
-        `cp $outdir/ec$mapid.xml $Bin/ec_info/ec$mapid.xml`;
+        `cp $outdir/ec$mapid.png ./ec_info/ec$mapid.png`;
+        `cp $outdir/ec$mapid.xml ./ec_info/ec$mapid.xml`;
             print STDERR "Done.\n";
         }
     }
@@ -220,7 +220,7 @@ sub getECinfo {
         my $info;
         my $url = "https://rest.kegg.jp/get";
         my $content;
-        my $ec_info_file = "$Bin/ec_info/$ec";
+        my $ec_info_file = "./ec_info/$ec";
 
         if( -e $ec_info_file ){
             local $/;
