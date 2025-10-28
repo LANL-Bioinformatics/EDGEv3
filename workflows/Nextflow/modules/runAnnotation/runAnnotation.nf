@@ -159,6 +159,11 @@ process keggPlots {
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
     )
+    publishDir(
+        path: "${settings["keggViewerDir"]}"
+        mode: 'copy'
+        pattern: "kegg_map/*"
+    )
 
     input:
     path gff
