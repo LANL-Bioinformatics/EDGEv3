@@ -18,6 +18,7 @@ const generateInputs = async (projHome, projectConf, proj) => {
     ...projectConf.rawReads,
     // download sra data to shared directory
     sraOutdir: config.IO.SRA_BASE_DIR,
+    keggViewerDir: config.IO.KEGG_VIEWER_DIR,
     inputFastq2: [],
     projOutdir: `${projHome}/${workflowSettings.outdir}`,
     project: proj.name,

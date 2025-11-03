@@ -17,6 +17,8 @@ if [ ! -d  $io_home ]; then
     "public"
     "sra"
     "db"
+    "opaver_web"
+    "opaver_web/data"
   )
 
   for dir in "${dirs[@]}"
