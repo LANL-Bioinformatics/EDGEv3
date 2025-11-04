@@ -176,6 +176,12 @@ const generateWorkflowResult = (proj) => {
       if (fs.existsSync(treeCdsHtml)) {
         result.treeCdsHtml = `${workflowList[projectConf.workflow.name].outdir}/SNPphyloTree.cds.html`;
       }
+    } else if (projectConf.workflow.name === 'antiSmash') {
+      // antiSMASH HTML output
+      const antiSmashHtml = `${outdir}/output/index.html`;
+      if (fs.existsSync(antiSmashHtml)) {
+        result.antiSmashHtml = `${workflowList[projectConf.workflow.name].outdir}/output/index.html`;
+      }
     }
 
     fs.writeFileSync(resultJson, JSON.stringify(result));

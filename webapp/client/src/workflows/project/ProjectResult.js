@@ -7,6 +7,7 @@ import ProjectOutputs from '/src/edge/project/results/ProjectOutputs'
 import { RunFaQCs } from '../metagenomics/results/RunFaQCs'
 import { Assembly } from '../metagenomics/results/Assembly'
 import { Phylogeny } from '../metagenomics/results/Phylogeny'
+import { AntiSmash } from '../metagenomics/results/AntiSmash'
 
 const ProjectResult = (props) => {
   const [project, setProject] = useState()
@@ -233,6 +234,15 @@ const ProjectResult = (props) => {
               )}
               {project.type === 'phylogeny' && (
                 <Phylogeny
+                  result={result}
+                  project={project}
+                  userType={type}
+                  allExpand={allExpand}
+                  allClosed={allClosed}
+                />
+              )}
+              {project.type === 'antiSmash' && (
+                <AntiSmash
                   result={result}
                   project={project}
                   userType={type}
