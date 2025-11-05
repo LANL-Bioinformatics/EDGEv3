@@ -172,11 +172,13 @@ process keggPlots {
     output:
     path "kegg_map/*"
     path "kegg_map.log"
+    path "opaver_web_path.json"
     
     script:
     """
     check_server_up.pl --url "http://rest.kegg.jp" && \
     opaver_anno.pl -g $gff -o ./kegg_map -p ${settings["projName"]} > kegg_map.log 2>&1
+    echo '{ "opaver_web_path":"opaver_web/pathway_anno.html?data=${settings["dataCode"]}" }' > opaver_web_path.json
     """
     }
 
