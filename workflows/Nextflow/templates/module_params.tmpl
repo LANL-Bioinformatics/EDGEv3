@@ -85,8 +85,9 @@
         evalue = <% if(typeof evalue !== 'undefined') { %><%= evalue %><% } else { %>0.000000001<%} %>
         gcode = <% if(typeof gcode !== 'undefined') { %><%= gcode %><% } else { %>11<%} %>
         keggView =  <% if(typeof keggView !== 'undefined') { %><%= keggView %><% } else { %>false<%} %>
-        keggViewerDir = "<%=keggViewerDir %>"
+        keggViewerDir = <% if(typeof keggViewerDir !== 'undefined') { %>"<%= keggViewerDir %>"<% } else { %>"undefined"<%} %>
         dataCode = "<%= nextflowOutDir %>".split("/")[-2]
+
     }
 
     binning {

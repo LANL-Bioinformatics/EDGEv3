@@ -199,6 +199,8 @@ const config = {
     PROJECT_BASE_DIR: process.env.PROJECTS_BASE_DIR || path.join(IO_BASE_DIR, 'projects'),
     // Directory to store sra workflow results.
     SRA_BASE_DIR: process.env.SRA_BASE_DIR || path.join(IO_BASE_DIR, 'sra'),
+    // Directory to store KEGG viewer data.
+    KEGG_VIEWER_DIR: process.env.KEGG_VIEWER_DIR || path.join(IO_BASE_DIR, 'opaver_web/data'),
     // Directory to store public data.
     PUBLIC_BASE_DIR: process.env.PUBLIC_BASE_DIR || path.join(IO_BASE_DIR, 'public'),
     // Directory to store user uploaded files
