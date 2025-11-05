@@ -160,8 +160,8 @@ process keggPlots {
         mode: 'copy'
     )
     publishDir(
-        path: "${settings["keggViewerDir"]}"
-        mode: 'copy'
+        path: "${settings["keggViewerDir"]}",
+        mode: 'copy',
         pattern: "kegg_map/*"
     )
 

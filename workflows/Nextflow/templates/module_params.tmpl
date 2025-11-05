@@ -86,6 +86,7 @@
         gcode = <% if(typeof gcode !== 'undefined') { %><%= gcode %><% } else { %>11<%} %>
         keggView =  <% if(typeof keggView !== 'undefined') { %><%= keggView %><% } else { %>false<%} %>
         keggViewerDir = "<%=keggViewerDir %>"
+        dataCode = "<%= nextflowOutDir %>".split("/")[-2]
     }
 
     binning {
