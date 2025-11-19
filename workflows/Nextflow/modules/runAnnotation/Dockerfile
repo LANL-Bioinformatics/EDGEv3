@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM continuumio/miniconda3:24.5.0-0 AS build
-ENV version=0.6.0
+ENV version=0.6.1
 
 ENV container=docker
 
@@ -14,7 +14,7 @@ RUN conda init bash \
     && conda activate annotation 
 
 RUN conda install -n annotation -c bioconda perl-lwp-protocol-https
-RUN conda install -n annotation -c conda-forge r-base
+RUN conda install -n annotation -c conda-forge r-base r-jsonlite=2.0.0
 RUN conda install -y -n annotation -c bioconda prokka
 RUN conda install -n annotation -c bioconda mummer
 RUN conda install -n annotation -c bioconda blast=2.16
