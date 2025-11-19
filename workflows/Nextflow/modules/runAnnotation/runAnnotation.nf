@@ -140,6 +140,7 @@ process annPlot {
     output:
     path "plot_gff3.log"
     path "annotation_stats_plots.pdf", emit: annStats
+    path "{feature_count,size_distribution}.json"
     path "${settings["projName"]}.txt", optional:true
 
     script:
