@@ -31,7 +31,7 @@
     "mongoose": "^6.13.6",
     "mongoose-to-swagger": "^1.4.0",
     "node-cron": "^3.0.2",
-    "nodemailer": "^6.10.0",
+    "nodemailer": "^7.0.11",
     "nodemailer-mailgun-transport": "^2.1.5",
     "papaparse": "^5.5.1",
     "passport": "^0.6.0",
