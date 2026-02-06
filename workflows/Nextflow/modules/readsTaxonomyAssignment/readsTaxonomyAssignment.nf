@@ -23,7 +23,6 @@ process readsTaxonomy {
                         ${settings["custom_gottcha_strDB_b"] != null ? "--bind=${Paths.get(settings["custom_gottcha_strDB_b"].toString()).getParent()}:/gottcha_strDBb_custom" : ""} \
                         ${settings["custom_gottcha_genDB_v"] != null ? "--bind=${Paths.get(settings["custom_gottcha_genDB_v"].toString()).getParent()}:/gottcha_genDBv_custom" : ""} \
                         ${settings["custom_gottcha_genDB_b"] != null ? "--bind=${Paths.get(settings["custom_gottcha_genDB_b"].toString()).getParent()}:/gottcha_genDBb_custom" : ""} \
-                        ${settings["custom_gottcha2_genDB_v"] != null ? "--bind=${Paths.get(settings["custom_gottcha2_genDB_v"].toString()).getParent()}:/gottcha2_genDBv_custom" : ""} \
                         ${settings["custom_gottcha2_speDB_v"] != null ? "--bind=${Paths.get(settings["custom_gottcha2_speDB_v"].toString()).getParent()}:/gottcha2_speDBv_custom" : ""} \
                         ${settings["custom_gottcha2_speDB_b"] != null ? "--bind=${Paths.get(settings["custom_gottcha2_speDB_b"].toString()).getParent()}:/gottcha2_speDBb_custom" : ""}"
 
@@ -91,7 +90,7 @@ process readsTaxonomyConfig {
         }
     }
     else{
-        bwaScoreCut = (avgLen as Integer)*0.8
+        bwaScoreCut = (avgLen as Float)*0.8
     }
     bwaScoreCut = bwaScoreCut as Integer
     tools = settings["enabledTools"] != null ? "-tools \'${settings["enabledTools"]}\' " : ""
@@ -112,8 +111,7 @@ process readsTaxonomyConfig {
     gottcha_strDB_b = settings["custom_gottcha_strDB_b"] != null ? "-gottcha-b-strDB /gottcha_strDBb_custom/${Paths.get(settings["custom_gottcha_strDB_b"].toString()).getFileName()} " : ""
     gottcha_genDB_v = settings["custom_gottcha_genDB_v"] != null ? "-gottcha-v-genDB /gottcha_genDBv_custom/${Paths.get(settings["custom_gottcha_genDB_v"].toString()).getFileName()} " : ""
     gottcha_genDB_b = settings["custom_gottcha_genDB_b"] != null ? "-gottcha-b-genDB /gottcha_genDBb_custom/${Paths.get(settings["custom_gottcha_genDB_b"].toString()).getFileName()} " : ""
-
-    gottcha2_genDB_v = settings["custom_gottcha2_genDB_v"] != null ? "-gottcha2-v-genDB /gottcha2_genDBv_custom/${Paths.get(settings["custom_gottcha2_genDB_v"].toString()).getFileName()} " : ""
+    
     gottcha2_speDB_v = settings["custom_gottcha2_speDB_v"] != null ? "-gottcha2-v-speDB /gottcha2_speDBv_custom/${Paths.get(settings["custom_gottcha2_speDB_v"].toString()).getFileName()} " : ""
     gottcha2_speDB_b = settings["custom_gottcha2_speDB_b"] != null ? "-gottcha2-b-speDB /gottcha2_speDBb_custom/${Paths.get(settings["custom_gottcha2_speDB_b"].toString()).getFileName()} " : ""
 
@@ -143,7 +141,6 @@ process readsTaxonomyConfig {
     $gottcha_strDB_b\
     $gottcha_genDB_v\
     $gottcha_genDB_b\
-    $gottcha2_genDB_v\
     $gottcha2_speDB_v\
     $gottcha2_speDB_b\
     $np >microbial_profiling.settings.ini 2>error.log

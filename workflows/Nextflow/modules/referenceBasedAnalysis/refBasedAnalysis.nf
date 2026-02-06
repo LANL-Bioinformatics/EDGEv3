@@ -254,8 +254,8 @@ process variantCalling {
     path "*" //all non-hidden outputs
 
     script:
-    def consensusLogArg = consensusLogs.name != "DNE6" ? "-cons_logs $consensusLogs" : ""
-    def consensusGapArg = consensusGaps.name != "DNE7" ? "-cons_gaps $consensusGaps" : ""
+    def consensusLogArg = consensusLogs.name != "NO_FILE6" ? "-cons_logs $consensusLogs" : ""
+    def consensusGapArg = consensusGaps.name != "NO_FILE7" ? "-cons_gaps $consensusGaps" : ""
 
     """
     variant_call.pl \
@@ -333,13 +333,13 @@ workflow REFERENCEBASEDANALYSIS {
     }
     if(settings["r2gVariantCall"].toBoolean()) {
         variantCalling(settings, 
-            contigToGenome.out.contigSNPindel.ifEmpty(file("DNE")),
-            contigToGenome.out.contigGaps.ifEmpty(file("DNE2")),
-            referenceBasedPipeline.out.vcf.ifEmpty(file("DNE3")),
-            referenceBasedPipeline.out.gaps.ifEmpty(file("DNE4")),
-            referenceBasedPipeline.out.gff.ifEmpty(file("DNE5")),
-            referenceBasedPipeline.out.consensusLogs.ifEmpty(file("DNE6")),
-            referenceBasedPipeline.out.consensusGaps.ifEmpty(file("DNE7")),
+            contigToGenome.out.contigSNPindel.ifEmpty("${projectDir}/nf_assets/NO_FILE"),
+            contigToGenome.out.contigGaps.ifEmpty("${projectDir}/nf_assets/NO_FILE2"),
+            referenceBasedPipeline.out.vcf.ifEmpty("${projectDir}/nf_assets/NO_FILE3"),
+            referenceBasedPipeline.out.gaps.ifEmpty("${projectDir}/nf_assets/NO_FILE4"),
+            referenceBasedPipeline.out.gff.ifEmpty("${projectDir}/nf_assets/NO_FILE5"),
+            referenceBasedPipeline.out.consensusLogs.ifEmpty("${projectDir}/nf_assets/NO_FILE6"),
+            referenceBasedPipeline.out.consensusGaps.ifEmpty("${projectDir}/nf_assets/NO_FILE7"),
             reference)
     }
 

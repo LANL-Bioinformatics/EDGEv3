@@ -96,6 +96,7 @@
         binningMarkerSet = <% if(typeof binningMarkerSet !== 'undefined') { %><%= binningMarkerSet %><% } else { %>107<%} %>
         binningAbundFile = <% if(typeof binningAbundFile !== 'undefined' && binningAbundFile) { %>"<%= binningAbundFile %>"<% } else { %>"${projectDir}/nf_assets/NO_FILE3"<%} %>
         doCheckM = <% if(typeof doCheckM !== 'undefined') { %><%= doCheckM %><% } else { %>false<%} %>
+	checkMdb = "/project/refdata/checkM_DB"
     }
 
     readsTaxonomy {
@@ -109,15 +110,14 @@
         custom_gottcha_genDB_v =  <% if(typeof custom_gottcha_genDB_v !== 'undefined' && custom_gottcha_genDB_v) { %>"<%= custom_gottcha_genDB_v %>"<% } else { %>null<%} %>
         custom_gottcha_speDB_v =  <% if(typeof custom_gottcha_speDB_v !== 'undefined' && custom_gottcha_speDB_v) { %>"<%= custom_gottcha_speDB_v %>"<% } else { %>null<%} %>
         custom_gottcha_strDB_v =  <% if(typeof  custom_gottcha_strDB_v !== 'undefined' &&  custom_gottcha_strDB_v) { %>"<%= custom_gottcha_strDB_v %>"<% } else { %>null<%} %>
-        custom_gottcha2_speDB_b = <% if(typeof  custom_gottcha2_speDB_b !== 'undefined' &&  custom_gottcha2_speDB_b) { %>"<%= custom_gottcha2_speDB_b %>"<% } else { %>"/project/refdata/nextflow/database/GOTTCHA2/RefSeq-r220_BAVxH-cg/gottcha_db.species.fna"<%} %>
-        custom_gottcha2_speDB_v =  <% if(typeof custom_gottcha2_speDB_v !== 'undefined' && custom_gottcha2_speDB_v) { %>"<%= custom_gottcha2_speDB_v %>"<% } else { %>null<%} %>
-        custom_gottcha2_genDB_v=  <% if(typeof custom_gottcha2_genDB_v !== 'undefined' && custom_gottcha2_genDB_v) { %>"<%= custom_gottcha2_genDB_v %>"<% } else { %>null<%} %>
+        custom_gottcha2_speDB_b = <% if(typeof  custom_gottcha2_speDB_b !== 'undefined' &&  custom_gottcha2_speDB_b) { %>"<%= custom_gottcha2_speDB_b %>"<% } else { %>"/project/refdata/GOTTCHA2_fungal/gottcha_db.BAVF.species.fna"<%} %>
+        custom_gottcha2_speDB_v =  <% if(typeof custom_gottcha2_speDB_v !== 'undefined' && custom_gottcha2_speDB_v) { %>"<%= custom_gottcha2_speDB_v %>"<% } else { %>"/project/refdata/GOTTCHA2_fungal/gottcha_db.BAVF.species.fna"<%} %>
         custom_bwa_db= <% if(typeof custom_bwa_db !== 'undefined' && custom_bwa_db) { %>"<%= custom_bwa_db %>"<% } else { %>null<%} %>
         custom_metaphlan_db= <% if(typeof custom_metaphlan_db !== 'undefined' && custom_metaphlan_db) { %>"<%= custom_metaphlan_db %>"<% } else { %>null<%} %>
         custom_kraken_db= <% if(typeof custom_kraken_db !== 'undefined' && custom_kraken_db) { %>"<%= custom_kraken_db %>"<% } else { %>null<%} %>
         custom_pangia_db= <% if(typeof custom_pangia_db !== 'undefined' && custom_pangia_db) { %>"<%= custom_pangia_db %>"<% } else { %>null<%} %>
         custom_diamond_db= <% if(typeof custom_diamond_db !== 'undefined' && custom_diamond_db) { %>"<%= custom_diamond_db %>"<% } else { %>null<%} %>
-        custom_centrifuge_db = <% if(typeof custom_centrifuge_db !== 'undefined' && custom_centrifuge_db) { %>"<%= custom_centrifuge_db %>"<% } else { %>null<%} %>
+        custom_centrifuge_db = <% if(typeof custom_centrifuge_db !== 'undefined' && custom_centrifuge_db) { %>"<%= custom_centrifuge_db %>"<% } else { %>"/project/refdata/Centrifuge/hpv.1.cf"<%} %>
     }
 
     contigsTaxonomy {

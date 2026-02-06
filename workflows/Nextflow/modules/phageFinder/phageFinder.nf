@@ -35,7 +35,7 @@ process phageFinder {
     val settings
 
     output:
-    path "PFPR_tab.txt", emit: phageTable
+    path "PFPR_tab.txt", emit: phageTable, optional:true
     path "log.txt"
 
     //must be on PATH
@@ -80,6 +80,7 @@ workflow PHAGEFINDER {
 
     phageFinderPrep(gff, fna)
     phageFinder(phageFinderPrep.out.allPFoutput, faa, settings)
+    //summary runs if there were results
     summary(phageFinderPrep.out.idMap,phageFinder.out.phageTable, settings)
 
 }
