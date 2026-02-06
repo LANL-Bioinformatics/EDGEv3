@@ -15,7 +15,6 @@ def manual_quality_boxplot(matrix_file, total_reads, total_bases, xlab, ylab, xl
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=[1], y=[1], mode="markers", marker=dict(opacity=0)))
-    print(f"matrix file is {matrix_file}")
     for i in x_pos:
         counts = z[i-1]
         total = counts.sum()

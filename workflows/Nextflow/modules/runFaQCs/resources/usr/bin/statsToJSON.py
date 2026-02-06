@@ -210,6 +210,7 @@ def main():
 
 
     args = parser.parse_args()
+
     json_dict, criteria_labels = parse_qc_file(args.input_file)
 
     # Write JSON
@@ -232,6 +233,7 @@ def main():
     else:
         print("[!] Skipping histogram section — required length_count.txt files not found.")
         args.hist_out = None
+
     # GC content files
     base1 = os.path.join(qc_stats_dir, "qa.QC.base_content.txt")
     base2 = os.path.join(qc_stats_dir, "QC.base_content.txt")
@@ -244,6 +246,7 @@ def main():
         print("[!] Skipping GC content section — required base_content.txt files not found.")
         args.gc1_out = None
         args.gc2_out = None
+
     # ATCG composition plots
     base_matrix1 = os.path.join(qc_stats_dir, "qa.QC.base.matrix")
     base_matrix2 = os.path.join(qc_stats_dir, "QC.base.matrix")
@@ -270,7 +273,7 @@ def main():
         combined_qual = faqcs_quality_histogram.combine_quality_histograms(qh_fig1, qh_fig2, qa_annotation, main_annotation, qh_min1, qh_max1, qh_min2, qh_max2)
         combined_qual.write_html(args.qual_out)
         print(f"[✓] Quality histogram written to {args.qual_out}")
-    print("past quality histograms\n")
+
     # Quality boxplot and 3D plots
     qa_matrix = os.path.join(qc_stats_dir, "qa.QC.quality.matrix")
     trim_matrix = os.path.join(qc_stats_dir, "QC.quality.matrix")
@@ -290,7 +293,7 @@ def main():
         qbar_fig2, qbar_anno2 = faqcs_quality_plots.quality_count_histogram(trim_matrix, qh_max1, "Trimmed Reads Q score", "")
         faqcs_quality_plots.combine_quality_histograms(qbar_fig1, qbar_fig2, qbar_anno1, qbar_anno2).write_html(args.qhist_out)
         print(f"[✓] Quality score histogram written to {args.qhist_out}")
-    print("past quality boxplots and histograms")
+    
     # Merge into final report
     sections = [("QC Summary Plots", args.html_out)]
     if os.path.isfile(args.hist_out):
@@ -313,5 +316,6 @@ def main():
         sections.append(("Quality Score Histogram", args.qhist_out))
 
     merge_html_plots(sections, args.final_out)
+
 if __name__ == "__main__":
     main()
