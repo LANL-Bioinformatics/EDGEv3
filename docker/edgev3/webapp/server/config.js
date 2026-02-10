@@ -51,6 +51,7 @@ const appServerDir = process.env.APP_SERVER_DIR ? process.env.APP_SERVER_DIR : _
 const CLIENT_BASE_DIR = path.join(appServerDir, '../client');
 const NEXTFLOW_BASE_DIR = path.join(appServerDir, '../../workflows/Nextflow');
 const CROMWELL_BASE_DIR = path.join(appServerDir, '../../workflows/Cromwell');
+const WORKFLOW_DATA_BASE_DIR = path.join(appServerDir, '../../workflows/data');
 const IO_BASE_DIR = process.env.IO_BASE_DIR || path.join(appServerDir, '../../io');
 
 const config = {
@@ -112,6 +113,9 @@ const config = {
     TEMPLATE_DIR: process.env.CROMWELL_TEMPLATE_DIR || path.join(CROMWELL_BASE_DIR, 'templates'),
     CONF: process.env.CROMWELL_CONF || path.join(CROMWELL_BASE_DIR, 'conf.json'),
   },
+  LOCAL: {
+    NUM_JOBS_MAX: makeIntIfDefined(process.env.LOCAL_NUM_JOBS_MAX) || 2,
+  },
   CRON: {
     // Port number on which the cron web server will listen for HTTP requests.
     SERVER_PORT: makeIntIfDefined(process.env.CRON_SERVER_PORT) || 5555,
@@ -120,6 +124,10 @@ const config = {
     // Cron job schedules:
     // Reference: https://crontab.guru/ (cron schedule decoder)
     SCHEDULES: {
+      // monitor workflow requests on every 2 minutes
+      LOCAL_WORKFLOW_MONITOR: process.env.CRON_LOCAL_WORKFLOW_MONITOR_SCHEDULE || '0-59/2 * * * *',
+      // monitor local jobs on every 2 minutes
+      LOCAL_JOB_MONITOR: process.env.CRON_LOCALJOB_MONITOR_SCHEDULE || '0-59/2 * * * *',
       // monitor workflow requests on every 2 minutes
       CROMWELL_WORKFLOW_MONITOR: process.env.CRON_CROMWELL_WORKFLOW_MONITOR_SCHEDULE || '0-59/2 * * * *',
       // monitor cromwell jobs on every 2 minutes
@@ -191,6 +199,8 @@ const config = {
     PROJECT_BASE_DIR: process.env.PROJECTS_BASE_DIR || path.join(IO_BASE_DIR, 'projects'),
     // Directory to store sra workflow results.
     SRA_BASE_DIR: process.env.SRA_BASE_DIR || path.join(IO_BASE_DIR, 'sra'),
+    // Directory to store KEGG viewer data.
+    KEGG_VIEWER_DIR: process.env.KEGG_VIEWER_DIR || path.join(IO_BASE_DIR, 'opaver_web/data'),
     // Directory to store public data.
     PUBLIC_BASE_DIR: process.env.PUBLIC_BASE_DIR || path.join(IO_BASE_DIR, 'public'),
     // Directory to store user uploaded files
@@ -210,6 +220,9 @@ const config = {
     LOG_FILE_MAX_SIZE: process.env.LOG_FILE_MAX_SIZE || '20m',
     LOG_FILE_MAX_QUANTITY: process.env.LOG_FILE_MAX_QUANTITY || '14d',
   },
+  WORKFLOW: {
+    REF_LIST: process.env.WORKFLOW_REF_LIST || path.join(WORKFLOW_DATA_BASE_DIR, 'Ref_list.json'),
+  }
 };
 
 module.exports = config;

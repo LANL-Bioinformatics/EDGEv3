@@ -104,7 +104,7 @@ export const RunFaQCs = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'ReadsQC Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}
@@ -119,7 +119,7 @@ export const RunFaQCs = (props) => {
             name={'trimQual'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['trimQual'].text}
-            tooltip={workflows[workflowName].inputs['trimQual']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['trimQual'].tooltip}
             defaultValue={workflows[workflowName].inputs['trimQual']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['trimQual']['rangeInput'].min}
             max={workflows[workflowName].inputs['trimQual']['rangeInput'].max}
@@ -130,7 +130,7 @@ export const RunFaQCs = (props) => {
             name={'trim5end'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['trim5end'].text}
-            tooltip={workflows[workflowName].inputs['trim5end']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['trim5end'].tooltip}
             defaultValue={workflows[workflowName].inputs['trim5end']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['trim5end']['rangeInput'].min}
             max={workflows[workflowName].inputs['trim5end']['rangeInput'].max}
@@ -141,7 +141,7 @@ export const RunFaQCs = (props) => {
             name={'trim3end'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['trim3end'].text}
-            tooltip={workflows[workflowName].inputs['trim3end']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['trim3end'].tooltip}
             defaultValue={workflows[workflowName].inputs['trim3end']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['trim3end']['rangeInput'].min}
             max={workflows[workflowName].inputs['trim3end']['rangeInput'].max}
@@ -153,7 +153,7 @@ export const RunFaQCs = (props) => {
             name={'trimAdapter'}
             setParams={setSwitcher}
             text={workflows[workflowName].inputs['trimAdapter'].text}
-            tooltip={workflows[workflowName].inputs['trimAdapter']['switcher'].tooltip}
+            tooltip={workflows[workflowName].inputs['trimAdapter'].tooltip}
             defaultValue={workflows[workflowName].inputs['trimAdapter']['switcher'].defaultValue}
             trueText={workflows[workflowName].inputs['trimAdapter']['switcher'].trueText}
             falseText={workflows[workflowName].inputs['trimAdapter']['switcher'].falseText}
@@ -163,7 +163,7 @@ export const RunFaQCs = (props) => {
             name={'trimRate'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['trimRate'].text}
-            tooltip={workflows[workflowName].inputs['trimRate']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['trimRate'].tooltip}
             defaultValue={workflows[workflowName].inputs['trimRate']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['trimRate']['rangeInput'].min}
             max={workflows[workflowName].inputs['trimRate']['rangeInput'].max}
@@ -175,7 +175,7 @@ export const RunFaQCs = (props) => {
             name={'trimPolyA'}
             setParams={setSwitcher}
             text={workflows[workflowName].inputs['trimPolyA'].text}
-            tooltip={workflows[workflowName].inputs['trimPolyA']['switcher'].tooltip}
+            tooltip={workflows[workflowName].inputs['trimPolyA'].tooltip}
             defaultValue={workflows[workflowName].inputs['trimPolyA']['switcher'].defaultValue}
             trueText={workflows[workflowName].inputs['trimPolyA']['switcher'].trueText}
             falseText={workflows[workflowName].inputs['trimPolyA']['switcher'].falseText}
@@ -186,7 +186,7 @@ export const RunFaQCs = (props) => {
             setParams={setFileInput}
             isValidFileInput={isValidFileInput}
             text={workflows[workflowName].inputs['artifactFile'].text}
-            tooltip={workflows[workflowName].inputs['artifactFile']['fileInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['artifactFile'].tooltip}
             enableInput={workflows[workflowName].inputs['artifactFile']['fileInput'].enableInput}
             placeholder={workflows[workflowName].inputs['artifactFile']['fileInput'].placeholder}
             dataSources={workflows[workflowName].inputs['artifactFile']['fileInput'].dataSources}
@@ -200,7 +200,7 @@ export const RunFaQCs = (props) => {
             name={'minLen'}
             setParams={setIntegerInput}
             text={workflows[workflowName].inputs['minLen'].text}
-            tooltip={workflows[workflowName].inputs['minLen']['integerInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['minLen'].tooltip}
             defaultValue={workflows[workflowName].inputs['minLen']['integerInput'].defaultValue}
             min={workflows[workflowName].inputs['minLen']['integerInput'].min}
             max={workflows[workflowName].inputs['minLen']['integerInput'].max}
@@ -210,7 +210,7 @@ export const RunFaQCs = (props) => {
             name={'avgQual'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['avgQual'].text}
-            tooltip={workflows[workflowName].inputs['avgQual']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['avgQual'].tooltip}
             defaultValue={workflows[workflowName].inputs['avgQual']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['avgQual']['rangeInput'].min}
             max={workflows[workflowName].inputs['avgQual']['rangeInput'].max}
@@ -221,7 +221,7 @@ export const RunFaQCs = (props) => {
             name={'numN'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['numN'].text}
-            tooltip={workflows[workflowName].inputs['numN']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['numN'].tooltip}
             defaultValue={workflows[workflowName].inputs['numN']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['numN']['rangeInput'].min}
             max={workflows[workflowName].inputs['numN']['rangeInput'].max}
@@ -232,7 +232,7 @@ export const RunFaQCs = (props) => {
             name={'filtLC'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['filtLC'].text}
-            tooltip={workflows[workflowName].inputs['filtLC']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['filtLC'].tooltip}
             defaultValue={workflows[workflowName].inputs['filtLC']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['filtLC']['rangeInput'].min}
             max={workflows[workflowName].inputs['filtLC']['rangeInput'].max}
@@ -244,7 +244,7 @@ export const RunFaQCs = (props) => {
             name={'filtPhiX'}
             setParams={setSwitcher}
             text={workflows[workflowName].inputs['filtPhiX'].text}
-            tooltip={workflows[workflowName].inputs['filtPhiX']['switcher'].tooltip}
+            tooltip={workflows[workflowName].inputs['filtPhiX'].tooltip}
             defaultValue={workflows[workflowName].inputs['filtPhiX']['switcher'].defaultValue}
             trueText={workflows[workflowName].inputs['filtPhiX']['switcher'].trueText}
             falseText={workflows[workflowName].inputs['filtPhiX']['switcher'].falseText}

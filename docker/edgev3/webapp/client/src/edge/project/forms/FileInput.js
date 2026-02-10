@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Col, Row } from 'reactstrap'
-import { MyTooltip } from '../../common/MyTooltip'
+import { MyTooltip, ErrorTooltip } from '../../common/MyTooltip'
 import { defaults } from '../../common/util'
 import FileSelector from './FileSelector'
 import { components } from './defaults'
@@ -49,6 +49,12 @@ export const FileInput = (props) => {
             />
           ) : (
             <>{props.text}</>
+          )}
+          {!form.validForm && props.errMessage && props.showErrorTooltip && (
+            <ErrorTooltip
+              id={`fileInputErrTooltip-${props.name}`}
+              tooltip={form.fileInput ? 'Invalid url' : props.errMessage}
+            />
           )}
         </Col>
         <Col xs="12" md="9">

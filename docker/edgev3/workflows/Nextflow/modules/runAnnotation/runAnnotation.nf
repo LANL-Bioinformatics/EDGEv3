@@ -4,7 +4,7 @@
 process autodetectKingdom {
     label 'annotation'
     label 'tiny'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     input:
     path contigs
 
@@ -25,7 +25,7 @@ process autodetectKingdom {
 process prokkaAnnotate {
     label 'annotation'
     label 'small'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
@@ -58,7 +58,7 @@ process prokkaAnnotate {
     def kingdom = kingdom.trim()
     def protein = protein.name == "NO_FILE" ? "" : "--protein ${settings["customProtein"]}"
     def hmmPrep = hmm.name == "NO_FILE2" ? "" : "hmmpress $hmm"
-    def hmm = hmm.name == "NO_FILE2" ? "" : "--hmms $hmm"
+    hmm = hmm.name == "NO_FILE2" ? "" : "--hmms $hmm"
     def evalue = settings["evalue"] == null ? "" : "--evalue ${settings["evalue"]}"
     def gcode = settings["gcode"] == null ? "" : "--gcode ${settings["gcode"]}"
     def locustag = settings["projName"] == null ? "" : "--locustag ${settings["projName"]}"
@@ -88,7 +88,7 @@ process prokkaAnnotate {
 process rattAnnotate {
     label 'annotation'
     label 'small'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
@@ -127,7 +127,7 @@ process rattAnnotate {
 process annPlot {
     label 'annotation'
     label 'tiny'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
@@ -154,10 +154,15 @@ process annPlot {
 process keggPlots {
     label 'annotation'
     label 'tiny'
-    containerOptions '--compat --bind .:/venv/bin/ec_info'
+    containerOptions '--compat --bind \$PWD:/venv/bin/ec_info'
     publishDir(
         path: "${settings["annotationOutDir"]}",
         mode: 'copy'
+    )
+    publishDir(
+        path: "${settings["keggViewerDir"]}",
+        mode: 'copy',
+        pattern: "kegg_map/*"
     )
 
     input:

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Col, Row, Input } from 'reactstrap'
 import { useForm } from 'react-hook-form'
-import { MyTooltip } from '../../common/MyTooltip'
+import { MyTooltip, ErrorTooltip } from '../../common/MyTooltip'
 import { defaults } from '../../common/util'
 import { components } from './defaults'
 
@@ -19,10 +19,9 @@ export const IntegerInput = (props) => {
   })
 
   const integerInputReg = register('integerInput', {
-    required: 'required, an integer',
-    setValueAs: (v) => parseInt(v),
-    min: { value: props.min, message: 'Value is less than ' + props.min },
-    max: { value: props.max, message: 'Value is greater than ' + props.max },
+    required: `required, an integer. Range: ${props.min} - ${props.max}`,
+    min: { value: props.min, message: `Out of range (${props.min} - ${props.max})` },
+    max: { value: props.max, message: `Out of range (${props.min} - ${props.max})` },
     validate: (value) => {
       if (!/^[0-9]+$/.test(value)) {
         return 'Not an integer.'
@@ -72,7 +71,15 @@ export const IntegerInput = (props) => {
               clickable={props.tooltipClickable ? props.tooltipClickable : false}
             />
           ) : (
-            <>{props.text}</>
+            <>
+              {props.text}
+              {errors && errors.integerInput && props.showErrorTooltip && (
+                <ErrorTooltip
+                  id={`integerInputErrTooltip-${props.name}`}
+                  tooltip={errors.integerInput.message}
+                />
+              )}
+            </>
           )}
         </Col>
         <Col xs="12" md="9">

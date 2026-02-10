@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import startCase from 'lodash.startcase'
 import { MaterialReactTable } from 'material-react-table'
-import { ThemeProvider, Box, MenuItem, IconButton, Tooltip } from '@mui/material'
+import { ThemeProvider, Box, IconButton, Tooltip } from '@mui/material'
 import Fab from '@mui/material/Fab'
 import {
   Delete,
@@ -187,13 +187,11 @@ const UploadTable = (props) => {
         header: 'Public',
         accessorKey: 'public',
         Cell: ({ cell }) => <> {cell.getValue() ? 'true' : 'false'}</>,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: ['true', 'false'].map((state) => (
-            <MenuItem key={state} value={state}>
-              {state}
-            </MenuItem>
-          )),
+        editSelectOptions: ['true', 'false'],
+        muiEditTextFieldProps: {
+          select: true,
+          error: !!validationErrors?.state,
+          helperText: validationErrors?.state,
         },
         size: 100, //decrease the width of this column
       },

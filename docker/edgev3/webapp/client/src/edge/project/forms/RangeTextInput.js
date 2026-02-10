@@ -19,32 +19,28 @@ export const RangeTextInput = (props) => {
   })
 
   const startReg = register('start', {
-    setValueAs: (v) => parseInt(v),
-    min: { value: props.minStart, message: 'Value must be >= ' + props.minStart },
-    max: { value: props.maxStart, message: 'Value must be <= ' + props.maxStart },
+    required: `required, an integer. Range: ${props.minStart} - ${props.maxStart}`,
+    min: { value: props.minStart, message: `Out of range (${props.minStart} - ${props.maxStart})` },
+    max: { value: props.maxStart, message: `Out of range (${props.minStart} - ${props.maxStart})` },
     validate: (value) => {
-      if (!value) {
-        return 'An integer is required'
-      } else if (!/^[0-9]+$/.test(value)) {
+      if (!/^[0-9]+$/.test(value)) {
         return 'Not an integer.'
       }
     },
   })
 
   const endReg = register('end', {
-    setValueAs: (v) => parseInt(v),
-    min: { value: props.minEnd, message: 'Value must be >= ' + props.minEnd },
-    max: { value: props.maxEnd, message: 'Value must be <= ' + props.maxEnd },
+    required: `required, an integer. Range: ${props.minEnd} - ${props.maxEnd}`,
+    min: { value: props.minEnd, message: `Out of range (${props.minEnd} - ${props.maxEnd})` },
+    max: { value: props.maxEnd, message: `Out of range (${props.minEnd} - ${props.maxEnd})` },
     validate: (value) => {
-      if (!value) {
-        return 'An integer is required'
-      } else if (!/^[0-9]+$/.test(value)) {
+      if (!/^[0-9]+$/.test(value)) {
         return 'Not an integer.'
       }
       const max = value
       const min = watch('start')
       if (min) {
-        return max >= min || 'Value is less than ' + props.startText
+        return parseInt(max) >= parseInt(min) || 'Value is less than ' + props.startText
       }
     },
   })
@@ -139,7 +135,6 @@ export const RangeTextInput = (props) => {
           {errors.end && <p className="edge-form-input-error">{errors.end.message}</p>}
         </Col>
       </Row>
-      <br></br>
     </>
   )
 }

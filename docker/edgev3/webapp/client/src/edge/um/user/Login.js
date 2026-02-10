@@ -90,6 +90,9 @@ const Login = (props) => {
                 </Col>
               </>
             )}
+            <span className="pt-3 text-muted edge-text-size-small">
+              {config.APP.DISTRIBUTION_NOTE}
+            </span>
           </Row>
         </Col>
       </Row>

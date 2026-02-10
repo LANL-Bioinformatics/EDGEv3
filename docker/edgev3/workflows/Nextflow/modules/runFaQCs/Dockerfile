@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM continuumio/miniconda3:main AS build
+ENV version=1.6.1
 
 ENV container=docker
 
@@ -18,7 +19,7 @@ RUN conda install -n runFaQCs -c bioconda nanoplot=1.43.0
 RUN conda install -n runFaQCs -c bioconda porechop
 
 #faqcs
-RUN conda install -n runFaQCs -c bioconda faqcs=2.10
+RUN conda install -n runFaQCs -c bioconda faqcs=2.12
 
 #dependencies for illumina_fastq_QC.pl
 RUN conda install -n runFaQCs -c bioconda perl-parallel-forkmanager

@@ -16,6 +16,9 @@ const jobSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  pid: {
+    type: Number,
+  },
   inputSize: {
     type: Number,
     default: 0,

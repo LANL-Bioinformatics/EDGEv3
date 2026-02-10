@@ -36,7 +36,6 @@ const Home = () => {
               analyses using many cutting-edge tools.
             </p>
             <br></br>
-
             <h2>Features of EDGE</h2>
             <hr></hr>
             <ul>
@@ -56,7 +55,6 @@ const Home = () => {
               </li>
             </ul>
             <br></br>
-
             <h2>Implementation</h2>
             <hr></hr>
             <ul>
@@ -82,28 +80,24 @@ const Home = () => {
               </li>
             </ul>
             <br></br>
-
             <h2>Publication</h2>
             <hr></hr>
-            <p>
-              Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A.
-              Bishop-Lilly, Yan Xu, Sanaa Ahmed, Shihai Feng, Vishwesh P. Mokashi, Patrick S. G.
-              Chain (2016),{' '}
-              <b>
-                Enabling the democratization of the genomics revolution with a fully integrated
-                web-based bioinformatics platform
-              </b>
-              , <em>Nucleic Acids Research</em>
-              (doi:{' '}
-              <a
-                href="http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.full"
-                target="_blank"
-                rel="noreferrer"
-              >
-                10.1093/nar/gkw1027
-              </a>
-              )
-            </p>
+            Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A. Bishop-Lilly,
+            Yan Xu, Sanaa Ahmed, Shihai Feng, Vishwesh P. Mokashi, Patrick S. G. Chain (2016),{' '}
+            <b>
+              Enabling the democratization of the genomics revolution with a fully integrated
+              web-based bioinformatics platform
+            </b>
+            , <em>Nucleic Acids Research</em>
+            (doi:{' '}
+            <a
+              href="http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.full"
+              target="_blank"
+              rel="noreferrer"
+            >
+              10.1093/nar/gkw1027
+            </a>
+            )
           </div>
           <br></br>
           <br></br>

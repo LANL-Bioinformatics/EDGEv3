@@ -53,7 +53,8 @@ export const Assembly = (props) => {
   }
 
   const setSelect = (inForm, name) => {
-    form.assemblerInputs[form.inputs['assembler'].value][name].value = inForm.selectInput
+    form.assemblerInputs[form.inputs['assembler'].value][name].value = inForm.selection.value
+    form.assemblerInputs[form.inputs['assembler'].value][name].display = inForm.selection.label
     setDoValidation(doValidation + 1)
   }
 
@@ -202,7 +203,7 @@ export const Assembly = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Assembly Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}
@@ -217,9 +218,9 @@ export const Assembly = (props) => {
             name={'assembler'}
             setParams={setMainOption}
             text={workflows[workflowName].inputs['assembler'].text}
+            tooltip={workflows[workflowName].inputs['assembler'].tooltip}
             options={workflows[workflowName].inputs['assembler'].options}
             defaultValue={form.inputs['assembler'].value}
-            tooltip={workflows[workflowName].inputs['assembler'].tooltip}
           />
           <br></br>
           {workflows[workflowName].inputs['assembler']['notes'][form.inputs['assembler'].value] && (
@@ -241,7 +242,7 @@ export const Assembly = (props) => {
             name={'minContigSize'}
             setParams={setMainIntegerInput}
             text={workflows[workflowName].inputs['minContigSize'].text}
-            tooltip={workflows[workflowName].inputs['minContigSize']['integerInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['minContigSize'].tooltip}
             defaultValue={
               workflows[workflowName].inputs['minContigSize']['integerInput'].defaultValue
             }
@@ -253,16 +254,16 @@ export const Assembly = (props) => {
             name={'aligner'}
             setParams={setMainOption}
             text={workflows[workflowName].inputs['aligner'].text}
+            tooltip={workflows[workflowName].inputs['aligner'].tooltip}
             options={workflows[workflowName].inputs['aligner'].options}
             defaultValue={form.inputs['aligner'].value}
-            tooltip={workflows[workflowName].inputs['aligner'].tooltip}
           />
           <br></br>
           <TextInput
             name={'aligner_options'}
             setParams={setMainTextInput}
             text={workflows[workflowName].inputs['aligner_options'].text}
-            tooltip={workflows[workflowName].inputs['aligner_options']['textInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['aligner_options'].tooltip}
             tooltipClickable={true}
             defaultValue={
               workflows[workflowName].inputs['aligner_options']['textInput'].defaultValue
@@ -396,7 +397,11 @@ export const Assembly = (props) => {
                     'spades_algorithm'
                   ].options
                 }
-                setDefault={true}
+                defaultValue={
+                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
+                    'spades_algorithm'
+                  ].options[0]
+                }
                 isClearable={false}
                 setParams={setSelect}
               />
@@ -413,7 +418,7 @@ export const Assembly = (props) => {
                 tooltip={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'spades_pacbio'
-                  ]['fileInput'].tooltip
+                  ].tooltip
                 }
                 enableInput={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
@@ -464,7 +469,7 @@ export const Assembly = (props) => {
                 tooltip={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'spades_nanopore'
-                  ]['fileInput'].tooltip
+                  ].tooltip
                 }
                 enableInput={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
@@ -524,7 +529,11 @@ export const Assembly = (props) => {
                     'megahit_preset'
                   ].options
                 }
-                setDefault={true}
+                defaultValue={
+                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
+                    'megahit_preset'
+                  ].options[0]
+                }
                 isClearable={false}
                 setParams={setSelect}
               />
@@ -541,6 +550,11 @@ export const Assembly = (props) => {
                     'Unicycler_bridgingMode'
                   ].text
                 }
+                tooltip={
+                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
+                    'Unicycler_bridgingMode'
+                  ].tooltip
+                }
                 options={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'Unicycler_bridgingMode'
@@ -549,11 +563,6 @@ export const Assembly = (props) => {
                 defaultValue={
                   form.assemblerInputs[form.inputs['assembler'].value]['Unicycler_bridgingMode']
                     .value
-                }
-                tooltip={
-                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
-                    'Unicycler_bridgingMode'
-                  ].tooltip
                 }
               />
               <br></br>
@@ -569,7 +578,7 @@ export const Assembly = (props) => {
                 tooltip={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'Unicycler_longreads'
-                  ]['fileInput'].tooltip
+                  ].tooltip
                 }
                 enableInput={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
@@ -619,7 +628,7 @@ export const Assembly = (props) => {
                 tooltip={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'Unicycler_minLongReads'
-                  ]['integerInput'].tooltip
+                  ].tooltip
                 }
                 defaultValue={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
@@ -650,6 +659,12 @@ export const Assembly = (props) => {
                     'Lrasm_algorithm'
                   ].text
                 }
+                tooltip={
+                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
+                    'Lrasm_algorithm'
+                  ].tooltip
+                }
+                tooltipClickable={true}
                 options={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'Lrasm_algorithm'
@@ -658,12 +673,6 @@ export const Assembly = (props) => {
                 defaultValue={
                   form.assemblerInputs[form.inputs['assembler'].value]['Lrasm_algorithm'].value
                 }
-                tooltip={
-                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
-                    'Lrasm_algorithm'
-                  ].tooltip
-                }
-                tooltipClickable={true}
               />
               <br></br>
               <Switcher
@@ -678,7 +687,7 @@ export const Assembly = (props) => {
                 tooltip={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'Lrasm_ec'
-                  ]['switcher'].tooltip
+                  ].tooltip
                 }
                 defaultValue={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
@@ -705,6 +714,11 @@ export const Assembly = (props) => {
                     'Lrasm_preset'
                   ].text
                 }
+                tooltip={
+                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
+                    'Lrasm_preset'
+                  ].tooltip
+                }
                 options={
                   workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
                     'Lrasm_preset'
@@ -712,11 +726,6 @@ export const Assembly = (props) => {
                 }
                 defaultValue={
                   form.assemblerInputs[form.inputs['assembler'].value]['Lrasm_preset'].value
-                }
-                tooltip={
-                  workflows[workflowName].assemblerInputs[form.inputs['assembler'].value][
-                    'Lrasm_preset'
-                  ].tooltip
                 }
               />
               <br></br>

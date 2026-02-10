@@ -71,6 +71,11 @@ export const TextInput = (props) => {
       form.validForm = result
       if (result) {
         form.errMessage = ''
+        // empty input
+        if (!props.isOptional && form.textInput.trim() === '') {
+          form.validForm = false
+          form.errMessage = props.errMessage
+        }
       } else {
         let errMessage = ''
         if (errors.textInput) {
@@ -98,12 +103,13 @@ export const TextInput = (props) => {
               clickable={props.tooltipClickable ? props.tooltipClickable : false}
             />
           ) : (
-            <>
-              {props.text}
-              {errors && errors.textInput && props.showErrorTooltip && (
-                <ErrorTooltip id="projectName" tooltip={errors.textInput.message} />
-              )}
-            </>
+            <>{props.text}</>
+          )}
+          {errors && errors.textInput && props.showErrorTooltip && (
+            <ErrorTooltip
+              id={`textInputErrTooltip-${props.name}`}
+              tooltip={errors.textInput.message}
+            />
           )}
         </Col>
         <Col xs="12" md={props.text ? 9 : 12}>

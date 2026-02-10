@@ -1,0 +1,68 @@
+name: Build and push container reads_taxonomy
+
+# Run this workflow whenever a Dockerfile is updated.
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - 'workflows/Nextflow/modules/readsTaxonomyAssignment/Dockerfile'
+
+jobs:
+    build-and-push-image:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout branch
+              uses: actions/checkout@v4
+            - name: Get Version
+              id: get_version
+              run: |
+                  VERSION=$(grep -oP 'version=\K.*' workflows/Nextflow/modules/readsTaxonomyAssignment/Dockerfile)
+                  VERSION=${VERSION:-1.0.0}
+                  echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+            - name: Authenticate with container registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+              # Use the `docker/build-push-action` action to build the image described
+              # by the specified Dockerfile. If the build succeeds, push the image to GHCR.
+              # This action uses the `tags` parameters to tag the image with the Git tag name
+              # the image, respectively, with the output from the "get_version" step above.
+              # For more info: https://github.com/docker/build-push-action#usage.
+            - name: Build and push container image
+              id: push
+              uses: docker/build-push-action@v5
+              with:
+                  context: workflows/Nextflow/modules/readsTaxonomyAssignment
+                  file: workflows/Nextflow/modules/readsTaxonomyAssignment/Dockerfile
+                  push: true
+                  tags: ghcr.io/lanl-bioinformatics/edge_reads_taxonomy:${{ steps.get_version.outputs.version }}
+            - name: update image tag ID and version in the config
+              run: |
+                 imageName="ghcr.io/lanl-bioinformatics/edge_reads_taxonomy:${{ steps.get_version.outputs.version }}"
+                 version="${{ steps.get_version.outputs.version }}"
+                 sed -i -E "s#apwat/reads_taxonomy:[0-9a-zA-Z._-]+#${imageName}#" workflows/Nextflow/configs/container.config
+                 sed -i -E "s#edge_reads_taxonomy:[0-9a-zA-Z._-]+#edge_reads_taxonomy:${version}#" workflows/Nextflow/configs/container.config
+                 sed -i -E "s#apwat/reads_taxonomy:[0-9a-zA-Z._-]+#${imageName}#" workflows/Nextflow/nextflow.config
+                 sed -i -E "s#edge_reads_taxonomy:[0-9a-zA-Z._-]+#edge_reads_taxonomy:${version}#" workflows/Nextflow/nextflow.config
+            #A GitHub Action to detect changed files during a Workflow run and to commit and push them back to the GitHub repository. 
+            #By default, the commit is made in the name of "GitHub Actions" and co-authored by the user that made the last commit.
+            - name: auto-commit image version update
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  branch: auto-update-${{ github.run_id }}
+                  create_branch: true
+                  commit_message: "Auto update of run reads_taxonomy docker image version ${{ steps.get_version.outputs.version }}"
+            - name: Create Pull Request
+              run: |
+                  title="Automated PR: update reads_taxonomy docker image version ${{ steps.get_version.outputs.version }}"
+                  gh pr create \
+                      --base main \
+                      --head auto-update-${{ github.run_id }} \
+                      --title "$title" \
+                      --body "Created by GitHub Action"
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

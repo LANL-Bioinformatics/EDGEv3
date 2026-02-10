@@ -190,7 +190,7 @@ const UploadFiles = (props) => {
     <>
       <LoaderDialog
         loading={submitting}
-        text={'Uploading...' + Math.round((filesUploaded / files2upload) * 100) + '%'}
+        text={`Uploading... ${files2upload > 5 ? Math.round((filesUploaded / files2upload) * 100) + '%' : ''}`}
       />
       <ToastContainer />
       <div className="clearfix">

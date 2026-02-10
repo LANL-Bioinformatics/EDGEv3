@@ -4,7 +4,7 @@ const Upload = require('../edge-api/models/upload');
 const logger = require('../utils/logger');
 const config = require('../config');
 
-module.exports = async function fileUploadMonitor() {
+const fileUploadMonitor = async () => {
   logger.debug('file upload monitor');
   try {
     // delete file after deleteGracePeriod
@@ -52,4 +52,8 @@ module.exports = async function fileUploadMonitor() {
   } catch (err) {
     logger.error(`fileUploadMonitor failed:${err}`);
   }
+};
+
+module.exports = {
+  fileUploadMonitor,
 };

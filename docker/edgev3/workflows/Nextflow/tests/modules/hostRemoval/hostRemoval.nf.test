@@ -13,7 +13,7 @@ nextflow_workflow {
                     projName = "testHR"
                 }
                 hostRemoval {
-                    host = ["${projectDir}/test_data/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz"]
+                    host = ["${projectDir}/test_data/HostRemoval/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz"]
                     cpus = 4
                 }
                 
@@ -21,8 +21,9 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = params.hostRemoval.plus(params.shared)
-                input[1] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
-                input[2] = file("${projectDir}/nf_assets/NO_FILE2")
+                input[1] = "ILLUMINA"
+                input[2] = [file("${projectDir}/test_data/Illumina/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Illumina/Ecoli_10x.2.fastq")]
+                input[3] = file("${projectDir}/nf_assets/NO_FILE2")
                 """
             }
         }
@@ -48,7 +49,7 @@ nextflow_workflow {
                     projName = "testHR"
                 }
                 hostRemoval {
-                    host = "${projectDir}/test_data/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz"
+                    host = "${projectDir}/test_data/HostRemoval/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz"
                     cpus = 4
                 }
                 
@@ -56,8 +57,9 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = params.hostRemoval.plus(params.shared)
-                input[1] = [file("${projectDir}/nf_assets/NO_FILE")]
-                input[2] = file("${projectDir}/test_data/Ecoli_10x.1.fastq")
+                input[1] = "ILLUMINA"
+                input[2] = [file("${projectDir}/nf_assets/NO_FILE")]
+                input[3] = file("${projectDir}/test_data/Illumina/Ecoli_10x.1.fastq")
                 """
             }
         }
@@ -80,15 +82,16 @@ nextflow_workflow {
                     projName = "testHR"
                 }
                 hostRemoval {
-                    host = ["${projectDir}/test_data/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz", "${projectDir}/test_data/Homo_sapiens.GRCh38.dna.chromosome.2.fa.gz"]
+                    host = ["${projectDir}/test_data/HostRemoval/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz", "${projectDir}/test_data/HostRemoval/Homo_sapiens.GRCh38.dna.chromosome.2.fa.gz"]
                     cpus = 4
                 }
             }
             workflow {
                 """
                 input[0] = params.hostRemoval.plus(params.shared)
-                input[1] = [file("${projectDir}/nf_assets/NO_FILE")]
-                input[2] = file("${projectDir}/test_data/Ecoli_10x.1.fastq")
+                input[1] = "ILLUMINA"
+                input[2] = [file("${projectDir}/nf_assets/NO_FILE")]
+                input[3] = file("${projectDir}/test_data/Illumina/Ecoli_10x.1.fastq")
                 """
             }
         }
@@ -112,15 +115,16 @@ nextflow_workflow {
                     projName = "testHR"
                 }
                 hostRemoval {
-                    host = ["${projectDir}/test_data/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz","${projectDir}/test_data/Homo_sapiens.GRCh38.dna.chromosome.2.fa.gz"]
+                    host = ["${projectDir}/test_data/HostRemoval/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz","${projectDir}/test_data/HostRemoval/Homo_sapiens.GRCh38.dna.chromosome.2.fa.gz"]
                     cpus = 4
                 }
             }
             workflow {
                 """
                 input[0] = params.hostRemoval.plus(params.shared)
-                input[1] = [file("${projectDir}/test_data/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Ecoli_10x.2.fastq")]
-                input[2] = file("${projectDir}/nf_assets/NO_FILE2")
+                input[1] = "ILLUMINA"
+                input[2] = [file("${projectDir}/test_data/Illumina/Ecoli_10x.1.fastq"),file("${projectDir}/test_data/Illumina/Ecoli_10x.2.fastq")]
+                input[3] = file("${projectDir}/nf_assets/NO_FILE2")
                 """
             }
         }

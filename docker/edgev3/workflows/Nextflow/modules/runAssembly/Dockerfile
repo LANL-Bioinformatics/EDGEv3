@@ -1,4 +1,5 @@
 FROM continuumio/miniconda3:23.5.2-0 AS build
+ENV version=1.7.0
 
 ENV container=docker
 
@@ -23,6 +24,7 @@ RUN conda install -n assembly -c bioconda minimap2=2.26
 RUN conda install -n assembly -c bioconda megahit=1.2.9
 RUN conda install -n assembly -c bioconda idba=1.1.3
 RUN conda install -n assembly -c bioconda unicycler=0.5.0
+RUN conda install -n assembly -c bioconda quast=5.2.0
 RUN wget https://github.com/ruanjue/wtdbg2/releases/download/v2.5/wtdbg-2.5_x64_linux.tgz \
     && tar -xvzf wtdbg-2.5_x64_linux.tgz \
     && cp wtdbg-2.5_x64_linux/* /opt/conda/envs/assembly/bin

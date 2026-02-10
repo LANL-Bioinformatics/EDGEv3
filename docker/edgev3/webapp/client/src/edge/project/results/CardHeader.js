@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, ButtonGroup, CardHeader } from 'reactstrap'
+import { Button, ButtonGroup, CardHeader, Badge } from 'reactstrap'
 import CIcon from '@coreui/icons-react'
 import { cilChevronTop, cilChevronBottom } from '@coreui/icons'
 import { colors } from '../../common/util'
@@ -32,7 +32,16 @@ export const Header = (props) => {
       ) : (
         <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</>
       )}
-      <span className="edge-card-header">{props.title}</span>
+      <span className="edge-card-header">
+        {props.title}{' '}
+        {props.badge ? (
+          <Badge style={{ fontSize: 9 }} color="danger">
+            {props.badge}
+          </Badge>
+        ) : (
+          ''
+        )}
+      </span>
       {props.onoff && (
         <ButtonGroup style={{ float: 'right' }} className="mr-3" aria-label="First group" size="sm">
           <Button

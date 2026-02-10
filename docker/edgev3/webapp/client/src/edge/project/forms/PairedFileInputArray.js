@@ -147,10 +147,10 @@ export const PairedFileInputArray = (props) => {
             {!props.maxInput || props.maxInput > 1 ? (
               <Col md="3" className="edge-sub-field">
                 {' '}
-                Pair-1 {props.text} #{index + 1}
+                R1 {props.text} #{index + 1}
               </Col>
             ) : (
-              <Col md="3"> Pair-1 {props.text}</Col>
+              <Col md="3"> R1 {props.text}</Col>
             )}
             <Col xs="12" md="9">
               <Controller
@@ -184,10 +184,10 @@ export const PairedFileInputArray = (props) => {
             {!props.maxInput || props.maxInput > 1 ? (
               <Col md="3" className="edge-sub-field">
                 {' '}
-                Pair-2 {props.text} #{index + 1}
+                R2 {props.text} #{index + 1}
               </Col>
             ) : (
-              <Col md="3"> Pair-2 {props.text}</Col>
+              <Col md="3"> R2 {props.text}</Col>
             )}
             <Col xs="12" md="9">
               <Controller

@@ -10,25 +10,14 @@ export const SelectInput = (props) => {
   const [form, setState] = useState({ ...components[componentName] })
   const [doValidation, setDoValidation] = useState(0)
 
-  const setNewState2 = (name, value) => {
-    setState({
-      ...form,
-      [name]: value,
-    })
-    setDoValidation(doValidation + 1)
-  }
+  useEffect(() => {
+    form.selection = props.defaultValue ? props.defaultValue : null
+  }, [props.reset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    form.selectInput = props.setDefault ? props.options[0].value : ''
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (props.isOptional) {
-      form.validForm = true
-    } else {
-      if (!form.selectInput) {
-        form.validForm = false
-      }
+    form.validForm = true
+    if (!props.isOptional && !form.selection) {
+      form.validForm = false
     }
     //force updating parent's inputParams
     props.setParams(form, props.name)
@@ -54,14 +43,15 @@ export const SelectInput = (props) => {
         </Col>
         <Col xs="12" md="9">
           <MySelect
-            defaultValue={props.setDefault ? props.options[0] : null}
+            defaultValue={props.defaultValue ? props.defaultValue : null}
             options={props.options}
             onChange={(e) => {
               if (e) {
-                setNewState2('selectInput', e.value)
+                form.selection = e
               } else {
-                setNewState2('selectInput', null)
+                form.selection = null
               }
+              setDoValidation(doValidation + 1)
             }}
             placeholder={props.placeholder}
             isClearable={props.isClearable}

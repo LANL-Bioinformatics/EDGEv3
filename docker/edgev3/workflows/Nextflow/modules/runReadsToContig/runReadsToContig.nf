@@ -9,6 +9,7 @@ process validationAlignment {
     )
     input:
     val settings
+    val platform
     path paired
     path unpaired
     path contigs
@@ -28,12 +29,12 @@ process validationAlignment {
     def paired = paired.name != "NO_FILE" ? "-p \'${paired[0]} ${paired[1]}\' " : ""
     def unpaired = unpaired.name != "NO_FILE2" ? "-u $unpaired " : ""
     def cutoff = settings["assembledContigs"] != "${projectDir}/nf_assets/NO_FILE3" ? "-c 0 " : "-c 0.1 "
-    def max_clip = settings["r2g_max_clip"] != null ? "-max_clip ${settings["r2g_max_clip"]} " : ""
+    def max_clip = settings["r2gMaxClip"] != null ? "-max_clip ${settings["r2gMaxClip"]} " : ""
 
 
-    def ont_flag = (settings["fastq_source"] != null && settings["fastq_source"].equalsIgnoreCase("nanopore")) ? "-x ont2d " : ""
-    def pb_flag = (settings["fastq_source"] != null && settings["fastq_source"].equalsIgnoreCase("pacbio")) ? "-x pacbio " : ""
-
+    def ont_flag = (platform != null && platform.contains("NANOPORE")) ? "-x ont2d " : ""
+    def pb_flag = (platform != null && platform.contains("PACBIO")) ? "-x pacbio " : ""
+    
     def aligner_options = ""
     if(settings["r2c_aligner"] =~ "bowtie") {
         def bowtie_options = settings["r2c_aligner_options"].replaceAll("-p\\s*\\d+","")
@@ -146,12 +147,13 @@ process extractUnmapped {
 workflow READSTOCONTIGS {
     take:
     settings
+    platform
     paired
     unpaired
     contigs
 
     main:
-    validationAlignment(settings, paired, unpaired, contigs)
+    validationAlignment(settings, platform, paired, unpaired, contigs)
     alnStats = validationAlignment.out.alnStats
     makeJSONcoverageTable(settings, validationAlignment.out.cov_table, validationAlignment.out.contig_file)
     if(settings["extractUnmapped"]) {

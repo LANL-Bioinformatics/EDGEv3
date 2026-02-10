@@ -22,6 +22,7 @@ process report {
 
     input:
     val settings
+    val platform
     path fastqCount
     path qcStats
     path qcReport
@@ -46,18 +47,18 @@ process report {
     my \$time=time();
     my \$Rscript="./merge.R";
     my \$InputLogPDF="./Inputs.pdf";
-    my \$ont_flag = (${settings["fastqSource"]} =~ /nanopore/)? 1 : 0; 
-    my \$pacbio_flag = (${settings["fastqSource"]} =~ /pacbio/i)? 1 : 0; 
+    my \$ont_flag = ("${platform != null ? platform.trim(): ""}" =~ /NANOPORE/)? 1 : 0; 
+    my \$pacbio_flag = ("${platform != null ? platform.trim(): ""}" =~ /PACBIO/)? 1 : 0; 
     my \$mergeFiles="\$InputLogPDF,";
-    \$mergeFiles.="$qcReport"."," if ( -e "$qcReport");
+    \$mergeFiles.="$qcReport"."," if ( -s "$qcReport");
     my \$imagesDir = "./HTML_Report/images";
     my \$final_pdf= "./final_report.pdf";
 
 
     my \$taxonomyPDFfiles="";
-    \$taxonomyPDFfiles .= "$readsTaxonomyReports" if("$readsTaxonomyReports" ne "DNE4");
+    \$taxonomyPDFfiles .= "$readsTaxonomyReports" if("$readsTaxonomyReports" ne "NO_FILE5");
     \$taxonomyPDFfiles =~ s/\\s/,/g;
-    \$taxonomyPDFfiles .= "$contigTaxonomyReport"."," if( -e "$contigTaxonomyReport");
+    \$taxonomyPDFfiles .= "$contigTaxonomyReport"."," if( -s "$contigTaxonomyReport");
 
 
     my \$qc_flag = (${settings['faqcs']})?"V":"";
@@ -99,7 +100,7 @@ process report {
     text(0,nextPos-0.22,\\"Inputs:\\",adj=0,font=2)
     Rscript
 
-    if ( -e '$fastqCount'){ 
+    if ( -s '$fastqCount'){ 
     print \$Rfh <<Rscript;
     popViewport(0)
     input<-read.table(file=\\"$fastqCount\\")
@@ -115,15 +116,15 @@ process report {
     }
 
 
-    if (-e "$hostRemovalReport"){
+    if (-s "$hostRemovalReport"){
         \$mergeFiles .= '$hostRemovalReport'.",";
     }
-
-    if (-e "$contigStatsReport"){
+    if (-s "$contigStatsReport"){
         \$mergeFiles .= '$contigStatsReport'.",";
     }
-    if ( -e "$alnstats"){
+    if ( -s "$alnstats"){
         \$mergeFiles .= "alnstats.pdf".",".'$contigPlots'.",";
+
     print \$Rfh <<Rscript;
     pdf(file = "alnstats.pdf",width = 10, height = 8)
     
@@ -140,7 +141,7 @@ process report {
 
     }
 
-    \$mergeFiles .= '$annStats'."," if ( -e '$annStats');
+    \$mergeFiles .= '$annStats'."," if ( -s '$annStats');
 
     \$mergeFiles .= \$taxonomyPDFfiles if (\$taxonomyPDFfiles);
 
@@ -157,7 +158,7 @@ process report {
 
 
     my @conversions;
-    if ( -e "$qcReport")
+    if ( -s "$qcReport")
     {
         my \$page_count = `pdfPageCount.pl "$qcReport"`;
         chomp \$page_count;
@@ -170,20 +171,20 @@ process report {
         push @conversions, "convert -strip -density 120 -flatten $qcReport[\$qc_boxplot_page] ./QC_quality_boxplot.png";
     }
 
-    push @conversions, "convert -strip -density 120 -flatten $hostRemovalReport ./HostRemovalStats.png" if (-e "$hostRemovalReport");
-    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[0] ./Assembly_length.png" if (-e "$contigStatsReport");
-    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[1] ./Assembly_GC_content.png" if (-e "$contigStatsReport");
-    push @conversions, "convert -strip -density 120 -flatten $contigPlots[0] ./Assembly_CovDepth_vs_Len.png" if (-e "$contigPlots");
-    push @conversions, "convert -strip -density 120 -flatten $contigPlots[1] ./Assembly_Cov_vs_Len.png" if (-e "$contigPlots");
-    push @conversions, "convert -strip -density 120 -flatten $contigPlots[2] ./Assembly_GC_vs_CovDepth.png" if (-e "$contigPlots");
-    push @conversions, "convert -strip -density 120 -flatten $annStats ./annotation_stats_plots.png" if (-e "$annStats");
+    push @conversions, "convert -strip -density 120 -flatten $hostRemovalReport ./HostRemovalStats.png" if (-s "$hostRemovalReport");
+    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[0] ./Assembly_length.png" if (-s "$contigStatsReport");
+    push @conversions, "convert -strip -density 120 -flatten $contigStatsReport[1] ./Assembly_GC_content.png" if (-s "$contigStatsReport");
+    push @conversions, "convert -strip -density 120 -flatten $contigPlots[0] ./Assembly_CovDepth_vs_Len.png" if (-s "$contigPlots");
+    push @conversions, "convert -strip -density 120 -flatten $contigPlots[1] ./Assembly_Cov_vs_Len.png" if (-s "$contigPlots");
+    push @conversions, "convert -strip -density 120 -flatten $contigPlots[2] ./Assembly_GC_vs_CovDepth.png" if (-s "$contigPlots");
+    push @conversions, "convert -strip -density 120 -flatten $annStats ./annotation_stats_plots.png" if (-s "$annStats");
 
     foreach my \$file(split /,/, \$taxonomyPDFfiles) 
     {
      next if (\$file eq "$contigTaxonomyReport");
      my (\$file_name, \$file_path, \$file_suffix)=fileparse("\$file", qr/\\.[^.]*/);
      my \$size_opt = (\$file_name =~ /tree/)? "-resize 240":"-density 120";
-     push @conversions, "convert \$size_opt -colorspace RGB -flatten \$file ./\$file_name.png" if (-e \$file);
+     push @conversions, "convert \$size_opt -colorspace RGB -flatten \$file ./\$file_name.png" if (-s \$file);
     }
 
     eval {system(\$_)} foreach (@conversions);
@@ -195,6 +196,7 @@ process report {
 workflow REPORT {
     take:
     settings
+    platform
     fastqCount
     qcStats
     qcReport
@@ -208,6 +210,7 @@ workflow REPORT {
 
     main:
     report(settings,
+        platform,
         fastqCount,
         qcStats,
         qcReport,

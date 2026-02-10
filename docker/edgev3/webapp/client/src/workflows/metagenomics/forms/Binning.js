@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardBody, Collapse } from 'reactstrap'
-import { isValidFileInput, isValidEvalue } from 'src/edge/common/util'
+import { isValidFileInput } from 'src/edge/common/util'
 import { Header } from 'src/edge/project/forms/SectionHeader'
 import { FileInput } from 'src/edge/project/forms/FileInput'
 import { IntegerInput } from 'src/edge/project/forms/IntegerInput'
 import { OptionSelector } from 'src/edge/project/forms/OptionSelector'
 import { RangeInput } from 'src/edge/project/forms/RangeInput'
-import { TextInput } from 'src/edge/project/forms/TextInput'
 import { Switcher } from 'src/edge/project/forms/Switcher'
 import { workflows } from '../defaults'
 
@@ -112,7 +111,7 @@ export const Binning = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Binning Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}
@@ -127,7 +126,7 @@ export const Binning = (props) => {
             name={'binningMinLength'}
             setParams={setIntegerInput}
             text={workflows[workflowName].inputs['binningMinLength'].text}
-            tooltip={workflows[workflowName].inputs['binningMinLength']['integerInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['binningMinLength'].tooltip}
             defaultValue={
               workflows[workflowName].inputs['binningMinLength']['integerInput'].defaultValue
             }
@@ -139,7 +138,7 @@ export const Binning = (props) => {
             name={'binningMaxItr'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['binningMaxItr'].text}
-            tooltip={workflows[workflowName].inputs['binningMaxItr']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['binningMaxItr'].tooltip}
             defaultValue={
               workflows[workflowName].inputs['binningMaxItr']['rangeInput'].defaultValue
             }
@@ -152,7 +151,7 @@ export const Binning = (props) => {
             name={'binningProb'}
             setParams={setRangeInput}
             text={workflows[workflowName].inputs['binningProb'].text}
-            tooltip={workflows[workflowName].inputs['binningProb']['rangeInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['binningProb'].tooltip}
             defaultValue={workflows[workflowName].inputs['binningProb']['rangeInput'].defaultValue}
             min={workflows[workflowName].inputs['binningProb']['rangeInput'].min}
             max={workflows[workflowName].inputs['binningProb']['rangeInput'].max}
@@ -163,10 +162,10 @@ export const Binning = (props) => {
             name={'binningMarkerSet'}
             setParams={setOption}
             text={workflows[workflowName].inputs['binningMarkerSet'].text}
+            tooltip={workflows[workflowName].inputs['binningMarkerSet'].tooltip}
             options={workflows[workflowName].inputs['binningMarkerSet'].options}
             defaultValue={form.inputs['binningMarkerSet'].value}
             display={form.inputs['binningMarkerSet'].display}
-            tooltip={workflows[workflowName].inputs['binningMarkerSet'].tooltip}
           />
           <br></br>
           <FileInput
@@ -174,7 +173,7 @@ export const Binning = (props) => {
             setParams={setFileInput}
             isValidFileInput={isValidFileInput}
             text={workflows[workflowName].inputs['binningAbundFile'].text}
-            tooltip={workflows[workflowName].inputs['binningAbundFile']['fileInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['binningAbundFile'].tooltip}
             enableInput={
               workflows[workflowName].inputs['binningAbundFile']['fileInput'].enableInput
             }
@@ -197,7 +196,7 @@ export const Binning = (props) => {
             name={'doCheckM'}
             setParams={setSwitcher}
             text={workflows[workflowName].inputs['doCheckM'].text}
-            tooltip={workflows[workflowName].inputs['doCheckM']['switcher'].tooltip}
+            tooltip={workflows[workflowName].inputs['doCheckM'].tooltip}
             defaultValue={workflows[workflowName].inputs['doCheckM']['switcher'].defaultValue}
             trueText={workflows[workflowName].inputs['doCheckM']['switcher'].trueText}
             falseText={workflows[workflowName].inputs['doCheckM']['switcher'].falseText}

@@ -52,6 +52,7 @@ export const WarningTooltip = (props) => {
         id={'warning-' + props.id}
         type={props.type ? props.type : 'warning'}
         place={props.place ? props.place : 'right'}
+        className="edge-tooltip"
       >
         <HtmlText text={props.tooltip} />
       </Tooltip>
@@ -65,7 +66,12 @@ export const ErrorTooltip = (props) => {
       <a data-tooltip-id={'error-' + props.id}>
         <span className="edge-text-size-large red-text">*</span>
       </a>
-      <Tooltip id={'error-' + props.id} type={'error'} place={props.place ? props.place : 'right'}>
+      <Tooltip
+        className="edge-tooltip"
+        id={'error-' + props.id}
+        type={'error'}
+        place={props.place ? props.place : 'right'}
+      >
         <HtmlText text={props.tooltip} />
       </Tooltip>
     </>

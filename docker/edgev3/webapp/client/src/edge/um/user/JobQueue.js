@@ -16,9 +16,9 @@ const JobQueue = () => {
         header: 'project',
       },
       {
+        accessorFn: (originalRow) => workflowList[originalRow.type].label, // Use accessorFn to create the display string for filtering
         accessorKey: 'type', //normal accessorKey
         header: 'Type',
-        Cell: ({ cell }) => <>{workflowList[cell.getValue()].label}</>,
       },
       {
         accessorKey: 'status',

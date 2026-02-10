@@ -4,7 +4,7 @@ import moment from 'moment'
 import { Badge } from 'reactstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { MaterialReactTable } from 'material-react-table'
-import { ThemeProvider, Box, MenuItem, IconButton, Tooltip } from '@mui/material'
+import { ThemeProvider, Box, IconButton, Tooltip } from '@mui/material'
 import Fab from '@mui/material/Fab'
 import { Edit, Refresh, Delete } from '@mui/icons-material'
 import { ToastContainer } from 'react-toastify'
@@ -195,13 +195,11 @@ const UserTable = (props) => {
         Cell: ({ cell }) => (
           <Badge color={userTypeColors[cell.getValue()]}>{userTypeNames[cell.getValue()]}</Badge>
         ),
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: ['admin', 'user'].map((state) => (
-            <MenuItem key={state} value={state}>
-              {state}
-            </MenuItem>
-          )),
+        editSelectOptions: ['admin', 'user'],
+        muiEditTextFieldProps: {
+          select: true,
+          error: !!validationErrors?.state,
+          helperText: validationErrors?.state,
         },
         size: 100, //decrease the width of this column
       },
@@ -213,13 +211,11 @@ const UserTable = (props) => {
             {userStatusNames[cell.getValue()]}
           </Badge>
         ),
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: ['true', 'false'].map((state) => (
-            <MenuItem key={state} value={state}>
-              {state}
-            </MenuItem>
-          )),
+        editSelectOptions: ['true', 'false'],
+        muiEditTextFieldProps: {
+          select: true,
+          error: !!validationErrors?.state,
+          helperText: validationErrors?.state,
         },
         enableColumnFilter: false,
         size: 100, //decrease the width of this column

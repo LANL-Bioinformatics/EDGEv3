@@ -2,7 +2,7 @@ const axios = require('axios');
 const ufs = require('url-file-size');
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const logger = require('./logger');
 
 // append message to a log
@@ -163,7 +163,30 @@ const execCmd = (cmd) => new Promise((resolve, reject) => {
   });
 });
 
+const spawnCmd = (cmd, outLog) => {
+  const out = fs.openSync(outLog, 'a');
+  const err = fs.openSync(outLog, 'a');
+  const child = spawn(cmd, {
+    shell: true, // have to use shell, otherwise the trame instance will be stopped when restarting the webapp
+    stdio: ['ignore', out, err], // piping stdout and stderr to out.log
+    detached: true,
+  });
+  child.unref();
+  return child.pid;
+};
+
 const sleep = (ms) => new Promise(resolve => { setTimeout(resolve, ms); });
+
+// check pid
+const pidIsRunning = (pid) => {
+  try {
+    // a signal of 0 can be used to test for the existence of a process.
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
 
 module.exports = {
   write2log,
@@ -173,5 +196,7 @@ module.exports = {
   getAllFiles,
   findInputsize,
   execCmd,
+  spawnCmd,
   sleep,
+  pidIsRunning,
 };

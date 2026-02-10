@@ -12,8 +12,8 @@ process runBinning {
     path abundances
 
     output:
-    path "Binning", emit:binDir //output binning directory
-    path "Binning/${settings["projName"]}_bin.summary", emit: binSummary
+    path "${settings["projName"]}_bin*", emit:binDir //output binning directory
+    path "${settings["projName"]}_bin.summary", emit: binSummary
 
     script:
     """

@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM continuumio/miniconda3:main AS build
+ENV version=1.2.0
 
 ENV container=docker
 
@@ -39,6 +40,7 @@ FROM debian:latest AS runtime
 COPY --from=build /venv /venv
 COPY --from=build /phage_finder_v2.1 /venv/opt/phage_finder_v2.1
 ENV PATH=/venv/opt/phage_finder_v2.1/bin:/venv/bin:$PATH
+RUN apt-get update && apt-get install procps -y && apt-get clean
     
 SHELL ["/bin/bash", "-c"]
 CMD /bin/bash

@@ -1,8 +1,8 @@
 const { body, validationResult } = require('express-validator');
 
 const validationRules = () => [
-  body('firstName').trim().matches(/^[a-zA-Z]+$/).withMessage('Invalid firstName.'),
-  body('lastName').trim().matches(/^[a-zA-Z]+$/).withMessage('Invalid lastName.'),
+  body('firstName').trim().matches(/^[a-zA-Z]+/).withMessage('Invalid firstName.'),
+  body('lastName').trim().matches(/^[a-zA-Z]+/).withMessage('Invalid lastName.'),
   body('email').trim().normalizeEmail().isEmail().withMessage('Invalid email address.'),
   body('oauth').trim().notEmpty().withMessage('Oauth should not be empty.'),
 ];

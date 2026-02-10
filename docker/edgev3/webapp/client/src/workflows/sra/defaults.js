@@ -9,10 +9,10 @@ export const workflows = {
     inputs: {
       accessions: {
         text: 'SRA Accession(s)',
+        tooltip: 'Input SRA accessions (comma separate for > 1 input)',
         value: [],
         display: '',
         sraAccessionInput: {
-          tooltip: 'Input SRA accessions (comma separate for > 1 input)',
           placeholder: 'ex: SRR1553609',
           showError: false,
           isOptional: false,

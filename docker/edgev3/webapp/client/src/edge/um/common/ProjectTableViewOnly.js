@@ -24,9 +24,9 @@ const ProjectTableViewOnly = (props) => {
       },
       { header: 'Description', accessorKey: 'desc' },
       {
+        accessorFn: (originalRow) => workflowList[originalRow.type].label, // Use accessorFn to create the display string for filtering
         header: 'Type',
         accessorKey: 'type',
-        Cell: ({ cell }) => <>{workflowList[cell.getValue()].label}</>,
         enableEditing: false,
       },
       {

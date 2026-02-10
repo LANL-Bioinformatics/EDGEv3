@@ -65,7 +65,11 @@ export const Sra2fastq = (props) => {
       />
       <Collapse isOpen={!collapseParms} id={'collapseParameters-' + props.name}>
         <CardBody>
-          <SRAAccessionInput name={'accessions'} setParams={setSRAccessionInput} />
+          <SRAAccessionInput
+            name={'accessions'}
+            setParams={setSRAccessionInput}
+            reset={props.reset}
+          />
         </CardBody>
       </Collapse>
     </Card>

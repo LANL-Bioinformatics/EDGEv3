@@ -12,7 +12,7 @@ const selectStyles = {
   }),
   menu: (provided) => ({
     ...provided,
-    // background: 'transparent',
+    background: 'white',
     zIndex: 999999,
   }),
 }
@@ -40,6 +40,7 @@ export const MyCreatableSelect = (props) => {
       closeMenuOnSelect={props.closeMenuOnSelect}
       hideSelectedOptions={props.hideSelectedOptions}
       isClearable={props.isClearable}
+      isDisabled={props.isDisabled}
       onChange={(newValue) => onChange(newValue)}
       isValidNewOption={isValidNewOption}
       theme={(theme) => ({
@@ -194,18 +195,30 @@ export const MyAsyncSelect = (props) => {
   const [inputValue, setInputValue] = useState()
   const [selected, setSelected] = useState([])
   const [filteredOptions, setFilteredOptions] = useState([])
+  const [noOptionsMessage, setNoOptionsMessage] = useState('Enter term(s) to search ...')
   const [reload, setReload] = useState(0)
 
   const onChange = (opt, { option }) => {
     let newOpts = opt
     if (option && option.value === 'all' && props.isMulti) {
-      newOpts = newOpts.concat(filteredOptions).filter((newOpt) => newOpt.value !== 'all')
+      //filter out selected options
+      const results = filteredOptions.filter((opt) => {
+        //not in selected options
+        return selected.every((option) => opt.value !== option.value)
+      })
+      newOpts = newOpts.concat(results).filter((newOpt) => newOpt.value !== 'all')
       setInputValue('')
+      setNoOptionsMessage('Enter term(s) to search ...')
+      setReload(reload + 1)
     }
 
     if (!option || newOpts.length >= props.maxSelected) {
       //after delete an option
       setInputValue('')
+      setNoOptionsMessage('Enter term(s) to search ...')
+      if (newOpts.length >= props.maxSelected) {
+        setNoOptionsMessage(`Reached max allowed selections: ${props.maxSelected}`)
+      }
       setReload(reload + 1)
     }
     if (!newOpts && props.isMulti) {
@@ -219,22 +232,27 @@ export const MyAsyncSelect = (props) => {
     if (action === 'input-change') {
       const inputValue = newValue
       setInputValue(inputValue)
+      if (!newValue) {
+        setNoOptionsMessage('Enter term(s) to search ...')
+      }
+      if (selected.length >= props.maxSelected) {
+        setNoOptionsMessage(`Reached max allowed selections: ${props.maxSelected}`)
+      }
       return inputValue
     }
     //keep seach input
     return inputValue
   }
 
-  const filterOptions = () => {
+  const filterOptions = async (inputValue) => {
     if (
       !inputValue ||
       (props.isMulti && props.maxSelected && selected.length >= props.maxSelected)
     ) {
       return false
     }
-
-    let parts = inputValue.split(/\s+/)
-
+    //get search terms
+    let parts = inputValue.trim().split(/\s+/)
     let options = props.options.filter((opt) => {
       //match any term
       //return parts.some(term=> opt.label.toLowerCase().includes(term.toLowerCase()));
@@ -242,43 +260,30 @@ export const MyAsyncSelect = (props) => {
       return parts.every((term) => opt.label.toLowerCase().includes(term.toLowerCase()))
     })
 
-    //selected options length + current filtered options length, used for determining whether adding 'Select All' option to option list
-    let size = 0
-
-    if (props.isMulti) {
-      size += selected.length
-      options = options.filter((opt) => {
-        //not in selected options
-        return selected.every((option) => opt.value !== option.value)
-      })
+    if (options.length > (props.maxOptions ? props.maxOptions : 1000)) {
+      setNoOptionsMessage(
+        `Over ${props.maxOptions ? props.maxOptions : 1000} results. Add more search terms to narrow down search results`,
+      )
+      return false
     }
-
-    size += options.length
-
+    if (options.length === 0) {
+      setNoOptionsMessage('No result')
+      return false
+    }
+    //Add 'Select All'
+    const size = options.length + selected.length
     if (options.length > 0) {
       if (props.isMulti && props.selectAll) {
         if (props.maxSelected) {
           if (size <= props.maxSelected) {
             //add 'Select All' to menu
             options.unshift({
-              label:
-                'Select All (' +
-                options.length +
-                '). Selection status: ' +
-                selected.length +
-                '/' +
-                props.maxSelected,
+              label: 'Results (' + options.length + '). Select All',
               value: 'all',
             })
           } else {
             options.unshift({
-              label:
-                'Results (' +
-                options.length +
-                '). Selection status: ' +
-                selected.length +
-                '/' +
-                props.maxSelected,
+              label: 'Results (' + options.length + ')',
               value: 'results',
               isDisabled: true,
             })
@@ -295,17 +300,9 @@ export const MyAsyncSelect = (props) => {
         })
       }
     }
-
     setFilteredOptions(options)
     return options
   }
-
-  const promiseOptions = () =>
-    new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(filterOptions())
-      }, 1000)
-    })
 
   return (
     <AsyncSelect
@@ -313,7 +310,7 @@ export const MyAsyncSelect = (props) => {
       isMulti={props.isMulti}
       isClearable={true}
       placeholder={props.placeholder}
-      loadOptions={promiseOptions}
+      loadOptions={filterOptions}
       onChange={onChange}
       onInputChange={onInputChange}
       value={selected}
@@ -323,11 +320,11 @@ export const MyAsyncSelect = (props) => {
       key={reload}
       blurInputOnSelect={false}
       closeMenuOnSelect={props.closeMenuOnSelect}
-      hideSelectedOptions={props.hideSelectedOptions}
+      hideSelectedOptions={false}
       autoload={false}
-      noOptionsMessage={() => props.noOptionsMessage}
+      noOptionsMessage={() => noOptionsMessage}
       //use windowed list for large dataset
-      components={{ MenuList: WindowedMenuList }}
+      //components={{ MenuList: WindowedMenuList }}
       theme={(theme) => ({
         ...theme,
         borderRadius: '5px',

@@ -163,7 +163,7 @@ export const Annotation = (props) => {
       <Header
         toggle={true}
         toggleParms={toggleParms}
-        title={'Annotation Parameters'}
+        title={props.title}
         collapseParms={collapseParms}
         id={workflowName + 'input'}
         isValid={props.isValid}
@@ -178,7 +178,7 @@ export const Annotation = (props) => {
             name={'minContigSize'}
             setParams={setMainIntegerInput}
             text={workflows[workflowName].inputs['minContigSize'].text}
-            tooltip={workflows[workflowName].inputs['minContigSize']['integerInput'].tooltip}
+            tooltip={workflows[workflowName].inputs['minContigSize'].tooltip}
             defaultValue={
               workflows[workflowName].inputs['minContigSize']['integerInput'].defaultValue
             }
@@ -190,10 +190,10 @@ export const Annotation = (props) => {
             name={'annotateProgram'}
             setParams={setMainOption}
             text={workflows[workflowName].inputs['annotateProgram'].text}
+            tooltip={workflows[workflowName].inputs['annotateProgram'].tooltip}
             options={workflows[workflowName].inputs['annotateProgram'].options}
             defaultValue={form.inputs['annotateProgram'].value}
             display={form.inputs['annotateProgram'].display}
-            tooltip={workflows[workflowName].inputs['annotateProgram'].tooltip}
           />
           <br></br>
           {form.inputs['annotateProgram'].value === 'prokka' && (
@@ -205,6 +205,11 @@ export const Annotation = (props) => {
                   workflows[workflowName].annotateProgramInputs[
                     form.inputs['annotateProgram'].value
                   ]['taxKingdom'].text
+                }
+                tooltip={
+                  workflows[workflowName].annotateProgramInputs[
+                    form.inputs['annotateProgram'].value
+                  ]['taxKingdom'].tooltip
                 }
                 options={
                   workflows[workflowName].annotateProgramInputs[
@@ -218,11 +223,6 @@ export const Annotation = (props) => {
                 display={
                   form.annotateProgramInputs[form.inputs['annotateProgram'].value]['taxKingdom']
                     .display
-                }
-                tooltip={
-                  workflows[workflowName].annotateProgramInputs[
-                    form.inputs['annotateProgram'].value
-                  ]['taxKingdom'].tooltip
                 }
               />
               <br></br>
@@ -264,7 +264,7 @@ export const Annotation = (props) => {
                 tooltip={
                   workflows[workflowName].annotateProgramInputs[
                     form.inputs['annotateProgram'].value
-                  ]['customProtein']['fileInput'].tooltip
+                  ]['customProtein'].tooltip
                 }
                 enableInput={
                   workflows[workflowName].annotateProgramInputs[
@@ -315,7 +315,7 @@ export const Annotation = (props) => {
                 tooltip={
                   workflows[workflowName].annotateProgramInputs[
                     form.inputs['annotateProgram'].value
-                  ]['customHMM']['fileInput'].tooltip
+                  ]['customHMM'].tooltip
                 }
                 enableInput={
                   workflows[workflowName].annotateProgramInputs[
@@ -365,7 +365,7 @@ export const Annotation = (props) => {
                 tooltip={
                   workflows[workflowName].annotateProgramInputs[
                     form.inputs['annotateProgram'].value
-                  ]['evalue']['textInput'].tooltip
+                  ]['evalue'].tooltip
                 }
                 defaultValue={
                   workflows[workflowName].annotateProgramInputs[
@@ -383,6 +383,7 @@ export const Annotation = (props) => {
                   ]['evalue']['textInput'].isOptional
                 }
                 errMessage={'Invalid evalue'}
+                showErrorTooltip={true}
                 isValidTextInput={isValidEvalue}
               />
               <br></br>
@@ -398,7 +399,7 @@ export const Annotation = (props) => {
                 tooltip={
                   workflows[workflowName].annotateProgramInputs[
                     form.inputs['annotateProgram'].value
-                  ]['keggView']['switcher'].tooltip
+                  ]['keggView'].tooltip
                 }
                 defaultValue={
                   workflows[workflowName].annotateProgramInputs[
@@ -433,7 +434,7 @@ export const Annotation = (props) => {
                 tooltip={
                   workflows[workflowName].annotateProgramInputs[
                     form.inputs['annotateProgram'].value
-                  ]['sourceGBK']['fileInput'].tooltip
+                  ]['sourceGBK'].tooltip
                 }
                 enableInput={
                   workflows[workflowName].annotateProgramInputs[
