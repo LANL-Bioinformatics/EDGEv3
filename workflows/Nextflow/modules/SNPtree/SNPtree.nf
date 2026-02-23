@@ -57,7 +57,7 @@ process prepareSNPphylogeny {
     def genomeNames = settings["snpGenomes"].size() != 0 ? "-genomesList ${settings["snpGenomes"].join(",")}" : ""
     def genomeFiles = settings["snpGenomesFiles"].size() != 0 ? "-genomesFiles ${settings["snpGenomesFiles"].join(",")}" : ""
     reference = settings["snpRefGenome"] != null ? "-reference ${settings["snpRefGenome"]}" : ""
-    if(settings["snpRefGenome"].equalsIgnoreCase("random")) {
+    if(settings["snpRefGenome"] != null && settins["snpRefGenome"].equalsIgnoreCase("random")) {
         randomOrderGenomes = settings["snpGenomesFiles"].plus(settings["snpGenomes"])
         randomOrderGenomes.shuffle()
         reference = "-reference ${randomOrderGenomes[0]}"
