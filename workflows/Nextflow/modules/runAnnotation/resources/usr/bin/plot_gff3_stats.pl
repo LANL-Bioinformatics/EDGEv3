@@ -213,6 +213,7 @@ sub Rplot {
     $outcmd = "png('${prefix}_plots.png',height=800, width=1000, type='cairo');" if $outfmt =~ /png/i;
 
     my $Rscript = "
+library(jsonlite)
 setwd('$cwd');
 $outcmd
 #page setup
@@ -240,6 +241,11 @@ gff<-gffRead('$input')
 barc = 'grey'
 #feature plot
 table.feat<-table(gff\$feature)
+features <- as.data.frame(table.feat)
+colnames(features)[1] <- \"Feature\"
+exportJSON <- toJSON(features, pretty=TRUE)
+write(exportJSON, \"feature_count.json\")
+
 barplot(table.feat,ylab=expression('Count  log'[10]), ylim=c(1,10000), col=barc, log='y', las=3, main='Feature count')
 #protein size distribution
 dist<-hist(gff\$length/3,
@@ -249,6 +255,14 @@ dist<-hist(gff\$length/3,
          breaks=seq(0, max(gff\$length)/3+100, 100), 
          xlim=c(0,max(gff\$length)/3+400),
          probability=FALSE, col=barc, border='black', cex=0.8 )
+size_dist <- as.data.frame(dist\$breaks[1:length(dist\$breaks)-1])
+size_dist[2] <- dist\$breaks[2:length(dist\$breaks)]
+size_dist[3] <- dist\$counts
+colnames(size_dist)[1] <- \"LowerBinThreshold\"
+colnames(size_dist)[2] <- \"UpperBinThreshold\"
+colnames(size_dist)[3] <- \"Count\"
+exportJSON <- toJSON(size_dist, pretty=TRUE)
+write(exportJSON, \"size_distribution.json\")
 #detail info
 text(max(gff\$length)/3/2,max(dist\$counts),adj=c(0,1),cex=0.8,'$text')
 title('ANNOTATION STATS - $title ($ctg_num contigs, ${length}bp)', outer=TRUE)
